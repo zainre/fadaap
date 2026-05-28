@@ -188,7 +188,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                           icon: const Icon(Icons.auto_awesome, color: Colors.white),
                           tooltip: 'توليد بايو بالذكاء الاصطناعي',
                           onPressed: _generateSmartBio,
-                        ).animate().pulse(duration: 2.seconds).repeat(),
+                        ).animate(onPlay: (controller) => controller.repeat(reverse: true))
+                         .scale(begin: const Offset(1.0, 1.0), end: const Offset(1.15, 1.15), duration: 1.5.seconds, curve: Curves.easeInOut),
                       ],
                     ).animate().fadeIn(delay: 400.ms).slideX(begin: -0.1),
                   ],
