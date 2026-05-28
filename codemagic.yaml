@@ -8,6 +8,8 @@ workflows:
     scripts:
       - name: Fix Android Folder
         script: flutter create .
+      - name: Add Internet Permission
+        script: perl -pi -e 'print "<uses-permission android:name=\"android.permission.INTERNET\"/>\n" if /<application/' android/app/src/main/AndroidManifest.xml
       - name: Create .env file for secrets
         script: |
           echo "SUPABASE_URL=$SUPABASE_URL" > .env
