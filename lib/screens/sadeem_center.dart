@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import '../../widgets/glass_nav_bar.dart';
-import '../feed/feed_screen.dart';
-import '../reels/reels_screen.dart';
-import '../profile/profile_screen.dart';
-import '../chat/chat_list_screen.dart';
+import '../widgets/glass_nav_bar.dart';
+import 'feed/feed_screen.dart';
+import 'reels/reels_screen.dart';
+import 'profile/profile_screen.dart';
+import 'chat/chat_list_screen.dart';
 
 class SadeemCenterScreen extends StatefulWidget {
   const SadeemCenterScreen({super.key});
@@ -15,13 +15,13 @@ class SadeemCenterScreen extends StatefulWidget {
 class _SadeemCenterScreenState extends State<SadeemCenterScreen> {
   int _currentIndex = 0;
 
-  // قائمة الشاشات (الشاشات غير المكتملة نضع لها واجهة مؤقتة فخمة مؤقتاً)
+  // قائمة الشاشات
   final List<Widget> _screens = [
     const FeedScreen(),
-    const Center(child: Text('البحث الذكي', style: TextStyle(color: Colors.white, fontSize: 24))), // سيتم بناؤها لاحقاً
-    const Center(child: Text('إضافة منشور', style: TextStyle(color: Colors.white, fontSize: 24))), // سيتم بناؤها لاحقاً
-    const ReelsScreen(), // سيتم بناؤها في الخطوات القادمة
-    const ProfileScreen(), // سيتم بناؤها لاحقاً
+    const Center(child: Text('البحث الذكي', style: TextStyle(color: Colors.white, fontSize: 24))), 
+    const Center(child: Text('إضافة منشور', style: TextStyle(color: Colors.white, fontSize: 24))), 
+    const ReelsScreen(), 
+    const ProfileScreen(), 
   ];
 
   @override
