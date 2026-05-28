@@ -49,7 +49,7 @@ class _ChatListScreenState extends State<ChatListScreen> {
                 ),
               );
             },
-          ).animate().pulse(duration: 2.seconds, curve: Curves.easeInOut).repeat(),
+          ).animate().scale(duration: 2.seconds, curve: Curves.easeInOut).repeat(),
         ],
       ),
       body: Consumer<ChatProvider>(
