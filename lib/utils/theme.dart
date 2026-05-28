@@ -42,18 +42,11 @@ class AppTheme {
           backgroundColor: whiteColor,
           foregroundColor: blackColor,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(30), // حواف دائرية ناعمة
+            borderRadius: BorderRadius.circular(30),
           ),
           padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
           elevation: 5,
         ),
-      ),
-      // أنيميشن مدمج عند الانتقال بين الصفحات ليكون سلساً
-      pageTransitionsTheme: const PageTransitionsTheme(
-        builders: {
-          TargetPlatform.android: FadeUpwardsPageTransitionsBuilder(),
-          TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
-        },
       ),
     );
   }
