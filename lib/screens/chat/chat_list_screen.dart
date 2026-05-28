@@ -49,7 +49,8 @@ class _ChatListScreenState extends State<ChatListScreen> {
                 ),
               );
             },
-          ).animate().scale(duration: 2.seconds, curve: Curves.easeInOut).repeat(),
+          ).animate(onPlay: (controller) => controller.repeat(reverse: true))
+           .scale(begin: const Offset(0.9, 0.9), end: const Offset(1.1, 1.1), duration: 2.seconds, curve: Curves.easeInOut),
         ],
       ),
       body: Consumer<ChatProvider>(
