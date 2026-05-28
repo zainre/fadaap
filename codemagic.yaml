@@ -4,8 +4,10 @@ workflows:
     environment:
       flutter: stable
       groups:
-        - fadaa_keys # تأكد أن هذا نفس اسم المجموعة التي أنشأتها للمفاتيح السرية
+        - fadaa_keys
     scripts:
+      - name: Fix Android Folder
+        script: flutter create .
       - name: Get Flutter packages
         script: flutter pub get
       - name: Build Android APK
