@@ -1,0 +1,49 @@
+name: fadaa
+description: منصة تواصل اجتماعي ذكية وفاخرة مبنية على Supabase وذكاء سديم الاصطناعي.
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.2.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+    
+  # واجهة المستخدم والتصميم الزجاجي
+  cupertino_icons: ^1.0.8
+  cached_network_image: ^3.3.1
+  timeago: ^3.6.1
+  
+  # الخادم المركزي وقاعدة البيانات (بديل فايربيس)
+  supabase_flutter: ^2.5.0
+  
+  # الذكاء الاصطناعي - سديم
+  google_generative_ai: ^0.4.3
+  
+  # التعامل مع الوسائط (الصور والفيديوهات)
+  image_picker: ^1.1.2
+  video_player: ^2.8.6
+  
+  # إدارة الحالة (State Management)
+  flutter_riverpod: ^2.4.9
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+
+flutter:
+  uses-material-design: true
+  
+  # مجلد الأصول (للصور والأيقونات المحلية)
+  assets:
+    - assets/
+    
+  # دعم الخطوط العربية الفاخرة (اختياري لاحقاً)
+  # fonts:
+  #   - family: Tajawal
+  #     fonts:
+  #       - asset: assets/fonts/Tajawal-Regular.ttf
