@@ -23,7 +23,7 @@ class RealtimeService {
         .subscribe();
   }
 
-  // الاستماع اللحظي للإشعارات الخاصة بالمستخدم (إعجابات، تعليقات، متابعات)
+  // الاستماع اللحظي للإشعارات (إعجابات، تعليقات، متابعات)
   static RealtimeChannel listenToNotifications(String userId, Function(Map<String, dynamic>) onNotification) {
     return _supabase
         .channel('public:notifications:user_id=eq.$userId')
@@ -40,5 +40,18 @@ class RealtimeService {
           },
         )
         .subscribe();
+  }
+
+  // ✨ ميزة جديدة: الاستماع لمن يكتب الآن في المحادثة (Typing Indicator)
+  static RealtimeChannel listenToTyping(String chatId, Function(Map<String, dynamic>) onTyping) {
+    final channel = _supabase.channel('typing:$chatId');
+    channel.on(
+      RealtimeListenTypes.broadcast,
+      ChannelFilter(event: 'typing'),
+      (payload, [ref]) {
+        onTyping(payload);
+      },
+    ).subscribe();
+    return channel;
   }
 }
