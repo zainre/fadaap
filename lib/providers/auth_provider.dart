@@ -15,7 +15,6 @@ class AuthProvider extends ChangeNotifier {
 
   final _supabase = SupabaseConfig.client;
 
-  // جلب بيانات المستخدم الحالي إذا كان مسجلاً مسبقاً
   Future<void> loadCurrentUser() async {
     final user = _supabase.auth.currentUser;
     if (user != null) {
@@ -24,6 +23,9 @@ class AuthProvider extends ChangeNotifier {
       try {
         final response = await _supabase.from('profiles').select().eq('id', user.id).single();
         _currentUser = UserModel.fromJson(response);
+        
+        // ✨ تحديث حالة الاتصال لتكون "متصل الآن"
+        await _supabase.from('profiles').update({'is_online': true}).eq('id', user.id);
       } catch (e) {
         _errorMessage = e.toString();
       } finally {
@@ -33,14 +35,10 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
-  // تسجيل الدخول
   Future<bool> login(String email, String password) async {
     _setLoading(true);
     try {
-      final AuthResponse res = await _supabase.auth.signInWithPassword(
-        email: email,
-        password: password,
-      );
+      final AuthResponse res = await _supabase.auth.signInWithPassword(email: email, password: password);
       if (res.user != null) {
         await loadCurrentUser();
         return true;
@@ -57,27 +55,22 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
-  // إنشاء حساب جديد
   Future<bool> register(String email, String password, String username, String fullName) async {
     _setLoading(true);
     try {
-      final AuthResponse res = await _supabase.auth.signUp(
-        email: email,
-        password: password,
-      );
+      final AuthResponse res = await _supabase.auth.signUp(email: email, password: password);
       if (res.user != null) {
-        // تجهيز بيانات المستخدم
         final newUser = UserModel(
           id: res.user!.id,
           username: username,
           fullName: fullName,
           email: email,
-          avatarUrl: '', // يمكن تعيين صورة افتراضية لاحقاً
+          avatarUrl: '', 
           bio: 'مرحباً، أنا أستخدم سديم!',
+          isOnline: true, // متصل فور التسجيل
           createdAt: DateTime.now(),
         );
         
-        // استخدام upsert بدلاً من insert لحل مشكلة التصادم نهائياً
         await _supabase.from('profiles').upsert(newUser.toJson());
         _currentUser = newUser;
         return true;
@@ -94,8 +87,14 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
-  // تسجيل الخروج
   Future<void> logout() async {
+    if (_currentUser != null) {
+      // ✨ تسجيل الخروج وحفظ آخر ظهور
+      await _supabase.from('profiles').update({
+        'is_online': false,
+        'last_seen': DateTime.now().toIso8601String(),
+      }).eq('id', _currentUser!.id);
+    }
     await _supabase.auth.signOut();
     _currentUser = null;
     notifyListeners();
