@@ -23,7 +23,8 @@ class _GlowingHeartState extends State<GlowingHeart> with SingleTickerProviderSt
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(vsync: this, duration: const Duration(milliseconds: 300));
+    // تقليل المدة ليكون النبض أسرع وأكثر حيوية
+    _controller = AnimationController(vsync: this, duration: const Duration(milliseconds: 400));
   }
 
   @override
@@ -49,12 +50,15 @@ class _GlowingHeartState extends State<GlowingHeart> with SingleTickerProviderSt
       child: AnimatedBuilder(
         animation: _controller,
         builder: (context, child) {
-          final scale = 1.0 + (_controller.value * 0.3); // تكبير عند الضغط
+          // ✨ استخدام منحنى مطاطي (Elastic) لنبضة قلب واقعية
+          final curve = CurvedAnimation(parent: _controller, curve: Curves.elasticOut);
+          final scale = 1.0 + (curve.value * 0.4); 
+          
           return Transform.scale(
             scale: widget.isLiked ? scale : 1.0,
             child: Icon(
               widget.isLiked ? Icons.favorite : Icons.favorite_border,
-              color: Colors.white, // أبيض دائماً حسب طلبك
+              color: Colors.white, // أبيض دائماً كما طلبت
               size: widget.size,
             ),
           );
@@ -63,8 +67,8 @@ class _GlowingHeartState extends State<GlowingHeart> with SingleTickerProviderSt
       .animate(target: widget.isLiked ? 1 : 0)
       .boxShadow(
         begin: const BoxShadow(color: Colors.transparent),
-        end: BoxShadow(color: Colors.white.withOpacity(0.6), blurRadius: 15, spreadRadius: 2), // توهج أبيض فخم
-        duration: 300.ms,
+        end: BoxShadow(color: Colors.white.withOpacity(0.8), blurRadius: 20, spreadRadius: 4), // توهج أبيض قوي
+        duration: 200.ms,
       ),
     );
   }
