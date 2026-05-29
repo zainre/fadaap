@@ -19,7 +19,8 @@ class ProfileScreen extends StatelessWidget {
       isScrollControlled: true,
       builder: (context) {
         return GlassCard(
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+          // ✨ تم تصحيح نوع البيانات هنا إلى رقم مباشر (double)
+          borderRadius: 24.0,
           padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -95,9 +96,9 @@ class ProfileScreen extends StatelessWidget {
                     children: [
                       Container(
                         padding: const EdgeInsets.all(3),
-                        decoration: BoxDecoration(
+                        decoration: const BoxDecoration(
                           shape: BoxShape.circle,
-                          gradient: const LinearGradient(colors: [Colors.white, Colors.grey]),
+                          gradient: LinearGradient(colors: [Colors.white, Colors.grey]),
                         ),
                         child: CircleAvatar(
                           radius: 42,
