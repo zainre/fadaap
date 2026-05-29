@@ -66,8 +66,8 @@ class AuthProvider extends ChangeNotifier {
         return true;
       }
       return false;
-    } on AuthException catch (e) {
-      _errorMessage = e.message;
+    } on AuthException catch (_) {
+      _errorMessage = "البريد الإلكتروني أو كلمة المرور غير صحيحة.";
       return false;
     } catch (e) {
       _errorMessage = "حدث خطأ غير متوقع.";
@@ -100,8 +100,8 @@ class AuthProvider extends ChangeNotifier {
         return true;
       }
       return false;
-    } on AuthException catch (e) {
-      _errorMessage = e.message;
+    } on AuthException catch (_) {
+      _errorMessage = "حدث خطأ أثناء التسجيل، يرجى التأكد من البيانات والمحاولة مجدداً.";
       return false;
     } catch (e) {
       _errorMessage = "حدث خطأ غير متوقع أثناء التسجيل.";
