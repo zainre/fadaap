@@ -21,6 +21,9 @@ workflows:
           echo "GEMINI_KEY_4=$GEMINI_KEY_4" >> assets/.env
       - name: Get Flutter packages
         script: flutter pub get
+      # ✨ أمر سديم السحري لتركيب الأيقونة
+      - name: Generate Sadeem App Icon
+        script: flutter pub run flutter_launcher_icons
       - name: Build Android APK
         script: flutter build apk --release
     artifacts:
