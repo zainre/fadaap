@@ -44,6 +44,24 @@ class ReelsProvider extends ChangeNotifier {
     }
   }
 
+  Future<void> toggleSaveReel(String reelId, String userId) async {
+    try {
+      final existingBookmark = await _supabase.from('bookmarks').select().eq('reel_id', reelId).eq('user_id', userId).maybeSingle();
+
+      if (existingBookmark != null) {
+        await _supabase.from('bookmarks').delete().eq('id', existingBookmark['id']);
+      } else {
+        await _supabase.from('bookmarks').insert({
+          'reel_id': reelId,
+          'user_id': userId,
+          'created_at': DateTime.now().toIso8601String(),
+        });
+      }
+    } catch (e) {
+      debugPrint("Error toggling save for reel: $e");
+    }
+  }
+
   // ✨ ميزة جديدة: زيادة عداد المشاهدات للريلز عند تشغيله
   Future<void> recordView(String reelId) async {
     // يمكن ربطها لاحقاً بـ RPC في Supabase لزيادة العداد تلقائياً

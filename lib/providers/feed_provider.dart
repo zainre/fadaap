@@ -57,7 +57,20 @@ class FeedProvider extends ChangeNotifier {
 
   // ✨ ميزة جديدة: حفظ المنشور في المفضلة
   Future<void> toggleSavePost(String postId, String userId) async {
-    // سيتم تنفيذها لاحقاً لربطها بجدول المحفوظات (Bookmarks)
-    debugPrint("Post saved: $postId");
+    try {
+      final existingBookmark = await _supabase.from('bookmarks').select().eq('post_id', postId).eq('user_id', userId).maybeSingle();
+
+      if (existingBookmark != null) {
+        await _supabase.from('bookmarks').delete().eq('id', existingBookmark['id']);
+      } else {
+        await _supabase.from('bookmarks').insert({
+          'post_id': postId,
+          'user_id': userId,
+          'created_at': DateTime.now().toIso8601String(),
+        });
+      }
+    } catch (e) {
+      debugPrint("Error toggling save: $e");
+    }
   }
 }

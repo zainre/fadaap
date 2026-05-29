@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../providers/auth_provider.dart';
+import '../../providers/sadeem_provider.dart';
 import '../../config/supabase_config.dart';
 
 class CreatePostScreen extends StatefulWidget {
@@ -30,6 +31,28 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
     final pickedFile = await _picker.pickImage(source: ImageSource.gallery, imageQuality: 80);
     if (pickedFile != null) {
       setState(() => _imageFile = File(pickedFile.path));
+    }
+  }
+
+  Future<void> _generateAiImage() async {
+    final prompt = _captionController.text.trim();
+    if (prompt.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('الرجاء كتابة وصف خيالي للصورة في حقل النص أدناه أولاً.')));
+      return;
+    }
+
+    setState(() => _isLoading = true);
+
+    try {
+      final generatedFile = await context.read<SadeemProvider>().generateImage(prompt);
+      if (generatedFile != null) {
+        setState(() => _imageFile = generatedFile);
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تم توليد الصورة بنجاح! ✨'), backgroundColor: Colors.green));
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('فشل توليد الصورة، تحقق من الـ API Key في ملف .env'), backgroundColor: Colors.redAccent));
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
     }
   }
 
@@ -93,9 +116,24 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
-            GestureDetector(
-              onTap: _pickImage,
-              child: Container(
+            if (_isLoading && _imageFile == null)
+              const SizedBox(
+                height: 350,
+                child: Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      CircularProgressIndicator(color: Colors.amberAccent),
+                      SizedBox(height: 16),
+                      Text('سديم ينسج خيالك... ✨', style: TextStyle(color: Colors.amberAccent, fontWeight: FontWeight.bold)),
+                    ],
+                  ),
+                ),
+              )
+            else
+              GestureDetector(
+                onTap: _pickImage,
+                child: Container(
                 height: 350,
                 width: double.infinity,
                 decoration: BoxDecoration(
@@ -114,8 +152,20 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                         ],
                       )
                     : null,
+                ),
+              ).animate().fadeIn().scale(curve: Curves.easeOutBack),
+            const SizedBox(height: 16),
+            ElevatedButton.icon(
+              onPressed: _isLoading ? null : _generateAiImage,
+              icon: const Icon(Icons.auto_awesome, color: Colors.amberAccent),
+              label: const Text('توليد صورة سحرية بالذكاء الاصطناعي ✨', style: TextStyle(color: Colors.amberAccent, fontWeight: FontWeight.bold)),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.amberAccent.withOpacity(0.1),
+                side: BorderSide(color: Colors.amberAccent.withOpacity(0.5)),
+                padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
               ),
-            ).animate().fadeIn().scale(curve: Curves.easeOutBack),
+            ).animate().fadeIn(delay: 100.ms),
             const SizedBox(height: 24),
             TextField(
               controller: _captionController,

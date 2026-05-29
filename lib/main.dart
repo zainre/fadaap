@@ -13,6 +13,7 @@ import 'providers/chat_provider.dart';
 import 'providers/feed_provider.dart';
 import 'providers/reels_provider.dart';
 import 'providers/sadeem_provider.dart';
+import 'providers/story_provider.dart';
 
 import 'screens/auth/login_screen.dart';
 import 'screens/sadeem_center.dart'; 
@@ -54,6 +55,7 @@ void main() async {
           ChangeNotifierProvider(create: (_) => ReelsProvider()),
           ChangeNotifierProvider(create: (_) => ChatProvider()),
           ChangeNotifierProvider(create: (_) => SadeemProvider()),
+          ChangeNotifierProvider(create: (_) => StoryProvider()),
         ],
         child: const SadeemApp(),
       ),
