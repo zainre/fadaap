@@ -26,13 +26,18 @@ class GlassCard extends StatelessWidget {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(borderRadius),
         boxShadow: glowColor != null
-            ? [BoxShadow(color: glowColor!.withOpacity(0.15), blurRadius: 20, spreadRadius: 1)]
+            ? [
+                BoxShadow(
+                    color: glowColor!.withOpacity(0.15),
+                    blurRadius: 20,
+                    spreadRadius: 1)
+              ]
             : [],
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(borderRadius),
         child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12), 
+          filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
           child: Container(
             width: width,
             height: height,
@@ -41,7 +46,7 @@ class GlassCard extends StatelessWidget {
               color: Colors.white.withOpacity(0.04), // شفافية أنيقة
               borderRadius: BorderRadius.circular(borderRadius),
               border: Border.all(
-                color: Colors.white.withOpacity(0.15), 
+                color: Colors.white.withOpacity(0.15),
                 width: 1.0,
               ),
               // تدرج زجاجي خفيف جداً لإعطاء لمعة

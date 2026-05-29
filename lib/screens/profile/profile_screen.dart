@@ -25,15 +25,30 @@ class ProfileScreen extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Container(width: 40, height: 4, decoration: BoxDecoration(color: Colors.grey.shade600, borderRadius: BorderRadius.circular(10))),
+              Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                      color: Colors.grey.shade600,
+                      borderRadius: BorderRadius.circular(10))),
               const SizedBox(height: 20),
-              const Text('الإعدادات الشاملة', style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
+              const Text('الإعدادات الشاملة',
+                  style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold)),
               const SizedBox(height: 20),
-              _buildSettingTile(Icons.person_outline, 'تعديل الحساب (الاسم، اليوزر، البايو)', () {
+              _buildSettingTile(
+                  Icons.person_outline, 'تعديل الحساب (الاسم، اليوزر، البايو)',
+                  () {
                 Navigator.pop(context);
-                Navigator.push(context, MaterialPageRoute(builder: (_) => const EditProfileScreen()));
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (_) => const EditProfileScreen()));
               }),
-              _buildSettingTile(Icons.auto_awesome, 'تفضيلات سديم (الذكاء الاصطناعي)', () {}),
+              _buildSettingTile(
+                  Icons.auto_awesome, 'تفضيلات سديم (الذكاء الاصطناعي)', () {}),
               _buildSettingTile(Icons.lock_outline, 'الخصوصية والأمان', () {}),
               _buildSettingTile(Icons.notifications_none, 'الإشعارات', () {}),
               const Divider(color: Colors.white24, height: 30),
@@ -45,16 +60,24 @@ class ProfileScreen extends StatelessWidget {
               const SizedBox(height: 20),
             ],
           ),
-        ).animate().slideY(begin: 1.0, duration: 400.ms, curve: Curves.easeOutCubic);
+        )
+            .animate()
+            .slideY(begin: 1.0, duration: 400.ms, curve: Curves.easeOutCubic);
       },
     );
   }
 
-  Widget _buildSettingTile(IconData icon, String title, VoidCallback onTap, {bool isDestructive = false}) {
+  Widget _buildSettingTile(IconData icon, String title, VoidCallback onTap,
+      {bool isDestructive = false}) {
     return ListTile(
-      leading: Icon(icon, color: isDestructive ? Colors.redAccent : Colors.white),
-      title: Text(title, style: TextStyle(color: isDestructive ? Colors.redAccent : Colors.white, fontSize: 16)),
-      trailing: const Icon(Icons.arrow_forward_ios, color: Colors.white54, size: 16),
+      leading:
+          Icon(icon, color: isDestructive ? Colors.redAccent : Colors.white),
+      title: Text(title,
+          style: TextStyle(
+              color: isDestructive ? Colors.redAccent : Colors.white,
+              fontSize: 16)),
+      trailing:
+          const Icon(Icons.arrow_forward_ios, color: Colors.white54, size: 16),
       onTap: onTap,
     );
   }
@@ -62,10 +85,15 @@ class ProfileScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final user = context.watch<AuthProvider>().currentUser;
-    final userPosts = context.watch<FeedProvider>().posts.where((p) => p.userId == user?.id).toList();
+    final userPosts = context
+        .watch<FeedProvider>()
+        .posts
+        .where((p) => p.userId == user?.id)
+        .toList();
 
     if (user == null) {
-      return const Center(child: CircularProgressIndicator(color: Colors.white));
+      return const Center(
+          child: CircularProgressIndicator(color: Colors.white));
     }
 
     return Scaffold(
@@ -73,7 +101,9 @@ class ProfileScreen extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: Colors.black,
         elevation: 0,
-        title: Text(user.username, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20, letterSpacing: 1)),
+        title: Text(user.username,
+            style: const TextStyle(
+                fontWeight: FontWeight.bold, fontSize: 20, letterSpacing: 1)),
         actions: [
           IconButton(
             icon: const Icon(Icons.menu, color: Colors.white, size: 28),
@@ -98,26 +128,31 @@ class ProfileScreen extends StatelessWidget {
                         padding: const EdgeInsets.all(3),
                         decoration: const BoxDecoration(
                           shape: BoxShape.circle,
-                          gradient: LinearGradient(colors: [Colors.white, Colors.grey]),
+                          gradient: LinearGradient(
+                              colors: [Colors.white, Colors.grey]),
                         ),
                         child: CircleAvatar(
                           radius: 42,
                           backgroundColor: Colors.black,
                           child: CircleAvatar(
                             radius: 40,
-                            backgroundImage: user.avatarUrl.isNotEmpty 
-                                ? NetworkImage(user.avatarUrl) 
-                                : const NetworkImage('https://i.pravatar.cc/150?img=11') as ImageProvider,
+                            backgroundImage: user.avatarUrl.isNotEmpty
+                                ? NetworkImage(user.avatarUrl)
+                                : const NetworkImage(
+                                        'https://i.pravatar.cc/150?img=11')
+                                    as ImageProvider,
                           ),
                         ),
-                      ).animate().scale(duration: 600.ms, curve: Curves.easeOutBack),
-                      
+                      )
+                          .animate()
+                          .scale(duration: 600.ms, curve: Curves.easeOutBack),
                       Expanded(
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: [
-                            _buildStatColumn('منشورات', userPosts.length.toString()),
-                            _buildStatColumn('متابعون', '12.4K'), 
+                            _buildStatColumn(
+                                'منشورات', userPosts.length.toString()),
+                            _buildStatColumn('متابعون', '12.4K'),
                             _buildStatColumn('يتابع', '845'),
                           ],
                         ).animate().fadeIn(delay: 300.ms).slideX(begin: 0.1),
@@ -127,11 +162,21 @@ class ProfileScreen extends StatelessWidget {
                   const SizedBox(height: 20),
 
                   // 2. الاسم والنبذة (Bio)
-                  Text(user.fullName, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18))
-                      .animate().fadeIn(delay: 400.ms),
+                  Text(user.fullName,
+                          style: const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 18))
+                      .animate()
+                      .fadeIn(delay: 400.ms),
                   const SizedBox(height: 6),
-                  Text(user.bio, style: TextStyle(color: Colors.grey.shade300, fontSize: 14, height: 1.4))
-                      .animate().fadeIn(delay: 500.ms),
+                  Text(user.bio,
+                          style: TextStyle(
+                              color: Colors.grey.shade300,
+                              fontSize: 14,
+                              height: 1.4))
+                      .animate()
+                      .fadeIn(delay: 500.ms),
                   const SizedBox(height: 20),
 
                   // 3. تحليل الذكاء الاصطناعي للاهتمامات
@@ -141,19 +186,33 @@ class ProfileScreen extends StatelessWidget {
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Icon(Icons.auto_awesome, color: Colors.amberAccent, size: 24)
-                            .animate(onPlay: (controller) => controller.repeat(reverse: true))
-                            .scale(begin: const Offset(0.9, 0.9), end: const Offset(1.1, 1.1), duration: 1.seconds),
+                        const Icon(Icons.auto_awesome,
+                                color: Colors.amberAccent, size: 24)
+                            .animate(
+                                onPlay: (controller) =>
+                                    controller.repeat(reverse: true))
+                            .scale(
+                                begin: const Offset(0.9, 0.9),
+                                end: const Offset(1.1, 1.1),
+                                duration: 1.seconds),
                         const SizedBox(width: 12),
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text('تحليل سديم AI', style: TextStyle(color: Colors.amberAccent, fontSize: 12, fontWeight: FontWeight.bold)),
+                              const Text('تحليل سديم AI',
+                                  style: TextStyle(
+                                      color: Colors.amberAccent,
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.bold)),
                               const SizedBox(height: 4),
                               Text(
-                                user.aiInterestsSummary ?? 'يبدو أنك مهتم بالتقنية والفنون البصرية وتطوير الذات.',
-                                style: TextStyle(color: Colors.grey.shade300, fontSize: 13, height: 1.5),
+                                user.aiInterestsSummary ??
+                                    'يبدو أنك مهتم بالتقنية والفنون البصرية وتطوير الذات.',
+                                style: TextStyle(
+                                    color: Colors.grey.shade300,
+                                    fontSize: 13,
+                                    height: 1.5),
                               ),
                             ],
                           ),
@@ -169,13 +228,20 @@ class ProfileScreen extends StatelessWidget {
                     height: 45,
                     child: ElevatedButton(
                       onPressed: () {
-                        Navigator.push(context, MaterialPageRoute(builder: (_) => const EditProfileScreen()));
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (_) => const EditProfileScreen()));
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.white10,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12)),
                       ),
-                      child: const Text('تعديل الملف الشخصي', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                      child: const Text('تعديل الملف الشخصي',
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold)),
                     ),
                   ).animate().fadeIn(delay: 700.ms),
                 ],
@@ -191,12 +257,15 @@ class ProfileScreen extends StatelessWidget {
                     child: Center(
                       child: Padding(
                         padding: EdgeInsets.all(40.0),
-                        child: Text('لا توجد منشورات بعد.', style: TextStyle(color: Colors.white54, fontSize: 16)),
+                        child: Text('لا توجد منشورات بعد.',
+                            style:
+                                TextStyle(color: Colors.white54, fontSize: 16)),
                       ),
                     ),
                   )
                 : SliverGrid(
-                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 3,
                       crossAxisSpacing: 2,
                       mainAxisSpacing: 2,
@@ -206,7 +275,10 @@ class ProfileScreen extends StatelessWidget {
                         return CachedNetworkImage(
                           imageUrl: userPosts[index].imageUrl,
                           fit: BoxFit.cover,
-                          placeholder: (context, url) => const ShimmerLoading(width: double.infinity, height: double.infinity, borderRadius: 0),
+                          placeholder: (context, url) => const ShimmerLoading(
+                              width: double.infinity,
+                              height: double.infinity,
+                              borderRadius: 0),
                         ).animate().fadeIn(delay: (index * 50).ms);
                       },
                       childCount: userPosts.length,
@@ -222,9 +294,14 @@ class ProfileScreen extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Text(count, style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
+        Text(count,
+            style: const TextStyle(
+                color: Colors.white,
+                fontSize: 20,
+                fontWeight: FontWeight.bold)),
         const SizedBox(height: 4),
-        Text(label, style: TextStyle(color: Colors.grey.shade400, fontSize: 14)),
+        Text(label,
+            style: TextStyle(color: Colors.grey.shade400, fontSize: 14)),
       ],
     );
   }

@@ -16,9 +16,11 @@ class SupabaseConfig {
           eventsPerSecond: 10, // ✨ تحديثات أسرع (مهم جداً لسرعة الدردشة)
         ),
       );
-      developer.log('☁️ تم الاتصال بقاعدة بيانات Supabase بنجاح', name: 'Sadeem-DB');
+      developer.log('☁️ تم الاتصال بقاعدة بيانات Supabase بنجاح',
+          name: 'Sadeem-DB');
     } catch (e) {
-      developer.log('❌ خطأ في الاتصال بقاعدة البيانات', name: 'Sadeem-DB', error: e);
+      developer.log('❌ خطأ في الاتصال بقاعدة البيانات',
+          name: 'Sadeem-DB', error: e);
     }
   }
 

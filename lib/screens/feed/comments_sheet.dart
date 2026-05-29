@@ -62,7 +62,8 @@ class _CommentsSheetState extends State<CommentsSheet> {
           .order('created_at', ascending: false);
 
       setState(() {
-        _comments = (response as List).map((c) => CommentModel.fromJson(c)).toList();
+        _comments =
+            (response as List).map((c) => CommentModel.fromJson(c)).toList();
       });
     } catch (e) {
       debugPrint('Error fetching comments: $e');
@@ -82,14 +83,16 @@ class _CommentsSheetState extends State<CommentsSheet> {
 
     try {
       // الذكاء الاصطناعي للإشراف وتحليل المشاعر
-      final sentiment = await context.read<SadeemProvider>().analyzeSentiment(content);
+      final sentiment =
+          await context.read<SadeemProvider>().analyzeSentiment(content);
 
       // لو كان التعليق سلبيا جدا، نمنعه!
       if (sentiment.contains('سلبي') || sentiment.contains('مسيء')) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text('تم حجب هذا التعليق لمخالفته إرشادات مجتمع سديم 🛡️'),
+              content:
+                  Text('تم حجب هذا التعليق لمخالفته إرشادات مجتمع سديم 🛡️'),
               backgroundColor: Colors.redAccent,
             ),
           );
@@ -113,7 +116,6 @@ class _CommentsSheetState extends State<CommentsSheet> {
       });
 
       await _supabase.from('comments').insert(newComment.toJson());
-
     } catch (e) {
       debugPrint('Error posting comment: $e');
     } finally {
@@ -131,7 +133,9 @@ class _CommentsSheetState extends State<CommentsSheet> {
           height: MediaQuery.of(context).size.height * 0.7,
           decoration: BoxDecoration(
             color: Colors.black.withOpacity(0.8),
-            border: Border(top: BorderSide(color: Colors.white.withOpacity(0.1), width: 1)),
+            border: Border(
+                top:
+                    BorderSide(color: Colors.white.withOpacity(0.1), width: 1)),
           ),
           child: Column(
             children: [
@@ -141,7 +145,11 @@ class _CommentsSheetState extends State<CommentsSheet> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text('التعليقات', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+                    const Text('التعليقات',
+                        style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold)),
                     IconButton(
                       icon: const Icon(Icons.close, color: Colors.white54),
                       onPressed: () => Navigator.pop(context),
@@ -158,44 +166,65 @@ class _CommentsSheetState extends State<CommentsSheet> {
                         itemCount: 5,
                         itemBuilder: (context, index) => const Padding(
                           padding: EdgeInsets.all(16.0),
-                          child: ShimmerLoading(width: double.infinity, height: 60, borderRadius: 8),
+                          child: ShimmerLoading(
+                              width: double.infinity,
+                              height: 60,
+                              borderRadius: 8),
                         ),
                       )
                     : _comments.isEmpty
-                        ? const Center(child: Text('لا توجد تعليقات بعد.', style: TextStyle(color: Colors.white54)))
+                        ? const Center(
+                            child: Text('لا توجد تعليقات بعد.',
+                                style: TextStyle(color: Colors.white54)))
                         : ListView.builder(
                             physics: const BouncingScrollPhysics(),
                             itemCount: _comments.length,
                             itemBuilder: (context, index) {
                               final comment = _comments[index];
                               return Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 16.0, vertical: 12.0),
                                 child: Row(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     const CircleAvatar(
                                       radius: 18,
-                                      backgroundImage: NetworkImage('https://i.pravatar.cc/150?img=1'),
+                                      backgroundImage: NetworkImage(
+                                          'https://i.pravatar.cc/150?img=1'),
                                     ),
                                     const SizedBox(width: 12),
                                     Expanded(
                                       child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
                                         children: [
                                           Row(
                                             children: [
-                                              const Text('مستخدم', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14)),
+                                              const Text('مستخدم',
+                                                  style: TextStyle(
+                                                      color: Colors.white,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      fontSize: 14)),
                                               const SizedBox(width: 8),
-                                              Text('الآن', style: TextStyle(color: Colors.grey.shade500, fontSize: 12)),
+                                              Text('الآن',
+                                                  style: TextStyle(
+                                                      color:
+                                                          Colors.grey.shade500,
+                                                      fontSize: 12)),
                                             ],
                                           ),
                                           const SizedBox(height: 4),
-                                          Text(comment.content, style: const TextStyle(color: Colors.white, fontSize: 14)),
+                                          Text(comment.content,
+                                              style: const TextStyle(
+                                                  color: Colors.white,
+                                                  fontSize: 14)),
                                         ],
                                       ),
                                     ),
                                     IconButton(
-                                      icon: const Icon(Icons.favorite_border, color: Colors.white54, size: 16),
+                                      icon: const Icon(Icons.favorite_border,
+                                          color: Colors.white54, size: 16),
                                       onPressed: () {},
                                     ),
                                   ],
@@ -207,16 +236,20 @@ class _CommentsSheetState extends State<CommentsSheet> {
 
               // Input Field
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
                 decoration: BoxDecoration(
                   color: Colors.black,
-                  border: Border(top: BorderSide(color: Colors.white.withOpacity(0.1), width: 1)),
+                  border: Border(
+                      top: BorderSide(
+                          color: Colors.white.withOpacity(0.1), width: 1)),
                 ),
                 child: Row(
                   children: [
                     const CircleAvatar(
                       radius: 18,
-                      backgroundImage: NetworkImage('https://i.pravatar.cc/150?img=5'),
+                      backgroundImage:
+                          NetworkImage('https://i.pravatar.cc/150?img=5'),
                     ),
                     const SizedBox(width: 12),
                     Expanded(
@@ -231,9 +264,14 @@ class _CommentsSheetState extends State<CommentsSheet> {
                       ),
                     ),
                     _isPosting
-                        ? const SizedBox(width: 24, height: 24, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.amberAccent))
+                        ? const SizedBox(
+                            width: 24,
+                            height: 24,
+                            child: CircularProgressIndicator(
+                                strokeWidth: 2, color: Colors.amberAccent))
                         : IconButton(
-                            icon: const Icon(Icons.send, color: Colors.amberAccent),
+                            icon: const Icon(Icons.send,
+                                color: Colors.amberAccent),
                             onPressed: _postComment,
                           ),
                   ],

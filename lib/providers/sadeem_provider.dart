@@ -14,7 +14,8 @@ class SadeemProvider extends ChangeNotifier {
 
   // استخدام النماذج التي هيأناها في ملف الإعدادات
   final GenerativeModel _aiModel = GeminiConfig.model;
-  final GenerativeModel _visionModel = GeminiConfig.visionModel; // 👁️ نموذج الرؤية
+  final GenerativeModel _visionModel =
+      GeminiConfig.visionModel; // 👁️ نموذج الرؤية
 
   Future<String> askSadeem(String question) async {
     _setThinking(true);
@@ -22,7 +23,8 @@ class SadeemProvider extends ChangeNotifier {
       // الهوية محقونة مسبقاً في Config، لا داعي لتكرارها هنا!
       final content = [Content.text(question)];
       final response = await _aiModel.generateContent(content);
-      return response.text ?? 'عذراً، تشتتت أفكاري للحظة، هل يمكنك إعادة السؤال؟';
+      return response.text ??
+          'عذراً، تشتتت أفكاري للحظة، هل يمكنك إعادة السؤال؟';
     } catch (e) {
       return 'حدث خطأ في الاتصال بعقلي المدبر. تأكد من الإنترنت.';
     } finally {
@@ -33,7 +35,8 @@ class SadeemProvider extends ChangeNotifier {
   Future<String> generateSmartCaption(String topic) async {
     _setThinking(true);
     try {
-      final prompt = 'اكتب وصفاً جذاباً واحترافياً لمنشور على وسائل التواصل الاجتماعي حول "$topic". أضف 5 هاشتاجات مناسبة في النهاية. لا تضف أي مقدمات، فقط الوصف.';
+      final prompt =
+          'اكتب وصفاً جذاباً واحترافياً لمنشور على وسائل التواصل الاجتماعي حول "$topic". أضف 5 هاشتاجات مناسبة في النهاية. لا تضف أي مقدمات، فقط الوصف.';
       final content = [Content.text(prompt)];
       final response = await _aiModel.generateContent(content);
       return response.text ?? 'لم أتمكن من توليد الوصف، حاول مجدداً.';
@@ -49,7 +52,8 @@ class SadeemProvider extends ChangeNotifier {
     _setThinking(true);
     try {
       final chatText = messages.join('\n');
-      final prompt = 'قم بتلخيص هذه المحادثة في سطرين فقط وبشكل مفيد:\n$chatText';
+      final prompt =
+          'قم بتلخيص هذه المحادثة في سطرين فقط وبشكل مفيد:\n$chatText';
       final content = [Content.text(prompt)];
       final response = await _aiModel.generateContent(content);
       return response.text ?? 'تعذر التلخيص.';
@@ -62,7 +66,8 @@ class SadeemProvider extends ChangeNotifier {
 
   Future<String> analyzeSentiment(String comment) async {
     try {
-      final prompt = 'حلل المشاعر في هذا التعليق: "$comment". أجب بكلمة واحدة فقط: إيجابي، سلبي، أو محايد.';
+      final prompt =
+          'حلل المشاعر في هذا التعليق: "$comment". أجب بكلمة واحدة فقط: إيجابي، سلبي، أو محايد.';
       final content = [Content.text(prompt)];
       final response = await _aiModel.generateContent(content);
       return response.text?.trim() ?? 'محايد';
@@ -75,11 +80,12 @@ class SadeemProvider extends ChangeNotifier {
   Future<List<String>> analyzeImageForTags(DataPart imagePart) async {
     _setThinking(true);
     try {
-      final prompt = TextPart("حلل هذه الصورة واستخرج منها 5 كلمات مفتاحية (هاشتاجات) دقيقة باللغة العربية. افصل بينها بفاصلة فقط بدون علامة #.");
+      final prompt = TextPart(
+          "حلل هذه الصورة واستخرج منها 5 كلمات مفتاحية (هاشتاجات) دقيقة باللغة العربية. افصل بينها بفاصلة فقط بدون علامة #.");
       final response = await _visionModel.generateContent([
         Content.multi([prompt, imagePart])
       ]);
-      
+
       final text = response.text ?? '';
       if (text.isNotEmpty) {
         return text.split(',').map((e) => e.trim()).toList();
@@ -96,7 +102,8 @@ class SadeemProvider extends ChangeNotifier {
   Future<File?> generateImage(String prompt) async {
     _setThinking(true);
     try {
-      final apiKey = dotenv.env['OPENAI_API_KEY']; // Fallback/assumed format, we can use stability or dalle
+      final apiKey = dotenv.env[
+          'OPENAI_API_KEY']; // Fallback/assumed format, we can use stability or dalle
       if (apiKey == null || apiKey.isEmpty) {
         debugPrint('API Key for image generation missing.');
         return null;
@@ -112,7 +119,8 @@ class SadeemProvider extends ChangeNotifier {
         },
         body: jsonEncode({
           'model': 'dall-e-3',
-          'prompt': '8k resolution, highly detailed, cinematic lighting, masterpiece: $prompt',
+          'prompt':
+              '8k resolution, highly detailed, cinematic lighting, masterpiece: $prompt',
           'n': 1,
           'size': '1024x1024'
         }),

@@ -25,7 +25,8 @@ class ShimmerLoading extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.black, // اللون الأساسي للشكل
           borderRadius: BorderRadius.circular(borderRadius),
-          border: Border.all(color: Colors.white.withOpacity(0.02)), // حد خفيف جداً
+          border:
+              Border.all(color: Colors.white.withOpacity(0.02)), // حد خفيف جداً
         ),
       ),
     );

@@ -9,7 +9,8 @@ class StoryViewer extends StatefulWidget {
   State<StoryViewer> createState() => _StoryViewerState();
 }
 
-class _StoryViewerState extends State<StoryViewer> with SingleTickerProviderStateMixin {
+class _StoryViewerState extends State<StoryViewer>
+    with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
   int _currentStoryIndex = 0;
   bool _isUIHidden = false; // للتحكم بإخفاء الواجهة عند الضغط المطول
@@ -106,15 +107,23 @@ class _StoryViewerState extends State<StoryViewer> with SingleTickerProviderStat
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
                 color: Colors.black.withOpacity(0.7),
-                border: Border(top: BorderSide(color: Colors.amberAccent.withOpacity(0.5), width: 2)),
+                border: Border(
+                    top: BorderSide(
+                        color: Colors.amberAccent.withOpacity(0.5), width: 2)),
               ),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(Icons.auto_awesome, color: Colors.amberAccent, size: 32)
-                      .animate(onPlay: (c) => c.repeat(reverse: true)).scale(duration: 1.seconds),
+                  const Icon(Icons.auto_awesome,
+                          color: Colors.amberAccent, size: 32)
+                      .animate(onPlay: (c) => c.repeat(reverse: true))
+                      .scale(duration: 1.seconds),
                   const SizedBox(height: 16),
-                  const Text('سديم يحلل الصورة...', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+                  const Text('سديم يحلل الصورة...',
+                      style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold)),
                   const SizedBox(height: 16),
                   // اقتراحات الذكاء الاصطناعي
                   _buildAiReplyOption('صورة تخطف الأنفاس! ✨'),
@@ -127,7 +136,8 @@ class _StoryViewerState extends State<StoryViewer> with SingleTickerProviderStat
           ),
         );
       },
-    ).whenComplete(() => _animationController.forward()); // إكمال القصة عند إغلاق النافذة
+    ).whenComplete(
+        () => _animationController.forward()); // إكمال القصة عند إغلاق النافذة
   }
 
   Widget _buildAiReplyOption(String text) {
@@ -138,13 +148,16 @@ class _StoryViewerState extends State<StoryViewer> with SingleTickerProviderStat
         style: ElevatedButton.styleFrom(
           backgroundColor: Colors.white.withOpacity(0.1),
           foregroundColor: Colors.white,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           padding: const EdgeInsets.symmetric(vertical: 16),
         ),
         onPressed: () {
           Navigator.pop(context);
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('تم إرسال الرد الذكي بنجاح! 🚀'), backgroundColor: Color(0xFF0095F6)),
+            const SnackBar(
+                content: Text('تم إرسال الرد الذكي بنجاح! 🚀'),
+                backgroundColor: Color(0xFF0095F6)),
           );
         },
         child: Text(text, style: const TextStyle(fontSize: 16)),
@@ -176,9 +189,12 @@ class _StoryViewerState extends State<StoryViewer> with SingleTickerProviderStat
                 fit: BoxFit.cover,
                 loadingBuilder: (context, child, loadingProgress) {
                   if (loadingProgress == null) return child;
-                  return const Center(child: CircularProgressIndicator(color: Colors.white));
+                  return const Center(
+                      child: CircularProgressIndicator(color: Colors.white));
                 },
-              ).animate(key: ValueKey(_currentStoryIndex)).fadeIn(duration: 400.ms),
+              )
+                  .animate(key: ValueKey(_currentStoryIndex))
+                  .fadeIn(duration: 400.ms),
             ),
 
             // 2. التدرج اللوني (الظل) لضمان وضوح النصوص
@@ -221,15 +237,18 @@ class _StoryViewerState extends State<StoryViewer> with SingleTickerProviderStat
                           animation: _animationController,
                           builder: (context, child) {
                             double value = 0.0;
-                            if (index < _currentStoryIndex) value = 1.0;
-                            else if (index == _currentStoryIndex) value = _animationController.value;
-                            
+                            if (index < _currentStoryIndex)
+                              value = 1.0;
+                            else if (index == _currentStoryIndex)
+                              value = _animationController.value;
+
                             return ClipRRect(
                               borderRadius: BorderRadius.circular(2),
                               child: LinearProgressIndicator(
                                 value: value,
                                 backgroundColor: Colors.white.withOpacity(0.2),
-                                valueColor: const AlwaysStoppedAnimation<Color>(Colors.white),
+                                valueColor: const AlwaysStoppedAnimation<Color>(
+                                    Colors.white),
                                 minHeight: 3,
                               ),
                             );
@@ -254,19 +273,32 @@ class _StoryViewerState extends State<StoryViewer> with SingleTickerProviderStat
                   children: [
                     Container(
                       padding: const EdgeInsets.all(2),
-                      decoration: const BoxDecoration(shape: BoxShape.circle, color: Colors.amberAccent),
+                      decoration: const BoxDecoration(
+                          shape: BoxShape.circle, color: Colors.amberAccent),
                       child: const CircleAvatar(
                         radius: 18,
-                        backgroundImage: NetworkImage('https://i.pravatar.cc/150?img=12'),
+                        backgroundImage:
+                            NetworkImage('https://i.pravatar.cc/150?img=12'),
                       ),
                     ),
                     const SizedBox(width: 10),
-                    const Text('اسم المستخدم', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15, shadows: [Shadow(color: Colors.black, blurRadius: 5)])),
+                    const Text('اسم المستخدم',
+                        style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 15,
+                            shadows: [
+                              Shadow(color: Colors.black, blurRadius: 5)
+                            ])),
                     const SizedBox(width: 8),
-                    Text('2 س', style: TextStyle(color: Colors.white.withOpacity(0.7), fontSize: 13)),
+                    Text('2 س',
+                        style: TextStyle(
+                            color: Colors.white.withOpacity(0.7),
+                            fontSize: 13)),
                     const Spacer(),
                     IconButton(
-                      icon: const Icon(Icons.close, color: Colors.white, size: 28),
+                      icon: const Icon(Icons.close,
+                          color: Colors.white, size: 28),
                       onPressed: () => Navigator.of(context).pop(),
                     ),
                   ],
@@ -290,7 +322,9 @@ class _StoryViewerState extends State<StoryViewer> with SingleTickerProviderStat
                     color: Colors.white38,
                     letterSpacing: 1,
                   ),
-                ).animate(onPlay: (c) => c.repeat(reverse: true)).shimmer(duration: 3.seconds, color: Colors.amberAccent),
+                )
+                    .animate(onPlay: (c) => c.repeat(reverse: true))
+                    .shimmer(duration: 3.seconds, color: Colors.amberAccent),
               ),
             ),
 
@@ -313,18 +347,26 @@ class _StoryViewerState extends State<StoryViewer> with SingleTickerProviderStat
                           child: BackdropFilter(
                             filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
                             child: Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 20, vertical: 14),
                               decoration: BoxDecoration(
                                 color: Colors.white.withOpacity(0.15),
                                 borderRadius: BorderRadius.circular(30),
-                                border: Border.all(color: Colors.white.withOpacity(0.2)),
+                                border: Border.all(
+                                    color: Colors.white.withOpacity(0.2)),
                               ),
                               child: Row(
                                 children: [
-                                  const Icon(Icons.auto_awesome, color: Colors.amberAccent, size: 22)
-                                      .animate(onPlay: (c) => c.repeat(reverse: true)).scale(),
+                                  const Icon(Icons.auto_awesome,
+                                          color: Colors.amberAccent, size: 22)
+                                      .animate(
+                                          onPlay: (c) =>
+                                              c.repeat(reverse: true))
+                                      .scale(),
                                   const SizedBox(width: 12),
-                                  const Text('رد باستخدام سديم AI...', style: TextStyle(color: Colors.white, fontSize: 15)),
+                                  const Text('رد باستخدام سديم AI...',
+                                      style: TextStyle(
+                                          color: Colors.white, fontSize: 15)),
                                 ],
                               ),
                             ),
@@ -333,7 +375,7 @@ class _StoryViewerState extends State<StoryViewer> with SingleTickerProviderStat
                       ),
                     ),
                     const SizedBox(width: 16),
-                    
+
                     // زر الإعجاب (Like)
                     GestureDetector(
                       onTap: () => setState(() => _isLiked = !_isLiked),
@@ -341,13 +383,20 @@ class _StoryViewerState extends State<StoryViewer> with SingleTickerProviderStat
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          color: _isLiked ? Colors.redAccent.withOpacity(0.2) : Colors.white.withOpacity(0.1),
+                          color: _isLiked
+                              ? Colors.redAccent.withOpacity(0.2)
+                              : Colors.white.withOpacity(0.1),
                         ),
                         child: Icon(
                           _isLiked ? Icons.favorite : Icons.favorite_border,
                           color: _isLiked ? Colors.redAccent : Colors.white,
                           size: 28,
-                        ).animate(target: _isLiked ? 1 : 0).scale(end: const Offset(1.2, 1.2), duration: 200.ms).then().scale(end: const Offset(1.0, 1.0)),
+                        )
+                            .animate(target: _isLiked ? 1 : 0)
+                            .scale(
+                                end: const Offset(1.2, 1.2), duration: 200.ms)
+                            .then()
+                            .scale(end: const Offset(1.0, 1.0)),
                       ),
                     ),
                   ],

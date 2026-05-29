@@ -59,12 +59,16 @@ class _FeedScreenState extends State<FeedScreen> {
                     ),
                     child: const Row(
                       children: [
-                        Icon(Icons.auto_awesome, color: Colors.amberAccent, size: 24),
+                        Icon(Icons.auto_awesome,
+                            color: Colors.amberAccent, size: 24),
                         SizedBox(width: 12),
                         Expanded(
                           child: Text(
                             'مرحباً بك في سديم! موجزك اليوم مليء بالإلهام.',
-                            style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w600),
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600),
                           ),
                         ),
                       ],
@@ -81,14 +85,17 @@ class _FeedScreenState extends State<FeedScreen> {
               height: 115,
               child: Consumer<StoryProvider>(
                 builder: (context, storyProvider, child) {
-                  if (storyProvider.isLoading && storyProvider.stories.isEmpty) {
+                  if (storyProvider.isLoading &&
+                      storyProvider.stories.isEmpty) {
                     return ListView.builder(
                       scrollDirection: Axis.horizontal,
-                      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16.0, vertical: 8.0),
                       itemCount: 5,
                       itemBuilder: (context, index) => Padding(
                         padding: const EdgeInsets.only(right: 18.0),
-                        child: const ShimmerLoading(width: 65, height: 65, borderRadius: 32.5),
+                        child: const ShimmerLoading(
+                            width: 65, height: 65, borderRadius: 32.5),
                       ),
                     );
                   }
@@ -103,7 +110,8 @@ class _FeedScreenState extends State<FeedScreen> {
                   }
 
                   final userIds = storiesByUser.keys.toList();
-                  final currentUserId = context.read<AuthProvider>().currentUser?.id;
+                  final currentUserId =
+                      context.read<AuthProvider>().currentUser?.id;
 
                   // التأكد من وضع قصة المستخدم الحالي أولاً (في حال وجدت أو لإنشاء قصة جديدة)
                   if (currentUserId != null) {
@@ -114,17 +122,31 @@ class _FeedScreenState extends State<FeedScreen> {
                   return ListView.builder(
                     scrollDirection: Axis.horizontal,
                     physics: const BouncingScrollPhysics(),
-                    padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-                    itemCount: userIds.isEmpty ? 1 : userIds.length + (currentUserId != null && !userIds.contains(currentUserId) ? 1 : 0),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16.0, vertical: 8.0),
+                    itemCount: userIds.isEmpty
+                        ? 1
+                        : userIds.length +
+                            (currentUserId != null &&
+                                    !userIds.contains(currentUserId)
+                                ? 1
+                                : 0),
                     itemBuilder: (context, index) {
-                      final userId = userIds.isNotEmpty && index < userIds.length ? userIds[index] : currentUserId;
-                      final userStories = userId != null ? storiesByUser[userId] ?? [] : [];
+                      final userId =
+                          userIds.isNotEmpty && index < userIds.length
+                              ? userIds[index]
+                              : currentUserId;
+                      final userStories =
+                          userId != null ? storiesByUser[userId] ?? [] : [];
 
                       final isCurrentUser = userId == currentUserId;
-                      final hasUnviewed = userStories.isNotEmpty; // في تطبيق حقيقي نتحقق مما إذا كان المستخدم شاهدها
+                      final hasUnviewed = userStories
+                          .isNotEmpty; // في تطبيق حقيقي نتحقق مما إذا كان المستخدم شاهدها
 
                       // في تطبيق حقيقي نجلب صورة واسم المستخدم بناءً على الـ userId
-                      final imageUrl = userStories.isNotEmpty ? userStories.first.mediaUrl : 'https://i.pravatar.cc/150?img=${index + 10}';
+                      final imageUrl = userStories.isNotEmpty
+                          ? userStories.first.mediaUrl
+                          : 'https://i.pravatar.cc/150?img=${index + 10}';
 
                       return Padding(
                         padding: const EdgeInsets.only(right: 18.0),
@@ -137,14 +159,20 @@ class _FeedScreenState extends State<FeedScreen> {
                                 if (userStories.isEmpty && isCurrentUser) {
                                   Navigator.push(
                                     context,
-                                    MaterialPageRoute(builder: (context) => const CreateStoryScreen()),
+                                    MaterialPageRoute(
+                                        builder: (context) =>
+                                            const CreateStoryScreen()),
                                   );
                                 } else if (userStories.isNotEmpty) {
                                   Navigator.push(
                                     context,
                                     PageRouteBuilder(
-                                      pageBuilder: (context, a, b) => const StoryViewer(),
-                                      transitionsBuilder: (context, a, b, child) => FadeTransition(opacity: a, child: child),
+                                      pageBuilder: (context, a, b) =>
+                                          const StoryViewer(),
+                                      transitionsBuilder:
+                                          (context, a, b, child) =>
+                                              FadeTransition(
+                                                  opacity: a, child: child),
                                     ),
                                   );
                                 }
@@ -154,13 +182,19 @@ class _FeedScreenState extends State<FeedScreen> {
                             Text(
                               isCurrentUser ? 'قصتك' : 'مستخدم $index',
                               style: TextStyle(
-                                color: isCurrentUser ? Colors.white : Colors.grey.shade400,
-                                fontSize: 12,
-                                fontWeight: isCurrentUser ? FontWeight.bold : FontWeight.normal
-                              ),
+                                  color: isCurrentUser
+                                      ? Colors.white
+                                      : Colors.grey.shade400,
+                                  fontSize: 12,
+                                  fontWeight: isCurrentUser
+                                      ? FontWeight.bold
+                                      : FontWeight.normal),
                             ),
                           ],
-                        ).animate().fadeIn(delay: (index * 100).ms).scale(begin: const Offset(0.8, 0.8)),
+                        )
+                            .animate()
+                            .fadeIn(delay: (index * 100).ms)
+                            .scale(begin: const Offset(0.8, 0.8)),
                       );
                     },
                   );
@@ -168,10 +202,13 @@ class _FeedScreenState extends State<FeedScreen> {
               ),
             ),
           ),
-          
+
           // خط فاصل رفيع جداً
           SliverToBoxAdapter(
-            child: Divider(color: Colors.white.withOpacity(0.05), thickness: 1, height: 20),
+            child: Divider(
+                color: Colors.white.withOpacity(0.05),
+                thickness: 1,
+                height: 20),
           ),
 
           // قسم المنشورات (Posts)
@@ -182,7 +219,10 @@ class _FeedScreenState extends State<FeedScreen> {
                   delegate: SliverChildBuilderDelegate(
                     (context, index) => Padding(
                       padding: const EdgeInsets.all(16.0),
-                      child: const ShimmerLoading(width: double.infinity, height: 400, borderRadius: 16),
+                      child: const ShimmerLoading(
+                          width: double.infinity,
+                          height: 400,
+                          borderRadius: 16),
                     ),
                     childCount: 3,
                   ),
@@ -195,12 +235,20 @@ class _FeedScreenState extends State<FeedScreen> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Icon(Icons.camera_alt_outlined, color: Colors.white24, size: 80)
-                            .animate(onPlay: (c) => c.repeat(reverse: true)).scale(),
+                        const Icon(Icons.camera_alt_outlined,
+                                color: Colors.white24, size: 80)
+                            .animate(onPlay: (c) => c.repeat(reverse: true))
+                            .scale(),
                         const SizedBox(height: 16),
-                        const Text('العالم ينتظر إبداعك!', style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
+                        const Text('العالم ينتظر إبداعك!',
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold)),
                         const SizedBox(height: 8),
-                        Text('لا توجد منشورات حتى الآن.', style: TextStyle(color: Colors.grey.shade500, fontSize: 14)),
+                        Text('لا توجد منشورات حتى الآن.',
+                            style: TextStyle(
+                                color: Colors.grey.shade500, fontSize: 14)),
                       ],
                     ),
                   ),
@@ -221,7 +269,7 @@ class _FeedScreenState extends State<FeedScreen> {
               );
             },
           ),
-          
+
           // مسافة فارغة بالأسفل
           const SliverToBoxAdapter(child: SizedBox(height: 100)),
         ],

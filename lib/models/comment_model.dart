@@ -5,9 +5,10 @@ class CommentModel {
   final String content;
   final int likesCount; // ✨ جديد: عدد الإعجابات بالتعليق
   final bool isPinned; // ✨ جديد: تثبيت التعليق المميز
-  final String aiSentiment; 
+  final String aiSentiment;
   final String? aiSuggestedReply; // 🤖 جديد: رد مقترح من سديم لصاحب المنشور
-  final bool hasAiModerationFlag; // 🤖 جديد: علم أحمر إذا كان التعليق يحتوي على إساءة
+  final bool
+      hasAiModerationFlag; // 🤖 جديد: علم أحمر إذا كان التعليق يحتوي على إساءة
   final DateTime createdAt;
 
   CommentModel({

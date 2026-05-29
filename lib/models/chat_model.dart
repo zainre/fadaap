@@ -7,7 +7,8 @@ class ChatModel {
   final int unreadCount; // ✨ جديد: عدد الرسائل غير المقروءة
   final bool isPinned; // ✨ جديد: هل المحادثة مثبتة في الأعلى؟
   final String? aiChatSummary;
-  final String? aiChatMood; // 🤖 جديد: تحليل سديم لمزاج المحادثة (ودية، عملية، إلخ)
+  final String?
+      aiChatMood; // 🤖 جديد: تحليل سديم لمزاج المحادثة (ودية، عملية، إلخ)
 
   ChatModel({
     required this.id,

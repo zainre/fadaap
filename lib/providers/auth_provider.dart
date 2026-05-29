@@ -21,11 +21,17 @@ class AuthProvider extends ChangeNotifier {
       _isLoading = true;
       notifyListeners();
       try {
-        final response = await _supabase.from('profiles').select().eq('id', user.id).single();
+        final response = await _supabase
+            .from('profiles')
+            .select()
+            .eq('id', user.id)
+            .single();
         _currentUser = UserModel.fromJson(response);
-        
+
         // ✨ تحديث حالة الاتصال لتكون "متصل الآن"
-        await _supabase.from('profiles').update({'is_online': true}).eq('id', user.id);
+        await _supabase
+            .from('profiles')
+            .update({'is_online': true}).eq('id', user.id);
       } catch (e) {
         _errorMessage = e.toString();
       } finally {
@@ -38,7 +44,8 @@ class AuthProvider extends ChangeNotifier {
   Future<bool> login(String email, String password) async {
     _setLoading(true);
     try {
-      final AuthResponse res = await _supabase.auth.signInWithPassword(email: email, password: password);
+      final AuthResponse res = await _supabase.auth
+          .signInWithPassword(email: email, password: password);
       if (res.user != null) {
         await loadCurrentUser();
         return true;
@@ -55,22 +62,24 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
-  Future<bool> register(String email, String password, String username, String fullName) async {
+  Future<bool> register(
+      String email, String password, String username, String fullName) async {
     _setLoading(true);
     try {
-      final AuthResponse res = await _supabase.auth.signUp(email: email, password: password);
+      final AuthResponse res =
+          await _supabase.auth.signUp(email: email, password: password);
       if (res.user != null) {
         final newUser = UserModel(
           id: res.user!.id,
           username: username,
           fullName: fullName,
           email: email,
-          avatarUrl: '', 
+          avatarUrl: '',
           bio: 'مرحباً، أنا أستخدم سديم!',
           isOnline: true, // متصل فور التسجيل
           createdAt: DateTime.now(),
         );
-        
+
         await _supabase.from('profiles').upsert(newUser.toJson());
         _currentUser = newUser;
         return true;

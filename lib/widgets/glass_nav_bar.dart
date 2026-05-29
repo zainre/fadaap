@@ -31,7 +31,8 @@ class GlassNavBar extends StatelessWidget {
               _buildNavItem(Icons.home_filled, Icons.home_outlined, 0),
               _buildNavItem(Icons.search, Icons.search_outlined, 1),
               _buildSadeemCenterButton(2), // ✨ زر سديم المركزي الأسطوري
-              _buildNavItem(Icons.video_library, Icons.video_library_outlined, 3), 
+              _buildNavItem(
+                  Icons.video_library, Icons.video_library_outlined, 3),
               _buildNavItem(Icons.person, Icons.person_outline, 4),
             ],
           ),
@@ -49,15 +50,26 @@ class GlassNavBar extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: isActive ? Colors.amberAccent.withOpacity(0.15) : Colors.transparent,
+          color: isActive
+              ? Colors.amberAccent.withOpacity(0.15)
+              : Colors.transparent,
           shape: BoxShape.circle,
-          boxShadow: isActive ? [BoxShadow(color: Colors.amberAccent.withOpacity(0.2), blurRadius: 15)] : [],
+          boxShadow: isActive
+              ? [
+                  BoxShadow(
+                      color: Colors.amberAccent.withOpacity(0.2),
+                      blurRadius: 15)
+                ]
+              : [],
         ),
         child: Icon(
           Icons.blur_on, // أيقونة سديم
           color: isActive ? Colors.amberAccent : Colors.white70,
           size: 34, // أكبر قليلاً من الأزرار العادية
-        ).animate(onPlay: (c) => c.repeat(reverse: true)).scale(begin: const Offset(0.95, 0.95), end: const Offset(1.05, 1.05), duration: 2.seconds),
+        ).animate(onPlay: (c) => c.repeat(reverse: true)).scale(
+            begin: const Offset(0.95, 0.95),
+            end: const Offset(1.05, 1.05),
+            duration: 2.seconds),
       ),
     );
   }
@@ -88,7 +100,9 @@ class GlassNavBar extends StatelessWidget {
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(2),
-              boxShadow: [BoxShadow(color: Colors.white.withOpacity(0.5), blurRadius: 4)],
+              boxShadow: [
+                BoxShadow(color: Colors.white.withOpacity(0.5), blurRadius: 4)
+              ],
             ),
           ),
         ],

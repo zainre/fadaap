@@ -26,40 +26,44 @@ class _SadeemCenterScreenState extends State<SadeemCenterScreen> {
       const FeedScreen(),
       const ExploreScreen(), // 🧭 تم تفعيل شاشة الاكتشاف
       _buildMagicCreationHub(), // 🔮 استبدلنا النص العادي بمركز سديم السحري
-      const ReelsScreen(), 
-      const ProfileScreen(), 
+      const ReelsScreen(),
+      const ProfileScreen(),
     ];
 
     return Scaffold(
       backgroundColor: Colors.black,
       extendBody: true, // مهم جداً لجعل شريط التنقل الزجاجي يطفو فوق المحتوى
-      
-      appBar: _currentIndex == 0 
-        ? AppBar(
-            backgroundColor: Colors.black.withOpacity(0.8),
-            title: const Text('ســديــم', style: TextStyle(fontWeight: FontWeight.bold, letterSpacing: 2)),
-            actions: [
-              IconButton(
-                icon: const Icon(Icons.notifications_none_outlined),
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const NotificationsScreen()),
-                  );
-                },
-              ),
-              IconButton(
-                icon: const Icon(Icons.send_outlined),
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const ChatListScreen()),
-                  );
-                },
-              ),
-            ],
-          )
-        : null,
+
+      appBar: _currentIndex == 0
+          ? AppBar(
+              backgroundColor: Colors.black.withOpacity(0.8),
+              title: const Text('ســديــم',
+                  style:
+                      TextStyle(fontWeight: FontWeight.bold, letterSpacing: 2)),
+              actions: [
+                IconButton(
+                  icon: const Icon(Icons.notifications_none_outlined),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const NotificationsScreen()),
+                    );
+                  },
+                ),
+                IconButton(
+                  icon: const Icon(Icons.send_outlined),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const ChatListScreen()),
+                    );
+                  },
+                ),
+              ],
+            )
+          : null,
 
       body: IndexedStack(
         index: _currentIndex,
@@ -84,7 +88,10 @@ class _SadeemCenterScreenState extends State<SadeemCenterScreen> {
       height: double.infinity,
       decoration: const BoxDecoration(
         gradient: RadialGradient(
-          colors: [Color(0xFF151528), Colors.black], // تدرج لوني يعطي عمقاً فخماً
+          colors: [
+            Color(0xFF151528),
+            Colors.black
+          ], // تدرج لوني يعطي عمقاً فخماً
           radius: 1.5,
           center: Alignment.center,
         ),
@@ -101,36 +108,57 @@ class _SadeemCenterScreenState extends State<SadeemCenterScreen> {
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 boxShadow: [
-                  BoxShadow(color: Colors.amber.withOpacity(0.08), blurRadius: 120, spreadRadius: 60)
+                  BoxShadow(
+                      color: Colors.amber.withOpacity(0.08),
+                      blurRadius: 120,
+                      spreadRadius: 60)
                 ],
               ),
-            ).animate(onPlay: (controller) => controller.repeat(reverse: true)).scale(duration: 2.seconds),
+            )
+                .animate(
+                    onPlay: (controller) => controller.repeat(reverse: true))
+                .scale(duration: 2.seconds),
           ),
-          
+
           Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               // أيقونة سديم الرئيسية
               const Icon(Icons.blur_on, size: 90, color: Colors.white)
-                  .animate(onPlay: (controller) => controller.repeat(reverse: true))
-                  .scale(begin: const Offset(0.95, 0.95), end: const Offset(1.1, 1.1), duration: 2.seconds)
+                  .animate(
+                      onPlay: (controller) => controller.repeat(reverse: true))
+                  .scale(
+                      begin: const Offset(0.95, 0.95),
+                      end: const Offset(1.1, 1.1),
+                      duration: 2.seconds)
                   .shimmer(color: Colors.amberAccent, duration: 3.seconds),
               const SizedBox(height: 24),
-              
-              const Text('ماذا تريد أن تبدع الآن؟', style: TextStyle(color: Colors.white, fontSize: 26, fontWeight: FontWeight.bold, letterSpacing: 1))
-                  .animate().fadeIn(delay: 200.ms).slideY(begin: 0.2),
+
+              const Text('ماذا تريد أن تبدع الآن؟',
+                      style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 26,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 1))
+                  .animate()
+                  .fadeIn(delay: 200.ms)
+                  .slideY(begin: 0.2),
               const SizedBox(height: 50),
-              
+
               // شبكة الخيارات الإبداعية
               Wrap(
                 spacing: 20,
                 runSpacing: 20,
                 alignment: WrapAlignment.center,
                 children: [
-                  _buildMagicOption(Icons.edit_document, 'منشور', Colors.blueAccent, 300),
-                  _buildMagicOption(Icons.camera_rounded, 'قصة', Colors.pinkAccent, 400),
-                  _buildMagicOption(Icons.movie_creation, 'ريلز', Colors.purpleAccent, 500),
-                  _buildMagicOption(Icons.auto_awesome, 'سؤال سديم', Colors.amberAccent, 600),
+                  _buildMagicOption(
+                      Icons.edit_document, 'منشور', Colors.blueAccent, 300),
+                  _buildMagicOption(
+                      Icons.camera_rounded, 'قصة', Colors.pinkAccent, 400),
+                  _buildMagicOption(
+                      Icons.movie_creation, 'ريلز', Colors.purpleAccent, 500),
+                  _buildMagicOption(
+                      Icons.auto_awesome, 'سؤال سديم', Colors.amberAccent, 600),
                 ],
               ),
             ],
@@ -144,27 +172,37 @@ class _SadeemCenterScreenState extends State<SadeemCenterScreen> {
                 const Text(
                   '✨ Crafted with magic by Zain',
                   style: TextStyle(
-                    fontFamily: 'monospace', // خط مميز يعطي طابع البرمجة والفخامة
+                    fontFamily:
+                        'monospace', // خط مميز يعطي طابع البرمجة والفخامة
                     fontSize: 15,
                     fontWeight: FontWeight.w700,
                     color: Colors.amberAccent,
                     letterSpacing: 1.5,
                   ),
                 )
-                .animate(onPlay: (controller) => controller.repeat(reverse: true))
-                .shimmer(duration: 2.seconds, color: Colors.white)
-                .slideY(begin: 0.1, duration: 800.ms),
-                
+                    .animate(
+                        onPlay: (controller) =>
+                            controller.repeat(reverse: true))
+                    .shimmer(duration: 2.seconds, color: Colors.white)
+                    .slideY(begin: 0.1, duration: 800.ms),
                 const SizedBox(height: 6),
-                
                 Container(
                   width: 50,
                   height: 2,
                   decoration: BoxDecoration(
                     color: Colors.amberAccent,
-                    boxShadow: [BoxShadow(color: Colors.amberAccent, blurRadius: 10, spreadRadius: 2)],
+                    boxShadow: [
+                      BoxShadow(
+                          color: Colors.amberAccent,
+                          blurRadius: 10,
+                          spreadRadius: 2)
+                    ],
                   ),
-                ).animate(onPlay: (controller) => controller.repeat(reverse: true)).scaleX(duration: 1.seconds),
+                )
+                    .animate(
+                        onPlay: (controller) =>
+                            controller.repeat(reverse: true))
+                    .scaleX(duration: 1.seconds),
               ],
             ),
           ),
@@ -174,7 +212,8 @@ class _SadeemCenterScreenState extends State<SadeemCenterScreen> {
   }
 
   // دالة بناء الأزرار بستايل النيون والزجاج
-  Widget _buildMagicOption(IconData icon, String title, Color color, int delay) {
+  Widget _buildMagicOption(
+      IconData icon, String title, Color color, int delay) {
     return GestureDetector(
       onTap: () {
         // سيتم ربط هذه الأزرار بشاشات الإضافة لاحقاً
@@ -187,7 +226,8 @@ class _SadeemCenterScreenState extends State<SadeemCenterScreen> {
           borderRadius: BorderRadius.circular(24),
           border: Border.all(color: color.withOpacity(0.3), width: 1.5),
           boxShadow: [
-            BoxShadow(color: color.withOpacity(0.1), blurRadius: 20, spreadRadius: 1),
+            BoxShadow(
+                color: color.withOpacity(0.1), blurRadius: 20, spreadRadius: 1),
           ],
         ),
         child: Column(
@@ -195,10 +235,18 @@ class _SadeemCenterScreenState extends State<SadeemCenterScreen> {
           children: [
             Icon(icon, size: 42, color: color),
             const SizedBox(height: 14),
-            Text(title, style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+            Text(title,
+                style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold)),
           ],
         ),
-      ).animate().fadeIn(delay: delay.ms).slideY(begin: 0.1).shimmer(delay: (delay + 500).ms, color: Colors.white24),
+      )
+          .animate()
+          .fadeIn(delay: delay.ms)
+          .slideY(begin: 0.1)
+          .shimmer(delay: (delay + 500).ms, color: Colors.white24),
     );
   }
 }

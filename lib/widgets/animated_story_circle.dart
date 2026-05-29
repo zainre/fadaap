@@ -18,7 +18,8 @@ class AnimatedStoryCircle extends StatefulWidget {
   State<AnimatedStoryCircle> createState() => _AnimatedStoryCircleState();
 }
 
-class _AnimatedStoryCircleState extends State<AnimatedStoryCircle> with SingleTickerProviderStateMixin {
+class _AnimatedStoryCircleState extends State<AnimatedStoryCircle>
+    with SingleTickerProviderStateMixin {
   late AnimationController _controller;
 
   @override
@@ -27,7 +28,7 @@ class _AnimatedStoryCircleState extends State<AnimatedStoryCircle> with SingleTi
     _controller = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 3), // أسرع قليلاً لجذب الانتباه
-    )..repeat(); 
+    )..repeat();
   }
 
   @override
@@ -54,9 +55,9 @@ class _AnimatedStoryCircleState extends State<AnimatedStoryCircle> with SingleTi
                   shape: BoxShape.circle,
                   gradient: SweepGradient(
                     colors: [
-                      Colors.amberAccent, 
-                      Colors.purpleAccent, 
-                      Colors.blueAccent, 
+                      Colors.amberAccent,
+                      Colors.purpleAccent,
+                      Colors.blueAccent,
                       Colors.amberAccent // العودة لنفس اللون لضمان دوران سلس
                     ],
                     stops: [0.0, 0.33, 0.66, 1.0],
@@ -64,7 +65,7 @@ class _AnimatedStoryCircleState extends State<AnimatedStoryCircle> with SingleTi
                 ),
               ),
             ),
-          
+
           // فاصل أسود لبروز الصورة
           Container(
             width: widget.size + 4,
@@ -74,7 +75,7 @@ class _AnimatedStoryCircleState extends State<AnimatedStoryCircle> with SingleTi
               shape: BoxShape.circle,
             ),
           ),
-          
+
           // صورة المستخدم
           Container(
             width: widget.size,

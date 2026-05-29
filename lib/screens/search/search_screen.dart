@@ -27,7 +27,7 @@ class _SearchScreenState extends State<SearchScreen> {
 
   void _onSearchChanged(String query) {
     if (_debounce?.isActive ?? false) _debounce!.cancel();
-    
+
     if (query.trim().isEmpty) {
       setState(() {
         _searchResults = [];
@@ -37,7 +37,7 @@ class _SearchScreenState extends State<SearchScreen> {
     }
 
     setState(() => _isLoading = true);
-    
+
     // تأخير بسيط لمنع الضغط على قاعدة البيانات مع كل حرف
     _debounce = Timer(const Duration(milliseconds: 500), () async {
       final results = await SupabaseService.searchUsers(query);
@@ -112,9 +112,11 @@ class _SearchScreenState extends State<SearchScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.person_search_outlined, size: 80, color: Colors.grey.shade800),
+            Icon(Icons.person_search_outlined,
+                size: 80, color: Colors.grey.shade800),
             const SizedBox(height: 16),
-            Text('لم نجد أحداً بهذا الاسم', style: TextStyle(color: Colors.grey.shade500, fontSize: 16)),
+            Text('لم نجد أحداً بهذا الاسم',
+                style: TextStyle(color: Colors.grey.shade500, fontSize: 16)),
           ],
         ).animate().fadeIn(),
       );
@@ -122,7 +124,8 @@ class _SearchScreenState extends State<SearchScreen> {
 
     if (_searchResults.isEmpty) {
       return Center(
-        child: Text('اكتشف مجرة سديم...', style: TextStyle(color: Colors.grey.shade600, fontSize: 16)),
+        child: Text('اكتشف مجرة سديم...',
+            style: TextStyle(color: Colors.grey.shade600, fontSize: 16)),
       );
     }
 
@@ -137,16 +140,22 @@ class _SearchScreenState extends State<SearchScreen> {
           leading: CircleAvatar(
             backgroundColor: Colors.grey.shade900,
             backgroundImage: avatar.isNotEmpty ? NetworkImage(avatar) : null,
-            child: avatar.isEmpty ? const Icon(Icons.person, color: Colors.white54) : null,
+            child: avatar.isEmpty
+                ? const Icon(Icons.person, color: Colors.white54)
+                : null,
           ),
           title: Row(
             children: [
-              Text(user['username'] ?? '', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+              Text(user['username'] ?? '',
+                  style: const TextStyle(
+                      color: Colors.white, fontWeight: FontWeight.bold)),
               if (hasBadge) const SizedBox(width: 4),
-              if (hasBadge) const Icon(Icons.verified, color: Colors.amberAccent, size: 16),
+              if (hasBadge)
+                const Icon(Icons.verified, color: Colors.amberAccent, size: 16),
             ],
           ),
-          subtitle: Text(user['full_name'] ?? '', style: TextStyle(color: Colors.grey.shade500)),
+          subtitle: Text(user['full_name'] ?? '',
+              style: TextStyle(color: Colors.grey.shade500)),
           onTap: () {
             // الانتقال إلى بروفايل المستخدم الحقيقي
             Navigator.push(

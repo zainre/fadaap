@@ -47,7 +47,8 @@ class _ExploreScreenState extends State<ExploreScreen> {
           .limit(20);
 
       setState(() {
-        _trendingPosts = (response as List).map((p) => PostModel.fromJson(p)).toList();
+        _trendingPosts =
+            (response as List).map((p) => PostModel.fromJson(p)).toList();
       });
     } catch (e) {
       debugPrint('Error fetching trending posts: $e');
@@ -61,7 +62,8 @@ class _ExploreScreenState extends State<ExploreScreen> {
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
-        title: const Text('اكتشف', style: TextStyle(fontWeight: FontWeight.bold, letterSpacing: 1.5)),
+        title: const Text('اكتشف',
+            style: TextStyle(fontWeight: FontWeight.bold, letterSpacing: 1.5)),
         backgroundColor: Colors.black,
         elevation: 0,
         actions: [
@@ -74,15 +76,19 @@ class _ExploreScreenState extends State<ExploreScreen> {
         ],
       ),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator(color: Colors.amberAccent))
+          ? const Center(
+              child: CircularProgressIndicator(color: Colors.amberAccent))
           : _trendingPosts.isEmpty
               ? Center(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Icon(Icons.explore_off, size: 80, color: Colors.white24),
+                      const Icon(Icons.explore_off,
+                          size: 80, color: Colors.white24),
                       const SizedBox(height: 16),
-                      const Text('لا توجد منشورات رائجة حالياً.', style: TextStyle(color: Colors.white54, fontSize: 16)),
+                      const Text('لا توجد منشورات رائجة حالياً.',
+                          style:
+                              TextStyle(color: Colors.white54, fontSize: 16)),
                     ],
                   ).animate().fadeIn(),
                 )
@@ -106,7 +112,8 @@ class _ExploreScreenState extends State<ExploreScreen> {
                         },
                         child: Container(
                           decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(isLarge ? 12 : 8),
+                            borderRadius:
+                                BorderRadius.circular(isLarge ? 12 : 8),
                           ),
                           clipBehavior: Clip.hardEdge,
                           child: Stack(
@@ -123,7 +130,8 @@ class _ExploreScreenState extends State<ExploreScreen> {
                                 errorWidget: (context, url, error) => Container(
                                   height: isLarge ? 300 : 150,
                                   color: Colors.grey.shade900,
-                                  child: const Icon(Icons.error, color: Colors.white54),
+                                  child: const Icon(Icons.error,
+                                      color: Colors.white54),
                                 ),
                               ),
                               Positioned(
@@ -131,18 +139,30 @@ class _ExploreScreenState extends State<ExploreScreen> {
                                 left: 8,
                                 child: Row(
                                   children: [
-                                    const Icon(Icons.favorite, color: Colors.white, size: 14),
+                                    const Icon(Icons.favorite,
+                                        color: Colors.white, size: 14),
                                     const SizedBox(width: 4),
                                     Text(
                                       '${post.likesCount}',
-                                      style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold, shadows: [Shadow(color: Colors.black, blurRadius: 4)]),
+                                      style: const TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.bold,
+                                          shadows: [
+                                            Shadow(
+                                                color: Colors.black,
+                                                blurRadius: 4)
+                                          ]),
                                     ),
                                   ],
                                 ),
                               ),
                             ],
                           ),
-                        ).animate().fadeIn(delay: (index * 50).ms).slideY(begin: 0.1),
+                        )
+                            .animate()
+                            .fadeIn(delay: (index * 50).ms)
+                            .slideY(begin: 0.1),
                       );
                     },
                   ),

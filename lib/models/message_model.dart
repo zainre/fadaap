@@ -6,7 +6,8 @@ class MessageModel {
   final String? mediaUrl; // ✨ جديد: لدعم إرسال الصور والمقاطع الصوتية
   final String? replyToMessageId; // ✨ جديد: للرد على رسالة محددة
   final bool isRead; // ✨ جديد: مؤشر قراءة الرسالة
-  final bool isAiGenerated; // هل الرسالة مقتبسة أو مولدة عبر ذكاء سديم الاصطناعي؟
+  final bool
+      isAiGenerated; // هل الرسالة مقتبسة أو مولدة عبر ذكاء سديم الاصطناعي؟
   final String? aiTranslation; // 🤖 جديد: ترجمة سديم التلقائية للرسائل
   final DateTime createdAt;
 

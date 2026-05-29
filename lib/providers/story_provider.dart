@@ -22,7 +22,9 @@ class StoryProvider extends ChangeNotifier {
           .select()
           .gt('expires_at', now)
           .order('created_at', ascending: false);
-      _stories = (response as List).map((story) => StoryModel.fromJson(story)).toList();
+      _stories = (response as List)
+          .map((story) => StoryModel.fromJson(story))
+          .toList();
     } catch (e) {
       debugPrint("Error fetching stories: $e");
     } finally {

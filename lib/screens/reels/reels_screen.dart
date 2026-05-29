@@ -36,31 +36,42 @@ class _ReelsScreenState extends State<ReelsScreen> {
     return Scaffold(
       backgroundColor: Colors.black,
       extendBodyBehindAppBar: true, // للسماح للريلز بالمرور خلف الـ AppBar
-      
+
       // ✨ شريط علوي شفاف وفخم
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        title: const Text('Reels', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 24, letterSpacing: 1.5, shadows: [Shadow(color: Colors.black, blurRadius: 10)])),
+        title: const Text('Reels',
+            style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                fontSize: 24,
+                letterSpacing: 1.5,
+                shadows: [Shadow(color: Colors.black, blurRadius: 10)])),
         actions: [
           IconButton(
-            icon: const Icon(Icons.camera_alt_outlined, color: Colors.white, size: 28),
+            icon: const Icon(Icons.camera_alt_outlined,
+                color: Colors.white, size: 28),
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => const CreateReelScreen()),
+                MaterialPageRoute(
+                    builder: (context) => const CreateReelScreen()),
               );
             },
           ),
           const SizedBox(width: 8),
         ],
       ),
-      
+
       body: Consumer<ReelsProvider>(
         builder: (context, reelsProvider, child) {
           if (reelsProvider.isLoading && reelsProvider.reels.isEmpty) {
             return const Center(
-              child: ShimmerLoading(width: double.infinity, height: double.infinity, borderRadius: 0),
+              child: ShimmerLoading(
+                  width: double.infinity,
+                  height: double.infinity,
+                  borderRadius: 0),
             );
           }
 
@@ -76,8 +87,9 @@ class _ReelsScreenState extends State<ReelsScreen> {
               },
               itemBuilder: (context, index) {
                 return ReelItem(
-                  reel: null, 
-                  dummyImage: 'https://images.unsplash.com/photo-1518780664697-55e3ad937233?q=80&w=1000&auto=format&fit=crop',
+                  reel: null,
+                  dummyImage:
+                      'https://images.unsplash.com/photo-1518780664697-55e3ad937233?q=80&w=1000&auto=format&fit=crop',
                   isActive: _currentPage == index,
                 );
               },
@@ -88,9 +100,9 @@ class _ReelsScreenState extends State<ReelsScreen> {
             controller: _pageController,
             scrollDirection: Axis.vertical,
             onPageChanged: (index) {
-                setState(() {
-                  _currentPage = index;
-                });
+              setState(() {
+                _currentPage = index;
+              });
             },
             itemCount: reelsProvider.reels.length,
             itemBuilder: (context, index) {

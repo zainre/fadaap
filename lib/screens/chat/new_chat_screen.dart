@@ -27,7 +27,7 @@ class _NewChatScreenState extends State<NewChatScreen> {
     }
     setState(() => _isLoading = true);
     final results = await SupabaseService.searchUsers(query);
-    
+
     // إخفاء المستخدم الحالي من نتائج البحث (لا يمكنه محادثة نفسه)
     final myId = context.read<AuthProvider>().currentUser?.id;
     results.removeWhere((user) => user['id'] == myId);
@@ -53,7 +53,7 @@ class _NewChatScreenState extends State<NewChatScreen> {
         .contains('participant_ids', [myId, peerUser['id']]);
 
     String chatId;
-    
+
     if (existingChats.isNotEmpty) {
       chatId = existingChats.first['id'];
     } else {
@@ -101,7 +101,8 @@ class _NewChatScreenState extends State<NewChatScreen> {
         ),
       ),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator(color: Colors.amberAccent))
+          ? const Center(
+              child: CircularProgressIndicator(color: Colors.amberAccent))
           : ListView.builder(
               itemCount: _searchResults.length,
               itemBuilder: (context, index) {
@@ -109,15 +110,20 @@ class _NewChatScreenState extends State<NewChatScreen> {
                 return ListTile(
                   leading: CircleAvatar(
                     backgroundColor: Colors.grey.shade900,
-                    backgroundImage: user['avatar_url'] != null && user['avatar_url'].toString().isNotEmpty
+                    backgroundImage: user['avatar_url'] != null &&
+                            user['avatar_url'].toString().isNotEmpty
                         ? NetworkImage(user['avatar_url'])
                         : null,
-                    child: user['avatar_url'] == null || user['avatar_url'].toString().isEmpty
+                    child: user['avatar_url'] == null ||
+                            user['avatar_url'].toString().isEmpty
                         ? const Icon(Icons.person, color: Colors.white)
                         : null,
                   ),
-                  title: Text(user['username'], style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                  subtitle: Text(user['full_name'], style: TextStyle(color: Colors.grey.shade500)),
+                  title: Text(user['username'],
+                      style: const TextStyle(
+                          color: Colors.white, fontWeight: FontWeight.bold)),
+                  subtitle: Text(user['full_name'],
+                      style: TextStyle(color: Colors.grey.shade500)),
                   onTap: () => _startChat(user),
                 ).animate().fadeIn().slideX();
               },

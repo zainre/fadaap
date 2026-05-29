@@ -19,7 +19,7 @@ class AppTheme {
         primary: whiteColor,
         secondary: sadeemAccent, // استخدام اللون الذهبي كلون ثانوي للحركات
       ),
-      
+
       // إعدادات الـ AppBar
       appBarTheme: const AppBarTheme(
         backgroundColor: blackColor,
@@ -33,30 +33,32 @@ class AppTheme {
           letterSpacing: 1.2,
         ),
       ),
-      
+
       // الخطوط (Arabic Typography)
       textTheme: GoogleFonts.cairoTextTheme(
         ThemeData.dark().textTheme,
       ).copyWith(
-        displayLarge: const TextStyle(color: whiteColor, fontWeight: FontWeight.bold),
+        displayLarge:
+            const TextStyle(color: whiteColor, fontWeight: FontWeight.bold),
         bodyLarge: const TextStyle(color: whiteColor, fontSize: 16),
         bodyMedium: const TextStyle(color: lightGrey, fontSize: 14),
       ),
-      
+
       // الأيقونات
       iconTheme: const IconThemeData(color: whiteColor, size: 26),
-      
+
       // الأزرار
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           backgroundColor: whiteColor,
           foregroundColor: blackColor,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
           padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
           elevation: 5,
         ),
       ),
-      
+
       // ✨ تصميم حقول الإدخال (TextForms) لتبدو عصرية وزجاجية
       inputDecorationTheme: InputDecorationTheme(
         filled: true,

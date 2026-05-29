@@ -22,7 +22,7 @@ class _LoginScreenState extends State<LoginScreen> {
   void _submit() async {
     if (_formKey.currentState!.validate()) {
       final authProvider = Provider.of<AuthProvider>(context, listen: false);
-      
+
       // إغلاق لوحة المفاتيح
       FocusScope.of(context).unfocus();
 
@@ -35,22 +35,23 @@ class _LoginScreenState extends State<LoginScreen> {
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('تم تسجيل الدخول بنجاح! مرحباً بك في سديم.', style: TextStyle(color: Colors.black)),
+            content: Text('تم تسجيل الدخول بنجاح! مرحباً بك في سديم.',
+                style: TextStyle(color: Colors.black)),
             backgroundColor: Colors.white,
           ),
         );
-        
+
         // كود الانتقال الفعلي إلى الشاشة الرئيسية (هذا هو المفتاح المفقود!)
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => const SadeemCenterScreen()),
         );
-        
       } else {
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(authProvider.errorMessage ?? 'حدث خطأ.', style: const TextStyle(color: Colors.white)),
+            content: Text(authProvider.errorMessage ?? 'حدث خطأ.',
+                style: const TextStyle(color: Colors.white)),
             backgroundColor: Colors.grey.shade900,
           ),
         );
@@ -79,8 +80,12 @@ class _LoginScreenState extends State<LoginScreen> {
             children: [
               // الشعار أو اسم التطبيق مع تأثير الوميض
               const Icon(Icons.blur_on, size: 80, color: Colors.white)
-                  .animate(onPlay: (controller) => controller.repeat(reverse: true))
-                  .scale(begin: const Offset(0.9, 0.9), end: const Offset(1.1, 1.1), duration: 2000.ms),
+                  .animate(
+                      onPlay: (controller) => controller.repeat(reverse: true))
+                  .scale(
+                      begin: const Offset(0.9, 0.9),
+                      end: const Offset(1.1, 1.1),
+                      duration: 2000.ms),
               const SizedBox(height: 16),
               const Text(
                 'ســديــم',
@@ -114,9 +119,13 @@ class _LoginScreenState extends State<LoginScreen> {
                         decoration: InputDecoration(
                           labelText: 'البريد الإلكتروني',
                           labelStyle: TextStyle(color: Colors.grey.shade500),
-                          enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.grey.shade800)),
-                          focusedBorder: const UnderlineInputBorder(borderSide: BorderSide(color: Colors.white)),
-                          prefixIcon: const Icon(Icons.email_outlined, color: Colors.white),
+                          enabledBorder: UnderlineInputBorder(
+                              borderSide:
+                                  BorderSide(color: Colors.grey.shade800)),
+                          focusedBorder: const UnderlineInputBorder(
+                              borderSide: BorderSide(color: Colors.white)),
+                          prefixIcon: const Icon(Icons.email_outlined,
+                              color: Colors.white),
                         ),
                       ).animate().fadeIn(delay: 400.ms).slideX(begin: -0.1),
                       const SizedBox(height: 20),
@@ -130,9 +139,13 @@ class _LoginScreenState extends State<LoginScreen> {
                         decoration: InputDecoration(
                           labelText: 'كلمة المرور',
                           labelStyle: TextStyle(color: Colors.grey.shade500),
-                          enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.grey.shade800)),
-                          focusedBorder: const UnderlineInputBorder(borderSide: BorderSide(color: Colors.white)),
-                          prefixIcon: const Icon(Icons.lock_outline, color: Colors.white),
+                          enabledBorder: UnderlineInputBorder(
+                              borderSide:
+                                  BorderSide(color: Colors.grey.shade800)),
+                          focusedBorder: const UnderlineInputBorder(
+                              borderSide: BorderSide(color: Colors.white)),
+                          prefixIcon: const Icon(Icons.lock_outline,
+                              color: Colors.white),
                         ),
                       ).animate().fadeIn(delay: 500.ms).slideX(begin: -0.1),
                       const SizedBox(height: 40),
@@ -146,17 +159,25 @@ class _LoginScreenState extends State<LoginScreen> {
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.white,
                             foregroundColor: Colors.black,
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12)),
                           ),
                           child: isLoading
                               ? const SizedBox(
                                   width: 24,
                                   height: 24,
-                                  child: CircularProgressIndicator(color: Colors.black, strokeWidth: 2),
+                                  child: CircularProgressIndicator(
+                                      color: Colors.black, strokeWidth: 2),
                                 )
-                              : const Text('دخول', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                              : const Text('دخول',
+                                  style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold)),
                         ),
-                      ).animate().fadeIn(delay: 600.ms).scale(begin: const Offset(0.9, 0.9)),
+                      )
+                          .animate()
+                          .fadeIn(delay: 600.ms)
+                          .scale(begin: const Offset(0.9, 0.9)),
                     ],
                   ),
                 ),
@@ -170,8 +191,10 @@ class _LoginScreenState extends State<LoginScreen> {
                   Navigator.pushReplacement(
                     context,
                     PageRouteBuilder(
-                      pageBuilder: (context, animation, secondaryAnimation) => const RegisterScreen(),
-                      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                      pageBuilder: (context, animation, secondaryAnimation) =>
+                          const RegisterScreen(),
+                      transitionsBuilder:
+                          (context, animation, secondaryAnimation, child) {
                         return FadeTransition(opacity: animation, child: child);
                       },
                     ),
