@@ -40,15 +40,17 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   // توليد بايو عبر سديم AI
   void _generateSmartBio() async {
     setState(() => _isLoading = true);
-    // نستخدم الـ Provider لإرسال طلب للذكاء الاصطناعي
     final provider = context.read<SadeemProvider>();
     final newBio = await provider.generateSmartCaption('اكتب نبذة شخصية (Bio) قصيرة جداً واحترافية لحسابي، أنا طالب ومبرمج مهتم بالذكاء الاصطناعي.');
     
     if (mounted) {
       setState(() {
-        _bioController.text = newBio.replaceAll('#', '').trim(); // تنظيف الهاشتاجات إن وجدت
+        _bioController.text = newBio.replaceAll('#', '').trim();
         _isLoading = false;
       });
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('✨ تم توليد البايو السحري بنجاح!', style: TextStyle(color: Colors.black)), backgroundColor: Colors.amberAccent),
+      );
     }
   }
 
@@ -59,13 +61,13 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       final userId = context.read<AuthProvider>().currentUser?.id;
       
       try {
-        await SupabaseConfig.client.from('users').update({
+        // تم إصلاح الخطأ القاتل هنا: users تم تغييرها إلى profiles
+        await SupabaseConfig.client.from('profiles').update({
           'full_name': _nameController.text.trim(),
           'username': _usernameController.text.trim(),
           'bio': _bioController.text.trim(),
         }).eq('id', userId!);
 
-        // إعادة جلب بيانات المستخدم لتحديث الواجهة
         if (mounted) {
           await context.read<AuthProvider>().loadCurrentUser();
           Navigator.pop(context);
@@ -96,118 +98,116 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           icon: const Icon(Icons.close, color: Colors.white),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text('تعديل الملف', style: TextStyle(fontWeight: FontWeight.bold)),
+        title: const Text('تعديل الحساب', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
         actions: [
           IconButton(
             icon: _isLoading 
                 ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                : const Icon(Icons.check, color: Colors.white, size: 30),
+                : const Icon(Icons.check, color: Colors.greenAccent, size: 30),
             onPressed: _isLoading ? null : _saveProfile,
           ).animate().fadeIn(),
         ],
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(20.0),
         child: Form(
           key: _formKey,
           child: Column(
             children: [
-              // تغيير الصورة
+              // تغيير الصورة بشكل فخم
               Center(
-                child: Column(
+                child: Stack(
+                  alignment: Alignment.bottomRight,
                   children: [
                     const CircleAvatar(
-                      radius: 45,
+                      radius: 50,
                       backgroundImage: NetworkImage('https://i.pravatar.cc/150?img=11'),
                     ),
-                    const SizedBox(height: 12),
-                    TextButton(
-                      onPressed: () {
-                        // فتح الاستوديو لاختيار صورة (يتطلب ImagePicker لاحقاً)
-                      },
-                      child: const Text('تغيير الصورة الشخصية', style: TextStyle(color: Colors.white, fontSize: 16)),
-                    ),
+                    Container(
+                      decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle),
+                      child: IconButton(
+                        icon: const Icon(Icons.camera_alt, color: Colors.black, size: 20),
+                        onPressed: () {
+                          // سيتم ربط الاستوديو لاحقاً
+                        },
+                      ),
+                    ).animate().scale(delay: 300.ms),
                   ],
                 ),
               ).animate().fadeIn(duration: 500.ms).slideY(begin: -0.1),
               
-              const SizedBox(height: 24),
+              const SizedBox(height: 30),
 
               GlassCard(
-                padding: const EdgeInsets.all(20),
+                padding: const EdgeInsets.all(24),
+                borderRadius: 20,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // حقل الاسم
                     TextFormField(
                       controller: _nameController,
-                      style: const TextStyle(color: Colors.white),
+                      style: const TextStyle(color: Colors.white, fontSize: 16),
                       decoration: InputDecoration(
                         labelText: 'الاسم الكامل',
-                        labelStyle: TextStyle(color: Colors.grey.shade500),
+                        labelStyle: TextStyle(color: Colors.grey.shade400),
+                        prefixIcon: const Icon(Icons.person, color: Colors.white70),
                         enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.grey.shade800)),
                         focusedBorder: const UnderlineInputBorder(borderSide: BorderSide(color: Colors.white)),
                       ),
                       validator: (val) => val!.isEmpty ? 'الاسم مطلوب' : null,
                     ).animate().fadeIn(delay: 200.ms).slideX(begin: -0.1),
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 24),
 
-                    // حقل اسم المستخدم
+                    // حقل اليوزر
                     TextFormField(
                       controller: _usernameController,
-                      style: const TextStyle(color: Colors.white),
+                      style: const TextStyle(color: Colors.white, fontSize: 16),
                       decoration: InputDecoration(
-                        labelText: 'اسم المستخدم (Username)',
-                        labelStyle: TextStyle(color: Colors.grey.shade500),
+                        labelText: 'اسم المستخدم',
+                        labelStyle: TextStyle(color: Colors.grey.shade400),
+                        prefixIcon: const Icon(Icons.alternate_email, color: Colors.white70),
                         enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.grey.shade800)),
                         focusedBorder: const UnderlineInputBorder(borderSide: BorderSide(color: Colors.white)),
                       ),
                       validator: (val) => val!.isEmpty ? 'اسم المستخدم مطلوب' : null,
                     ).animate().fadeIn(delay: 300.ms).slideX(begin: -0.1),
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 24),
 
-                    // حقل النبذة (Bio) مع زر سديم AI
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        Expanded(
-                          child: TextFormField(
-                            controller: _bioController,
-                            style: const TextStyle(color: Colors.white),
-                            maxLines: 3,
-                            minLines: 1,
-                            decoration: InputDecoration(
-                              labelText: 'النبذة (Bio)',
-                              labelStyle: TextStyle(color: Colors.grey.shade500),
-                              enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.grey.shade800)),
-                              focusedBorder: const UnderlineInputBorder(borderSide: BorderSide(color: Colors.white)),
-                            ),
-                          ),
-                        ),
-                        IconButton(
-                          icon: const Icon(Icons.auto_awesome, color: Colors.white),
-                          tooltip: 'توليد بايو بالذكاء الاصطناعي',
-                          onPressed: _generateSmartBio,
-                        ).animate(onPlay: (controller) => controller.repeat(reverse: true))
-                         .scale(begin: const Offset(1.0, 1.0), end: const Offset(1.15, 1.15), duration: 1.5.seconds, curve: Curves.easeInOut),
-                      ],
+                    // حقل البايو
+                    TextFormField(
+                      controller: _bioController,
+                      style: const TextStyle(color: Colors.white, fontSize: 16),
+                      maxLines: 3,
+                      minLines: 1,
+                      decoration: InputDecoration(
+                        labelText: 'النبذة الشخصية (Bio)',
+                        labelStyle: TextStyle(color: Colors.grey.shade400),
+                        prefixIcon: const Icon(Icons.info_outline, color: Colors.white70),
+                        enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.grey.shade800)),
+                        focusedBorder: const UnderlineInputBorder(borderSide: BorderSide(color: Colors.white)),
+                      ),
                     ).animate().fadeIn(delay: 400.ms).slideX(begin: -0.1),
+                    
+                    const SizedBox(height: 20),
+                    
+                    // زر توليد بايو بالذكاء الاصطناعي (أصبح بارزاً وفخماً)
+                    SizedBox(
+                      width: double.infinity,
+                      height: 45,
+                      child: ElevatedButton.icon(
+                        onPressed: _isLoading ? null : _generateSmartBio,
+                        icon: const Icon(Icons.auto_awesome, color: Colors.black),
+                        label: const Text('كتابة بايو سحري (سديم AI)', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.amberAccent,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                        ),
+                      ),
+                    ).animate().fadeIn(delay: 500.ms).slideY(begin: 0.1),
                   ],
                 ),
               ),
-              
-              const SizedBox(height: 40),
-              
-              // زر تسجيل الخروج
-              TextButton.icon(
-                onPressed: () {
-                  context.read<AuthProvider>().logout();
-                  // يتم التوجيه تلقائياً لأن المستمع في main.dart سيكتشف الخروج
-                  Navigator.of(context).popUntil((route) => route.isFirst);
-                },
-                icon: const Icon(Icons.logout, color: Colors.redAccent),
-                label: const Text('تسجيل الخروج', style: TextStyle(color: Colors.redAccent, fontSize: 16)),
-              ).animate().fadeIn(delay: 600.ms),
             ],
           ),
         ),
