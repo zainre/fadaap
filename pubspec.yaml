@@ -23,7 +23,8 @@ dependencies:
   supabase_flutter: ^2.3.0
   
   # AI Integration (Gemini)
-  google_generative_ai: ^0.2.0
+  # ✨ تم التحديث هنا لجلب أحدث إصدار يدعم هوية النظام
+  google_generative_ai: any
   
   # Environment Variables
   flutter_dotenv: ^5.1.0
