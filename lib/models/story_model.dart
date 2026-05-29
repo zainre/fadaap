@@ -3,9 +3,13 @@ class StoryModel {
   final String userId;
   final String mediaUrl;
   final bool isVideo;
-  final int viewsCount;      // ✨ جديد: عدد المشاهدات
-  final int likesCount;      // ✨ جديد: عدد الإعجابات
-  final List<String>? aiTags; // 🤖 جديد: علامات (Tags) يولدها سديم تلقائياً للصورة
+  final int viewsCount;      
+  final int likesCount;      
+  final int repliesCount;     // ✨ جديد: عدد الردود على القصة
+  final List<String> viewersIds; // ✨ جديد: قائمة بمن شاهد القصة
+  final bool isHighlight;     // ✨ جديد: هل القصة محفوظة في الهايلايت؟
+  final List<String>? aiTags; 
+  final String? aiCaption;    // 🤖 جديد: نص مقترح من سديم يكتب فوق القصة
   final DateTime expiresAt;
   final DateTime createdAt;
 
@@ -16,12 +20,15 @@ class StoryModel {
     this.isVideo = false,
     this.viewsCount = 0,
     this.likesCount = 0,
+    this.repliesCount = 0,
+    this.viewersIds = const [],
+    this.isHighlight = false,
     this.aiTags,
+    this.aiCaption,
     required this.expiresAt,
     required this.createdAt,
   });
 
-  // تحويل البيانات القادمة من قاعدة البيانات إلى كائن برمجي
   factory StoryModel.fromJson(Map<String, dynamic> json) {
     return StoryModel(
       id: json['id'] as String,
@@ -30,14 +37,16 @@ class StoryModel {
       isVideo: json['is_video'] ?? false,
       viewsCount: json['views_count'] ?? 0,
       likesCount: json['likes_count'] ?? 0,
-      // جلب العلامات الذكية إن وجدت، وإلا نعطي قائمة فارغة
+      repliesCount: json['replies_count'] ?? 0,
+      viewersIds: List<String>.from(json['viewers_ids'] ?? []),
+      isHighlight: json['is_highlight'] ?? false,
       aiTags: json['ai_tags'] != null ? List<String>.from(json['ai_tags']) : [],
+      aiCaption: json['ai_caption'] as String?,
       expiresAt: DateTime.parse(json['expires_at'] as String),
       createdAt: DateTime.parse(json['created_at'] as String),
     );
   }
 
-  // تحويل الكائن البرمجي إلى Map لرفعه إلى قاعدة البيانات
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -46,7 +55,11 @@ class StoryModel {
       'is_video': isVideo,
       'views_count': viewsCount,
       'likes_count': likesCount,
+      'replies_count': repliesCount,
+      'viewers_ids': viewersIds,
+      'is_highlight': isHighlight,
       'ai_tags': aiTags,
+      'ai_caption': aiCaption,
       'expires_at': expiresAt.toIso8601String(),
       'created_at': createdAt.toIso8601String(),
     };
