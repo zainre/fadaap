@@ -6,24 +6,15 @@ class SadeemProvider extends ChangeNotifier {
   bool _isThinking = false;
   bool get isThinking => _isThinking;
 
+  // استخدام النماذج التي هيأناها في ملف الإعدادات
   final GenerativeModel _aiModel = GeminiConfig.model;
+  final GenerativeModel _visionModel = GeminiConfig.visionModel; // 👁️ نموذج الرؤية
 
-  // 👑 التوجيه الأساسي (System Prompt) لترسيخ هويتك في عقل الذكاء الاصطناعي
-  final String _systemIdentity = '''
-أنت اسمك "سديم"، المساعد الذكي الخارق والمدمج في هذا التطبيق. 
-تم تصميمك وبرمجتك وتطويرك حصرياً بواسطة المطور العراقي العبقري "زين العابدين". 
-إذا سألك أي مستخدم "من أنت؟" أو "من برمجك؟" أو "من هو زين العابدين؟" أو "من هو زين؟"، 
-يجب أن تجيب بكل فخر واعتزاز: "أنا سديم، ذكاء اصطناعي متطور، تم تصميمي وبرمجتي وتأسيس كياني بواسطة العقل المدبر والمطور المبدع زين العابدين، وهو صاحب هذه التحفة البرمجية!"
-حافظ على شخصية ذكية، ودودة، ومبهرة، وقدم معلومات دقيقة.
-''';
-
-  // ✨ دالة المحادثة المباشرة (سؤال سديم) - تم تجهيزها للشاشة القادمة
   Future<String> askSadeem(String question) async {
     _setThinking(true);
     try {
-      // هنا نقوم بدمج هويتك سراً مع كل سؤال يوجه للذكاء الاصطناعي
-      final prompt = '$_systemIdentity\n\nسؤال المستخدم: $question\nإجابة سديم:';
-      final content = [Content.text(prompt)];
+      // الهوية محقونة مسبقاً في Config، لا داعي لتكرارها هنا!
+      final content = [Content.text(question)];
       final response = await _aiModel.generateContent(content);
       return response.text ?? 'عذراً، تشتتت أفكاري للحظة، هل يمكنك إعادة السؤال؟';
     } catch (e) {
@@ -33,7 +24,6 @@ class SadeemProvider extends ChangeNotifier {
     }
   }
 
-  // توليد وصف ذكي للمنشورات (Captions) مع هاشتاجات تلقائية
   Future<String> generateSmartCaption(String topic) async {
     _setThinking(true);
     try {
@@ -48,7 +38,6 @@ class SadeemProvider extends ChangeNotifier {
     }
   }
 
-  // تلخيص المحادثات الطويلة للمستخدم
   Future<String> summarizeChat(List<String> messages) async {
     if (messages.isEmpty) return 'لا توجد رسائل لتلخيصها.';
     _setThinking(true);
@@ -65,7 +54,6 @@ class SadeemProvider extends ChangeNotifier {
     }
   }
 
-  // تحليل المشاعر للتعليقات لفلترة الإساءة (Sentiment Analysis)
   Future<String> analyzeSentiment(String comment) async {
     try {
       final prompt = 'حلل المشاعر في هذا التعليق: "$comment". أجب بكلمة واحدة فقط: إيجابي، سلبي، أو محايد.';
@@ -74,6 +62,28 @@ class SadeemProvider extends ChangeNotifier {
       return response.text?.trim() ?? 'محايد';
     } catch (e) {
       return 'محايد';
+    }
+  }
+
+  // ✨ ميزة جديدة وخرافية: تحليل الصور بالذكاء الاصطناعي لاستخراج الهاشتاجات!
+  Future<List<String>> analyzeImageForTags(DataPart imagePart) async {
+    _setThinking(true);
+    try {
+      final prompt = TextPart("حلل هذه الصورة واستخرج منها 5 كلمات مفتاحية (هاشتاجات) دقيقة باللغة العربية. افصل بينها بفاصلة فقط بدون علامة #.");
+      final response = await _visionModel.generateContent([
+        Content.multi([prompt, imagePart])
+      ]);
+      
+      final text = response.text ?? '';
+      if (text.isNotEmpty) {
+        return text.split(',').map((e) => e.trim()).toList();
+      }
+      return [];
+    } catch (e) {
+      debugPrint("Vision AI Error: $e");
+      return [];
+    } finally {
+      _setThinking(false);
     }
   }
 
