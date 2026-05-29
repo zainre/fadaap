@@ -26,8 +26,8 @@ class _AnimatedStoryCircleState extends State<AnimatedStoryCircle> with SingleTi
     super.initState();
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(seconds: 4),
-    )..repeat(); // تدوير مستمر
+      duration: const Duration(seconds: 3), // أسرع قليلاً لجذب الانتباه
+    )..repeat(); 
   }
 
   @override
@@ -43,7 +43,7 @@ class _AnimatedStoryCircleState extends State<AnimatedStoryCircle> with SingleTi
       child: Stack(
         alignment: Alignment.center,
         children: [
-          // الإطار الدائري المتحرك
+          // ✨ الإطار الكوني المتحرك (Sadeem Cosmic Gradient)
           if (widget.hasUnviewedStory)
             RotationTransition(
               turns: _controller,
@@ -53,13 +53,19 @@ class _AnimatedStoryCircleState extends State<AnimatedStoryCircle> with SingleTi
                 decoration: const BoxDecoration(
                   shape: BoxShape.circle,
                   gradient: SweepGradient(
-                    colors: [Colors.black, Colors.white, Colors.grey, Colors.black],
+                    colors: [
+                      Colors.amberAccent, 
+                      Colors.purpleAccent, 
+                      Colors.blueAccent, 
+                      Colors.amberAccent // العودة لنفس اللون لضمان دوران سلس
+                    ],
                     stops: [0.0, 0.33, 0.66, 1.0],
                   ),
                 ),
               ),
             ),
-          // فاصل أسود بين الإطار والصورة
+          
+          // فاصل أسود لبروز الصورة
           Container(
             width: widget.size + 4,
             height: widget.size + 4,
@@ -68,6 +74,7 @@ class _AnimatedStoryCircleState extends State<AnimatedStoryCircle> with SingleTi
               shape: BoxShape.circle,
             ),
           ),
+          
           // صورة المستخدم
           Container(
             width: widget.size,
