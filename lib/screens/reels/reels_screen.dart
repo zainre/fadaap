@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/reels_provider.dart';
@@ -17,7 +18,6 @@ class _ReelsScreenState extends State<ReelsScreen> {
   @override
   void initState() {
     super.initState();
-    // جلب الفيديوهات بمجرد فتح الشاشة
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<ReelsProvider>().fetchReels();
     });
@@ -33,6 +33,24 @@ class _ReelsScreenState extends State<ReelsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
+      extendBodyBehindAppBar: true, // للسماح للريلز بالمرور خلف الـ AppBar
+      
+      // ✨ شريط علوي شفاف وفخم
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        title: const Text('Reels', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 24, letterSpacing: 1.5, shadows: [Shadow(color: Colors.black, blurRadius: 10)])),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.camera_alt_outlined, color: Colors.white, size: 28),
+            onPressed: () {
+              // الانتقال لشاشة تصوير ريلز جديد
+            },
+          ),
+          const SizedBox(width: 8),
+        ],
+      ),
+      
       body: Consumer<ReelsProvider>(
         builder: (context, reelsProvider, child) {
           if (reelsProvider.isLoading && reelsProvider.reels.isEmpty) {
@@ -42,16 +60,14 @@ class _ReelsScreenState extends State<ReelsScreen> {
           }
 
           if (reelsProvider.reels.isEmpty) {
-            // بيانات افتراضية في حال لم تكن هناك بيانات في Supabase لتجربة الواجهة
             return PageView.builder(
               controller: _pageController,
               scrollDirection: Axis.vertical,
               itemCount: 3,
               itemBuilder: (context, index) {
                 return ReelItem(
-                  // تمرير بيانات وهمية للتجربة
                   reel: null, 
-                  dummyImage: 'https://images.unsplash.com/photo-1518780664697-55e3ad937233?q=80&w=1000&auto=format&fit=crop&grayscale',
+                  dummyImage: 'https://images.unsplash.com/photo-1518780664697-55e3ad937233?q=80&w=1000&auto=format&fit=crop',
                 );
               },
             );
