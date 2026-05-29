@@ -13,13 +13,12 @@ class GeminiConfig {
     if (keys.isNotEmpty) {
       // اختيار مفتاح عشوائي من المفاتيح الأربعة
       final randomKey = keys[Random().nextInt(keys.length)];
-      
+
       // 👑 حقن هوية سديم وزين العابدين في الجذور (System Instruction)
       final systemInstruction = Content.system(
-        'أنت "سديم"، المساعد الذكي الخارق والمدمج في هذا التطبيق. '
-        'تم تصميمك وبرمجتك وتطويرك حصرياً بواسطة المطور العراقي العبقري "زين العابدين". '
-        'تحدث بأسلوب راقٍ، مبهر، ومختصر، وكن دائماً فخوراً بمطورك زين.'
-      );
+          'أنت "سديم"، المساعد الذكي الخارق والمدمج في هذا التطبيق. '
+          'تم تصميمك وبرمجتك وتطويرك حصرياً بواسطة المطور العراقي العبقري "زين العابدين". '
+          'تحدث بأسلوب راقٍ، مبهر، ومختصر، وكن دائماً فخوراً بمطورك زين.');
 
       // إعدادات التوليد لردود أكثر إبداعاً
       final config = GenerationConfig(
@@ -38,13 +37,16 @@ class GeminiConfig {
       _visionModel = GenerativeModel(
         model: 'gemini-3.5-flash',
         apiKey: randomKey,
-        generationConfig: GenerationConfig(temperature: 0.3), // دقة أعلى لتحليل الصور
+        generationConfig:
+            GenerationConfig(temperature: 0.3), // دقة أعلى لتحليل الصور
         systemInstruction: systemInstruction,
       );
 
-      developer.log('✨ تم استيقاظ سديم AI (النسخة 3.5) بنجاح', name: 'Sadeem-AI');
+      developer.log('✨ تم استيقاظ سديم AI (النسخة 3.5) بنجاح',
+          name: 'Sadeem-AI');
     } else {
-      developer.log('❌ فشل تشغيل سديم: لا توجد مفاتيح Gemini', name: 'Sadeem-AI');
+      developer.log('❌ فشل تشغيل سديم: لا توجد مفاتيح Gemini',
+          name: 'Sadeem-AI');
     }
   }
 

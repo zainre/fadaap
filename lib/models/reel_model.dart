@@ -2,10 +2,13 @@ class ReelModel {
   final String id;
   final String userId;
   final String videoUrl;
-  final String? thumbnailUrl; // ✨ جديد: صورة مصغرة قبل تشغيل الفيديو لسرعة الأداء
+  final String?
+      thumbnailUrl; // ✨ جديد: صورة مصغرة قبل تشغيل الفيديو لسرعة الأداء
   final String caption;
-  final List<String> aiTargetAudience; // الفئات المستهدفة المحددة بالذكاء الاصطناعي
-  final String? aiAudioTranscription; // 🤖 جديد: سديم يقوم بتفريغ الصوت لإنشاء ترجمة تلقائية (Subtitles)
+  final List<String>
+      aiTargetAudience; // الفئات المستهدفة المحددة بالذكاء الاصطناعي
+  final String?
+      aiAudioTranscription; // 🤖 جديد: سديم يقوم بتفريغ الصوت لإنشاء ترجمة تلقائية (Subtitles)
   final int viewsCount; // ✨ جديد: عدد المشاهدات
   final int likesCount;
   final int commentsCount; // ✨ جديد: عدد التعليقات

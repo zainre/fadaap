@@ -43,9 +43,8 @@ class _CreateStoryScreenState extends State<CreateStoryScreen> {
           .from('stories')
           .upload(fileName, _mediaFile!);
 
-      final publicUrl = SupabaseConfig.client.storage
-          .from('stories')
-          .getPublicUrl(fileName);
+      final publicUrl =
+          SupabaseConfig.client.storage.from('stories').getPublicUrl(fileName);
 
       final story = StoryModel(
         id: const Uuid().v4(),
@@ -80,8 +79,16 @@ class _CreateStoryScreenState extends State<CreateStoryScreen> {
             TextButton(
               onPressed: _isLoading ? null : _uploadStory,
               child: _isLoading
-                ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.amberAccent))
-                : const Text('نشر', style: TextStyle(color: Colors.amberAccent, fontWeight: FontWeight.bold, fontSize: 16)),
+                  ? const SizedBox(
+                      width: 20,
+                      height: 20,
+                      child:
+                          CircularProgressIndicator(color: Colors.amberAccent))
+                  : const Text('نشر',
+                      style: TextStyle(
+                          color: Colors.amberAccent,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16)),
             ),
         ],
       ),
@@ -91,13 +98,18 @@ class _CreateStoryScreenState extends State<CreateStoryScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   IconButton(
-                    icon: const Icon(Icons.add_photo_alternate, size: 80, color: Colors.white54),
+                    icon: const Icon(Icons.add_photo_alternate,
+                        size: 80, color: Colors.white54),
                     onPressed: _pickMedia,
                   ),
-                  const Text('اضغط لاختيار صورة', style: TextStyle(color: Colors.white54, fontSize: 16)),
+                  const Text('اضغط لاختيار صورة',
+                      style: TextStyle(color: Colors.white54, fontSize: 16)),
                 ],
               )
-            : Image.file(_mediaFile!, fit: BoxFit.cover, width: double.infinity, height: double.infinity),
+            : Image.file(_mediaFile!,
+                fit: BoxFit.cover,
+                width: double.infinity,
+                height: double.infinity),
       ),
     );
   }

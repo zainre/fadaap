@@ -55,12 +55,16 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         await context.read<AuthProvider>().loadCurrentUser();
 
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تم تحديث البيانات بنجاح!'), backgroundColor: Colors.green));
+          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+              content: Text('تم تحديث البيانات بنجاح!'),
+              backgroundColor: Colors.green));
           Navigator.pop(context);
         }
       } catch (e) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('حدث خطأ أثناء التحديث: $e'), backgroundColor: Colors.redAccent));
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+              content: Text('حدث خطأ أثناء التحديث: $e'),
+              backgroundColor: Colors.redAccent));
         }
       }
     }
@@ -74,11 +78,21 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       appBar: AppBar(
         backgroundColor: Colors.black,
         elevation: 0,
-        title: const Text('تعديل الحساب', style: TextStyle(fontWeight: FontWeight.bold)),
+        title: const Text('تعديل الحساب',
+            style: TextStyle(fontWeight: FontWeight.bold)),
         actions: [
           _isLoading
-              ? const Padding(padding: EdgeInsets.all(16.0), child: SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.amberAccent, strokeWidth: 2)))
-              : IconButton(icon: const Icon(Icons.check, color: Colors.amberAccent, size: 28), onPressed: _saveProfile),
+              ? const Padding(
+                  padding: EdgeInsets.all(16.0),
+                  child: SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(
+                          color: Colors.amberAccent, strokeWidth: 2)))
+              : IconButton(
+                  icon: const Icon(Icons.check,
+                      color: Colors.amberAccent, size: 28),
+                  onPressed: _saveProfile),
         ],
       ),
       body: SingleChildScrollView(
@@ -93,20 +107,33 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('المعلومات الشخصية', style: TextStyle(color: Colors.amberAccent, fontSize: 16, fontWeight: FontWeight.bold)),
+                    const Text('المعلومات الشخصية',
+                        style: TextStyle(
+                            color: Colors.amberAccent,
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold)),
                     const SizedBox(height: 20),
                     TextFormField(
                       controller: _nameController,
                       style: const TextStyle(color: Colors.white),
-                      decoration: const InputDecoration(labelText: 'الاسم الكامل', prefixIcon: Icon(Icons.person_outline, color: Colors.white54)),
-                      validator: (val) => val == null || val.isEmpty ? 'الاسم مطلوب' : null,
+                      decoration: const InputDecoration(
+                          labelText: 'الاسم الكامل',
+                          prefixIcon: Icon(Icons.person_outline,
+                              color: Colors.white54)),
+                      validator: (val) =>
+                          val == null || val.isEmpty ? 'الاسم مطلوب' : null,
                     ),
                     const SizedBox(height: 16),
                     TextFormField(
                       controller: _usernameController,
                       style: const TextStyle(color: Colors.white),
-                      decoration: const InputDecoration(labelText: 'اسم المستخدم', prefixIcon: Icon(Icons.alternate_email, color: Colors.white54)),
-                      validator: (val) => val == null || val.isEmpty ? 'اسم المستخدم مطلوب' : null,
+                      decoration: const InputDecoration(
+                          labelText: 'اسم المستخدم',
+                          prefixIcon: Icon(Icons.alternate_email,
+                              color: Colors.white54)),
+                      validator: (val) => val == null || val.isEmpty
+                          ? 'اسم المستخدم مطلوب'
+                          : null,
                     ),
                   ],
                 ),
@@ -118,7 +145,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('النبذة (البايو)', style: TextStyle(color: Colors.amberAccent, fontSize: 16, fontWeight: FontWeight.bold)),
+                    const Text('النبذة (البايو)',
+                        style: TextStyle(
+                            color: Colors.amberAccent,
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold)),
                     const SizedBox(height: 20),
                     TextFormField(
                       controller: _bioController,

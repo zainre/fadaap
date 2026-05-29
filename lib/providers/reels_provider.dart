@@ -15,8 +15,12 @@ class ReelsProvider extends ChangeNotifier {
     _isLoading = true;
     notifyListeners();
     try {
-      final response = await _supabase.from('reels').select().order('created_at', ascending: false);
-      _reels = (response as List).map((reel) => ReelModel.fromJson(reel)).toList();
+      final response = await _supabase
+          .from('reels')
+          .select()
+          .order('created_at', ascending: false);
+      _reels =
+          (response as List).map((reel) => ReelModel.fromJson(reel)).toList();
     } catch (e) {
       debugPrint("Error fetching reels: $e");
     } finally {
@@ -28,7 +32,12 @@ class ReelsProvider extends ChangeNotifier {
   // ✨ ميزة جديدة: تسجيل الإعجاب للريلز
   Future<void> toggleReelLike(String reelId, String userId) async {
     try {
-      final existingLike = await _supabase.from('likes').select().eq('reel_id', reelId).eq('user_id', userId).maybeSingle();
+      final existingLike = await _supabase
+          .from('likes')
+          .select()
+          .eq('reel_id', reelId)
+          .eq('user_id', userId)
+          .maybeSingle();
 
       if (existingLike != null) {
         await _supabase.from('likes').delete().eq('id', existingLike['id']);
@@ -46,10 +55,18 @@ class ReelsProvider extends ChangeNotifier {
 
   Future<void> toggleSaveReel(String reelId, String userId) async {
     try {
-      final existingBookmark = await _supabase.from('bookmarks').select().eq('reel_id', reelId).eq('user_id', userId).maybeSingle();
+      final existingBookmark = await _supabase
+          .from('bookmarks')
+          .select()
+          .eq('reel_id', reelId)
+          .eq('user_id', userId)
+          .maybeSingle();
 
       if (existingBookmark != null) {
-        await _supabase.from('bookmarks').delete().eq('id', existingBookmark['id']);
+        await _supabase
+            .from('bookmarks')
+            .delete()
+            .eq('id', existingBookmark['id']);
       } else {
         await _supabase.from('bookmarks').insert({
           'reel_id': reelId,

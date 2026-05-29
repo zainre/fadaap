@@ -86,8 +86,11 @@ class _ChatScreenState extends State<ChatScreen> {
         final file = File(path);
         final fileName = '${const Uuid().v4()}.m4a';
 
-        await SupabaseConfig.client.storage.from('chats').upload(fileName, file);
-        final publicUrl = SupabaseConfig.client.storage.from('chats').getPublicUrl(fileName);
+        await SupabaseConfig.client.storage
+            .from('chats')
+            .upload(fileName, file);
+        final publicUrl =
+            SupabaseConfig.client.storage.from('chats').getPublicUrl(fileName);
 
         final myId = context.read<AuthProvider>().currentUser?.id;
         if (myId == null) return;
@@ -173,11 +176,17 @@ class _ChatScreenState extends State<ChatScreen> {
             CircleAvatar(
               radius: 18,
               backgroundColor: Colors.black,
-              backgroundImage: widget.peerAvatar.isNotEmpty ? NetworkImage(widget.peerAvatar) : null,
-              child: widget.peerAvatar.isEmpty ? const Icon(Icons.person, color: Colors.white, size: 20) : null,
+              backgroundImage: widget.peerAvatar.isNotEmpty
+                  ? NetworkImage(widget.peerAvatar)
+                  : null,
+              child: widget.peerAvatar.isEmpty
+                  ? const Icon(Icons.person, color: Colors.white, size: 20)
+                  : null,
             ),
             const SizedBox(width: 10),
-            Text(widget.peerName, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            Text(widget.peerName,
+                style:
+                    const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
           ],
         ),
       ),
@@ -193,12 +202,16 @@ class _ChatScreenState extends State<ChatScreen> {
                 final isMe = msg.senderId == myId;
 
                 return Align(
-                  alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
+                  alignment:
+                      isMe ? Alignment.centerRight : Alignment.centerLeft,
                   child: Container(
                     margin: const EdgeInsets.only(bottom: 8),
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 12),
                     decoration: BoxDecoration(
-                      color: isMe ? Colors.amberAccent.withOpacity(0.9) : Colors.white12,
+                      color: isMe
+                          ? Colors.amberAccent.withOpacity(0.9)
+                          : Colors.white12,
                       borderRadius: BorderRadius.only(
                         topLeft: const Radius.circular(16),
                         topRight: const Radius.circular(16),
@@ -206,54 +219,71 @@ class _ChatScreenState extends State<ChatScreen> {
                         bottomRight: Radius.circular(isMe ? 0 : 16),
                       ),
                     ),
-                    child: msg.mediaUrl != null && msg.mediaUrl!.endsWith('.m4a')
+                    child: msg.mediaUrl != null &&
+                            msg.mediaUrl!.endsWith('.m4a')
                         ? Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               IconButton(
                                 icon: Icon(
-                                  _currentlyPlayingPath == msg.mediaUrl && _isPlaying
+                                  _currentlyPlayingPath == msg.mediaUrl &&
+                                          _isPlaying
                                       ? Icons.pause_circle_filled
                                       : Icons.play_circle_fill,
                                   color: isMe ? Colors.black : Colors.white,
                                 ),
                                 onPressed: () => _playPauseAudio(msg.mediaUrl!),
                               ),
-                              Text(msg.content, style: TextStyle(color: isMe ? Colors.black : Colors.white)),
+                              Text(msg.content,
+                                  style: TextStyle(
+                                      color:
+                                          isMe ? Colors.black : Colors.white)),
                             ],
                           )
                         : Text(
                             msg.content,
-                            style: TextStyle(color: isMe ? Colors.black : Colors.white, fontSize: 15, fontWeight: isMe ? FontWeight.bold : FontWeight.normal),
+                            style: TextStyle(
+                                color: isMe ? Colors.black : Colors.white,
+                                fontSize: 15,
+                                fontWeight:
+                                    isMe ? FontWeight.bold : FontWeight.normal),
                           ),
                   ).animate().fadeIn().slideY(begin: 0.1),
                 );
               },
             ),
           ),
-          
+
           // حقل إدخال الرسالة
           ClipRRect(
             child: BackdropFilter(
               filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8).copyWith(bottom: MediaQuery.of(context).padding.bottom + 8),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8)
+                    .copyWith(
+                        bottom: MediaQuery.of(context).padding.bottom + 8),
                 decoration: BoxDecoration(
                   color: Colors.white.withOpacity(0.05),
-                  border: Border(top: BorderSide(color: Colors.white.withOpacity(0.1))),
+                  border: Border(
+                      top: BorderSide(color: Colors.white.withOpacity(0.1))),
                 ),
                 child: Row(
                   children: [
                     IconButton(
-                      icon: const Icon(Icons.auto_awesome, color: Colors.amberAccent),
+                      icon: const Icon(Icons.auto_awesome,
+                          color: Colors.amberAccent),
                       onPressed: () {
                         // هنا يمكن ربط سديم لاحقاً لتوليد رد ذكي
-                        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('سديم يجهز لك الرد...')));
+                        ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                                content: Text('سديم يجهز لك الرد...')));
                       },
                     ),
                     Expanded(
                       child: Container(
-                        decoration: BoxDecoration(color: Colors.black45, borderRadius: BorderRadius.circular(24)),
+                        decoration: BoxDecoration(
+                            color: Colors.black45,
+                            borderRadius: BorderRadius.circular(24)),
                         child: TextField(
                           controller: _msgController,
                           style: const TextStyle(color: Colors.white),
@@ -261,7 +291,8 @@ class _ChatScreenState extends State<ChatScreen> {
                             hintText: 'اكتب رسالة...',
                             hintStyle: TextStyle(color: Colors.grey),
                             border: InputBorder.none,
-                            contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                            contentPadding: EdgeInsets.symmetric(
+                                horizontal: 16, vertical: 12),
                           ),
                         ),
                       ),
@@ -269,16 +300,23 @@ class _ChatScreenState extends State<ChatScreen> {
                     const SizedBox(width: 8),
                     GestureDetector(
                       onTap: () {
-                         if (_msgController.text.trim().isNotEmpty) {
-                           _sendMessage();
-                         }
+                        if (_msgController.text.trim().isNotEmpty) {
+                          _sendMessage();
+                        }
                       },
                       onLongPress: _startRecording,
                       onLongPressUp: _stopRecordingAndSend,
                       child: Container(
                         padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(shape: BoxShape.circle, color: _isRecording ? Colors.redAccent : Colors.amberAccent),
-                        child: Icon(_isRecording ? Icons.mic : Icons.send_rounded, color: Colors.black, size: 24),
+                        decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: _isRecording
+                                ? Colors.redAccent
+                                : Colors.amberAccent),
+                        child: Icon(
+                            _isRecording ? Icons.mic : Icons.send_rounded,
+                            color: Colors.black,
+                            size: 24),
                       ),
                     ),
                   ],

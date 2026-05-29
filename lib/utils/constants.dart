@@ -20,7 +20,7 @@ class AppConstants {
   static const String appName = 'Sadeem (سديم)';
   static const String errorGeneric = 'حدث خطأ غير متوقع، سديم يحاول الإصلاح.';
   static const String aiThinking = 'سديم يحلل البيانات... ✨';
-  
+
   // 👑 بصمة المطور الأسطورية (تُستدعى في الشاشات كـ Easter Egg)
   static const String zainSignature = '✨ Crafted with magic by Zain';
   static const String devEmail = 'zainalabdeensalman123@gmail.com';

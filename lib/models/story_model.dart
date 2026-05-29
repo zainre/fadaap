@@ -3,13 +3,13 @@ class StoryModel {
   final String userId;
   final String mediaUrl;
   final bool isVideo;
-  final int viewsCount;      
-  final int likesCount;      
-  final int repliesCount;     // ✨ جديد: عدد الردود على القصة
+  final int viewsCount;
+  final int likesCount;
+  final int repliesCount; // ✨ جديد: عدد الردود على القصة
   final List<String> viewersIds; // ✨ جديد: قائمة بمن شاهد القصة
-  final bool isHighlight;     // ✨ جديد: هل القصة محفوظة في الهايلايت؟
-  final List<String>? aiTags; 
-  final String? aiCaption;    // 🤖 جديد: نص مقترح من سديم يكتب فوق القصة
+  final bool isHighlight; // ✨ جديد: هل القصة محفوظة في الهايلايت؟
+  final List<String>? aiTags;
+  final String? aiCaption; // 🤖 جديد: نص مقترح من سديم يكتب فوق القصة
   final DateTime expiresAt;
   final DateTime createdAt;
 

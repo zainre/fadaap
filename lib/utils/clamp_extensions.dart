@@ -36,7 +36,7 @@ extension NumFormatting on num {
 extension StringExtensions on String {
   // تحويل أي كلمة إلى هاشتاج
   String get toHashtag => startsWith('#') ? this : '#$this';
-  
+
   // اختصار النص الطويل مع إضافة نقاط (مفيدة للوصف)
   String limitWords(int count) {
     final words = split(' ');

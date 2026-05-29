@@ -29,7 +29,11 @@ class _ChatListScreenState extends State<ChatListScreen> {
 
   // دالة لجلب بيانات الطرف الآخر في المحادثة
   Future<Map<String, dynamic>> _getPeerUser(String peerId) async {
-    final response = await SupabaseConfig.client.from('profiles').select('username, avatar_url').eq('id', peerId).single();
+    final response = await SupabaseConfig.client
+        .from('profiles')
+        .select('username, avatar_url')
+        .eq('id', peerId)
+        .single();
     return response;
   }
 
@@ -42,12 +46,14 @@ class _ChatListScreenState extends State<ChatListScreen> {
       backgroundColor: Colors.black,
       appBar: AppBar(
         backgroundColor: Colors.black,
-        title: const Text('الرسائل', style: TextStyle(fontWeight: FontWeight.bold)),
+        title: const Text('الرسائل',
+            style: TextStyle(fontWeight: FontWeight.bold)),
         actions: [
           IconButton(
             icon: const Icon(Icons.edit_square, color: Colors.amberAccent),
             onPressed: () {
-              Navigator.push(context, MaterialPageRoute(builder: (_) => const NewChatScreen()));
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (_) => const NewChatScreen()));
             },
           ),
         ],
@@ -61,25 +67,37 @@ class _ChatListScreenState extends State<ChatListScreen> {
                   itemBuilder: (context, index) {
                     final chat = chatProvider.chats[index];
                     // تحديد من هو الطرف الآخر في المحادثة
-                    final peerId = chat.participantIds.firstWhere((id) => id != myId, orElse: () => myId!);
+                    final peerId = chat.participantIds
+                        .firstWhere((id) => id != myId, orElse: () => myId!);
 
                     return FutureBuilder<Map<String, dynamic>>(
                       future: _getPeerUser(peerId),
                       builder: (context, snapshot) {
-                        if (!snapshot.hasData) return const SizedBox(height: 72); // مساحة فارغة حتى يتم التحميل
-                        
+                        if (!snapshot.hasData)
+                          return const SizedBox(
+                              height: 72); // مساحة فارغة حتى يتم التحميل
+
                         final peerName = snapshot.data!['username'] ?? 'مستخدم';
                         final peerAvatar = snapshot.data!['avatar_url'] ?? '';
 
                         return ListTile(
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                          contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 8),
                           leading: CircleAvatar(
                             radius: 28,
                             backgroundColor: Colors.grey.shade900,
-                            backgroundImage: peerAvatar.isNotEmpty ? NetworkImage(peerAvatar) : null,
-                            child: peerAvatar.isEmpty ? const Icon(Icons.person, color: Colors.white) : null,
+                            backgroundImage: peerAvatar.isNotEmpty
+                                ? NetworkImage(peerAvatar)
+                                : null,
+                            child: peerAvatar.isEmpty
+                                ? const Icon(Icons.person, color: Colors.white)
+                                : null,
                           ),
-                          title: Text(peerName, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
+                          title: Text(peerName,
+                              style: const TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16)),
                           subtitle: Text(
                             chat.lastMessage,
                             maxLines: 1,
@@ -99,7 +117,10 @@ class _ChatListScreenState extends State<ChatListScreen> {
                               ),
                             );
                           },
-                        ).animate().fadeIn(delay: (index * 50).ms).slideX(begin: 0.1);
+                        )
+                            .animate()
+                            .fadeIn(delay: (index * 50).ms)
+                            .slideX(begin: 0.1);
                       },
                     );
                   },
@@ -122,7 +143,8 @@ class _ChatListScreenState extends State<ChatListScreen> {
                 children: const [
                   ShimmerLoading(width: 120, height: 16, borderRadius: 4),
                   SizedBox(height: 8),
-                  ShimmerLoading(width: double.infinity, height: 14, borderRadius: 4),
+                  ShimmerLoading(
+                      width: double.infinity, height: 14, borderRadius: 4),
                 ],
               ),
             ),
@@ -137,14 +159,20 @@ class _ChatListScreenState extends State<ChatListScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.chat_bubble_outline, size: 80, color: Colors.grey.shade800),
+          Icon(Icons.chat_bubble_outline,
+              size: 80, color: Colors.grey.shade800),
           const SizedBox(height: 16),
-          Text('لا توجد رسائل حتى الآن.', style: TextStyle(color: Colors.grey.shade500, fontSize: 16)),
+          Text('لا توجد رسائل حتى الآن.',
+              style: TextStyle(color: Colors.grey.shade500, fontSize: 16)),
           const SizedBox(height: 16),
           ElevatedButton(
-            onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const NewChatScreen())),
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.amberAccent),
-            child: const Text('بدء محادثة', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
+            onPressed: () => Navigator.push(context,
+                MaterialPageRoute(builder: (_) => const NewChatScreen())),
+            style:
+                ElevatedButton.styleFrom(backgroundColor: Colors.amberAccent),
+            child: const Text('بدء محادثة',
+                style: TextStyle(
+                    color: Colors.black, fontWeight: FontWeight.bold)),
           ),
         ],
       ).animate().fadeIn(),

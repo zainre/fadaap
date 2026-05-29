@@ -27,14 +27,10 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     if (userId == null) return;
 
     try {
-      final response = await _supabase
-          .from('notifications')
-          .select('''
+      final response = await _supabase.from('notifications').select('''
             *,
             sender:sender_id (id, username, avatar_url)
-          ''')
-          .eq('user_id', userId)
-          .order('created_at', ascending: false);
+          ''').eq('user_id', userId).order('created_at', ascending: false);
 
       setState(() {
         _notifications = List<Map<String, dynamic>>.from(response);
@@ -49,8 +45,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       if (unreadIds.isNotEmpty) {
         await _supabase
             .from('notifications')
-            .update({'is_read': true})
-            .inFilter('id', unreadIds);
+            .update({'is_read': true}).inFilter('id', unreadIds);
       }
     } catch (e) {
       debugPrint("Error fetching notifications: $e");
@@ -61,19 +56,27 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
 
   IconData _getIconForType(String type) {
     switch (type) {
-      case 'like': return Icons.favorite;
-      case 'comment': return Icons.chat_bubble;
-      case 'follow': return Icons.person_add;
-      default: return Icons.notifications;
+      case 'like':
+        return Icons.favorite;
+      case 'comment':
+        return Icons.chat_bubble;
+      case 'follow':
+        return Icons.person_add;
+      default:
+        return Icons.notifications;
     }
   }
 
   Color _getColorForType(String type) {
     switch (type) {
-      case 'like': return Colors.redAccent;
-      case 'comment': return Colors.blueAccent;
-      case 'follow': return Colors.greenAccent;
-      default: return Colors.amberAccent;
+      case 'like':
+        return Colors.redAccent;
+      case 'comment':
+        return Colors.blueAccent;
+      case 'follow':
+        return Colors.greenAccent;
+      default:
+        return Colors.amberAccent;
     }
   }
 
@@ -82,20 +85,25 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
-        title: const Text('الإشعارات', style: TextStyle(fontWeight: FontWeight.bold)),
+        title: const Text('الإشعارات',
+            style: TextStyle(fontWeight: FontWeight.bold)),
         backgroundColor: Colors.black,
         elevation: 0,
       ),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator(color: Colors.amberAccent))
+          ? const Center(
+              child: CircularProgressIndicator(color: Colors.amberAccent))
           : _notifications.isEmpty
               ? Center(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Icon(Icons.notifications_off_outlined, size: 80, color: Colors.white24),
+                      const Icon(Icons.notifications_off_outlined,
+                          size: 80, color: Colors.white24),
                       const SizedBox(height: 16),
-                      const Text('لا توجد إشعارات حتى الآن.', style: TextStyle(color: Colors.white54, fontSize: 16)),
+                      const Text('لا توجد إشعارات حتى الآن.',
+                          style:
+                              TextStyle(color: Colors.white54, fontSize: 16)),
                     ],
                   ).animate().fadeIn(),
                 )
@@ -106,7 +114,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                   child: ListView.separated(
                     physics: const BouncingScrollPhysics(),
                     itemCount: _notifications.length,
-                    separatorBuilder: (context, index) => Divider(color: Colors.white.withOpacity(0.05), height: 1),
+                    separatorBuilder: (context, index) => Divider(
+                        color: Colors.white.withOpacity(0.05), height: 1),
                     itemBuilder: (context, index) {
                       final notification = _notifications[index];
                       final sender = notification['sender'] ?? {};
@@ -114,16 +123,24 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                       final isRead = notification['is_read'] as bool? ?? false;
 
                       return Container(
-                        color: isRead ? Colors.transparent : Colors.white.withOpacity(0.05),
+                        color: isRead
+                            ? Colors.transparent
+                            : Colors.white.withOpacity(0.05),
                         child: ListTile(
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                          contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 16.0, vertical: 8.0),
                           leading: Stack(
                             children: [
                               CircleAvatar(
                                 radius: 24,
                                 backgroundColor: Colors.grey.shade900,
-                                backgroundImage: sender['avatar_url'] != null ? NetworkImage(sender['avatar_url']) : null,
-                                child: sender['avatar_url'] == null ? const Icon(Icons.person, color: Colors.white54) : null,
+                                backgroundImage: sender['avatar_url'] != null
+                                    ? NetworkImage(sender['avatar_url'])
+                                    : null,
+                                child: sender['avatar_url'] == null
+                                    ? const Icon(Icons.person,
+                                        color: Colors.white54)
+                                    : null,
                               ),
                               Positioned(
                                 bottom: 0,
@@ -133,25 +150,35 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                                   decoration: BoxDecoration(
                                     color: _getColorForType(type),
                                     shape: BoxShape.circle,
-                                    border: Border.all(color: Colors.black, width: 2),
+                                    border: Border.all(
+                                        color: Colors.black, width: 2),
                                   ),
-                                  child: Icon(_getIconForType(type), color: Colors.white, size: 10),
+                                  child: Icon(_getIconForType(type),
+                                      color: Colors.white, size: 10),
                                 ),
                               ),
                             ],
                           ),
                           title: RichText(
                             text: TextSpan(
-                              style: const TextStyle(color: Colors.white, fontSize: 14),
+                              style: const TextStyle(
+                                  color: Colors.white, fontSize: 14),
                               children: [
-                                TextSpan(text: '${sender['username'] ?? 'مستخدم'} ', style: const TextStyle(fontWeight: FontWeight.bold)),
-                                TextSpan(text: notification['message'] ?? 'قام بالتفاعل معك.'),
+                                TextSpan(
+                                    text: '${sender['username'] ?? 'مستخدم'} ',
+                                    style: const TextStyle(
+                                        fontWeight: FontWeight.bold)),
+                                TextSpan(
+                                    text: notification['message'] ??
+                                        'قام بالتفاعل معك.'),
                               ],
                             ),
                           ),
                           subtitle: Padding(
                             padding: const EdgeInsets.only(top: 4.0),
-                            child: Text('منذ قليل', style: TextStyle(color: Colors.grey.shade600, fontSize: 12)),
+                            child: Text('منذ قليل',
+                                style: TextStyle(
+                                    color: Colors.grey.shade600, fontSize: 12)),
                           ),
                           onTap: () {
                             // TODO: Navigate to relevant content based on notification

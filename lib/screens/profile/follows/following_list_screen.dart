@@ -51,24 +51,35 @@ class _FollowingListScreenState extends State<FollowingListScreen> {
         backgroundColor: Colors.transparent,
       ),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator(color: Colors.amberAccent))
+          ? const Center(
+              child: CircularProgressIndicator(color: Colors.amberAccent))
           : _following.isEmpty
-              ? const Center(child: Text('لا يتابع أحداً.', style: TextStyle(color: Colors.white54)))
+              ? const Center(
+                  child: Text('لا يتابع أحداً.',
+                      style: TextStyle(color: Colors.white54)))
               : ListView.builder(
                   itemCount: _following.length,
                   itemBuilder: (context, index) {
                     final user = _following[index];
                     return ListTile(
                       leading: CircleAvatar(
-                        backgroundImage: user.avatarUrl.isNotEmpty ? NetworkImage(user.avatarUrl) : null,
-                        child: user.avatarUrl.isEmpty ? const Icon(Icons.person) : null,
+                        backgroundImage: user.avatarUrl.isNotEmpty
+                            ? NetworkImage(user.avatarUrl)
+                            : null,
+                        child: user.avatarUrl.isEmpty
+                            ? const Icon(Icons.person)
+                            : null,
                       ),
-                      title: Text(user.username, style: const TextStyle(color: Colors.white)),
-                      subtitle: Text(user.fullName, style: TextStyle(color: Colors.white54)),
+                      title: Text(user.username,
+                          style: const TextStyle(color: Colors.white)),
+                      subtitle: Text(user.fullName,
+                          style: TextStyle(color: Colors.white54)),
                       onTap: () {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => UserProfileScreen(userId: user.id)),
+                          MaterialPageRoute(
+                              builder: (context) =>
+                                  UserProfileScreen(userId: user.id)),
                         );
                       },
                     );

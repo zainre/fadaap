@@ -52,9 +52,8 @@ class _CreateReelScreenState extends State<CreateReelScreen> {
           .from('reels')
           .upload(fileName, _videoFile!);
 
-      final publicUrl = SupabaseConfig.client.storage
-          .from('reels')
-          .getPublicUrl(fileName);
+      final publicUrl =
+          SupabaseConfig.client.storage.from('reels').getPublicUrl(fileName);
 
       final reel = ReelModel(
         id: const Uuid().v4(),
@@ -97,8 +96,16 @@ class _CreateReelScreenState extends State<CreateReelScreen> {
             TextButton(
               onPressed: _isLoading ? null : _uploadReel,
               child: _isLoading
-                ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.amberAccent))
-                : const Text('نشر', style: TextStyle(color: Colors.amberAccent, fontWeight: FontWeight.bold, fontSize: 16)),
+                  ? const SizedBox(
+                      width: 20,
+                      height: 20,
+                      child:
+                          CircularProgressIndicator(color: Colors.amberAccent))
+                  : const Text('نشر',
+                      style: TextStyle(
+                          color: Colors.amberAccent,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16)),
             ),
         ],
       ),
@@ -110,13 +117,17 @@ class _CreateReelScreenState extends State<CreateReelScreen> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       IconButton(
-                        icon: const Icon(Icons.video_library, size: 80, color: Colors.white54),
+                        icon: const Icon(Icons.video_library,
+                            size: 80, color: Colors.white54),
                         onPressed: _pickVideo,
                       ),
-                      const Text('اضغط لاختيار فيديو', style: TextStyle(color: Colors.white54, fontSize: 16)),
+                      const Text('اضغط لاختيار فيديو',
+                          style:
+                              TextStyle(color: Colors.white54, fontSize: 16)),
                     ],
                   )
-                : _videoPlayerController != null && _videoPlayerController!.value.isInitialized
+                : _videoPlayerController != null &&
+                        _videoPlayerController!.value.isInitialized
                     ? AspectRatio(
                         aspectRatio: _videoPlayerController!.value.aspectRatio,
                         child: VideoPlayer(_videoPlayerController!),

@@ -44,18 +44,23 @@ class NotificationService {
         'is_read': false,
         'created_at': DateTime.now().toIso8601String(),
       });
-      developer.log('✅ تم إرسال الإشعار بنجاح إلى $receiverId', name: 'NotificationService');
+      developer.log('✅ تم إرسال الإشعار بنجاح إلى $receiverId',
+          name: 'NotificationService');
     } catch (e) {
-      developer.log('❌ خطأ في إرسال الإشعار', name: 'NotificationService', error: e);
+      developer.log('❌ خطأ في إرسال الإشعار',
+          name: 'NotificationService', error: e);
     }
   }
 
   // تحديد الإشعار كمقروء عند الضغط عليه
   static Future<void> markAsRead(String notificationId) async {
     try {
-      await _supabase.from('notifications').update({'is_read': true}).eq('id', notificationId);
+      await _supabase
+          .from('notifications')
+          .update({'is_read': true}).eq('id', notificationId);
     } catch (e) {
-      developer.log('❌ خطأ في تحديث الإشعار', name: 'NotificationService', error: e);
+      developer.log('❌ خطأ في تحديث الإشعار',
+          name: 'NotificationService', error: e);
     }
   }
 }

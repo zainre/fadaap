@@ -17,14 +17,16 @@ class GlowingHeart extends StatefulWidget {
   State<GlowingHeart> createState() => _GlowingHeartState();
 }
 
-class _GlowingHeartState extends State<GlowingHeart> with SingleTickerProviderStateMixin {
+class _GlowingHeartState extends State<GlowingHeart>
+    with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
 
   @override
   void initState() {
     super.initState();
     // تقليل المدة ليكون النبض أسرع وأكثر حيوية
-    _controller = AnimationController(vsync: this, duration: const Duration(milliseconds: 400));
+    _controller = AnimationController(
+        vsync: this, duration: const Duration(milliseconds: 400));
   }
 
   @override
@@ -51,9 +53,10 @@ class _GlowingHeartState extends State<GlowingHeart> with SingleTickerProviderSt
         animation: _controller,
         builder: (context, child) {
           // ✨ استخدام منحنى مطاطي (Elastic) لنبضة قلب واقعية
-          final curve = CurvedAnimation(parent: _controller, curve: Curves.elasticOut);
-          final scale = 1.0 + (curve.value * 0.4); 
-          
+          final curve =
+              CurvedAnimation(parent: _controller, curve: Curves.elasticOut);
+          final scale = 1.0 + (curve.value * 0.4);
+
           return Transform.scale(
             scale: widget.isLiked ? scale : 1.0,
             child: Icon(
@@ -63,13 +66,14 @@ class _GlowingHeartState extends State<GlowingHeart> with SingleTickerProviderSt
             ),
           );
         },
-      )
-      .animate(target: widget.isLiked ? 1 : 0)
-      .boxShadow(
-        begin: const BoxShadow(color: Colors.transparent),
-        end: BoxShadow(color: Colors.white.withOpacity(0.8), blurRadius: 20, spreadRadius: 4), // توهج أبيض قوي
-        duration: 200.ms,
-      ),
+      ).animate(target: widget.isLiked ? 1 : 0).boxShadow(
+            begin: const BoxShadow(color: Colors.transparent),
+            end: BoxShadow(
+                color: Colors.white.withOpacity(0.8),
+                blurRadius: 20,
+                spreadRadius: 4), // توهج أبيض قوي
+            duration: 200.ms,
+          ),
     );
   }
 }

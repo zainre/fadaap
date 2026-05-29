@@ -15,8 +15,12 @@ class FeedProvider extends ChangeNotifier {
     _isLoading = true;
     notifyListeners();
     try {
-      final response = await _supabase.from('posts').select().order('created_at', ascending: false);
-      _posts = (response as List).map((post) => PostModel.fromJson(post)).toList();
+      final response = await _supabase
+          .from('posts')
+          .select()
+          .order('created_at', ascending: false);
+      _posts =
+          (response as List).map((post) => PostModel.fromJson(post)).toList();
     } catch (e) {
       debugPrint("Error fetching posts: $e");
     } finally {
@@ -28,7 +32,7 @@ class FeedProvider extends ChangeNotifier {
   Future<bool> addPost(PostModel post) async {
     try {
       await _supabase.from('posts').insert(post.toJson());
-      _posts.insert(0, post); 
+      _posts.insert(0, post);
       notifyListeners();
       return true;
     } catch (e) {
@@ -39,7 +43,12 @@ class FeedProvider extends ChangeNotifier {
 
   Future<void> toggleLike(String postId, String userId) async {
     try {
-      final existingLike = await _supabase.from('likes').select().eq('post_id', postId).eq('user_id', userId).maybeSingle();
+      final existingLike = await _supabase
+          .from('likes')
+          .select()
+          .eq('post_id', postId)
+          .eq('user_id', userId)
+          .maybeSingle();
 
       if (existingLike != null) {
         await _supabase.from('likes').delete().eq('id', existingLike['id']);
@@ -58,10 +67,18 @@ class FeedProvider extends ChangeNotifier {
   // ✨ ميزة جديدة: حفظ المنشور في المفضلة
   Future<void> toggleSavePost(String postId, String userId) async {
     try {
-      final existingBookmark = await _supabase.from('bookmarks').select().eq('post_id', postId).eq('user_id', userId).maybeSingle();
+      final existingBookmark = await _supabase
+          .from('bookmarks')
+          .select()
+          .eq('post_id', postId)
+          .eq('user_id', userId)
+          .maybeSingle();
 
       if (existingBookmark != null) {
-        await _supabase.from('bookmarks').delete().eq('id', existingBookmark['id']);
+        await _supabase
+            .from('bookmarks')
+            .delete()
+            .eq('id', existingBookmark['id']);
       } else {
         await _supabase.from('bookmarks').insert({
           'post_id': postId,

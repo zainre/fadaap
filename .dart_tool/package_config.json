@@ -152,6 +152,18 @@
       "languageVersion": "3.4"
     },
     {
+      "name": "connectivity_plus",
+      "rootUri": "file:///home/jules/.pub-cache/hosted/pub.dev/connectivity_plus-7.1.1",
+      "packageUri": "lib/",
+      "languageVersion": "3.2"
+    },
+    {
+      "name": "connectivity_plus_platform_interface",
+      "rootUri": "file:///home/jules/.pub-cache/hosted/pub.dev/connectivity_plus_platform_interface-2.1.0",
+      "packageUri": "lib/",
+      "languageVersion": "2.18"
+    },
+    {
       "name": "convert",
       "rootUri": "file:///home/jules/.pub-cache/hosted/pub.dev/convert-3.1.2",
       "packageUri": "lib/",
@@ -180,6 +192,12 @@
       "rootUri": "file:///home/jules/.pub-cache/hosted/pub.dev/dart_jsonwebtoken-3.4.1",
       "packageUri": "lib/",
       "languageVersion": "3.0"
+    },
+    {
+      "name": "dbus",
+      "rootUri": "file:///home/jules/.pub-cache/hosted/pub.dev/dbus-0.7.12",
+      "packageUri": "lib/",
+      "languageVersion": "2.17"
     },
     {
       "name": "fake_async",
@@ -249,21 +267,21 @@
     },
     {
       "name": "flutter_dotenv",
-      "rootUri": "file:///home/jules/.pub-cache/hosted/pub.dev/flutter_dotenv-5.2.1",
+      "rootUri": "file:///home/jules/.pub-cache/hosted/pub.dev/flutter_dotenv-6.0.1",
       "packageUri": "lib/",
       "languageVersion": "2.12"
     },
     {
       "name": "flutter_launcher_icons",
-      "rootUri": "file:///home/jules/.pub-cache/hosted/pub.dev/flutter_launcher_icons-0.13.1",
+      "rootUri": "file:///home/jules/.pub-cache/hosted/pub.dev/flutter_launcher_icons-0.14.4",
       "packageUri": "lib/",
-      "languageVersion": "2.18"
+      "languageVersion": "3.0"
     },
     {
       "name": "flutter_lints",
-      "rootUri": "file:///home/jules/.pub-cache/hosted/pub.dev/flutter_lints-2.0.3",
+      "rootUri": "file:///home/jules/.pub-cache/hosted/pub.dev/flutter_lints-6.0.0",
       "packageUri": "lib/",
-      "languageVersion": "2.19"
+      "languageVersion": "3.8"
     },
     {
       "name": "flutter_localizations",
@@ -321,7 +339,7 @@
     },
     {
       "name": "google_fonts",
-      "rootUri": "file:///home/jules/.pub-cache/hosted/pub.dev/google_fonts-6.3.3",
+      "rootUri": "file:///home/jules/.pub-cache/hosted/pub.dev/google_fonts-8.1.0",
       "packageUri": "lib/",
       "languageVersion": "3.9"
     },
@@ -471,9 +489,9 @@
     },
     {
       "name": "lints",
-      "rootUri": "file:///home/jules/.pub-cache/hosted/pub.dev/lints-2.1.1",
+      "rootUri": "file:///home/jules/.pub-cache/hosted/pub.dev/lints-6.1.0",
       "packageUri": "lib/",
-      "languageVersion": "3.0"
+      "languageVersion": "3.8"
     },
     {
       "name": "logging",
@@ -508,6 +526,12 @@
     {
       "name": "nested",
       "rootUri": "file:///home/jules/.pub-cache/hosted/pub.dev/nested-1.0.0",
+      "packageUri": "lib/",
+      "languageVersion": "2.12"
+    },
+    {
+      "name": "nm",
+      "rootUri": "file:///home/jules/.pub-cache/hosted/pub.dev/nm-0.5.0",
       "packageUri": "lib/",
       "languageVersion": "2.12"
     },
