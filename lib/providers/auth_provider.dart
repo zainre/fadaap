@@ -22,7 +22,6 @@ class AuthProvider extends ChangeNotifier {
       _isLoading = true;
       notifyListeners();
       try {
-        // التعديل الأول هنا: توجيه الطلب إلى جدول profiles بدلاً من users
         final response = await _supabase.from('profiles').select().eq('id', user.id).single();
         _currentUser = UserModel.fromJson(response);
       } catch (e) {
@@ -78,8 +77,8 @@ class AuthProvider extends ChangeNotifier {
           createdAt: DateTime.now(),
         );
         
-        // التعديل الثاني هنا: إدخال البيانات في جدول profiles بدلاً من users
-        await _supabase.from('profiles').insert(newUser.toJson());
+        // استخدام upsert بدلاً من insert لحل مشكلة التصادم نهائياً
+        await _supabase.from('profiles').upsert(newUser.toJson());
         _currentUser = newUser;
         return true;
       }
