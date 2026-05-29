@@ -1,14 +1,20 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:video_player/video_player.dart';
+import 'package:provider/provider.dart';
 import '../../models/reel_model.dart';
 import '../../widgets/glowing_heart.dart';
+import '../../providers/reels_provider.dart';
+import '../../providers/auth_provider.dart';
+import '../feed/comments_sheet.dart';
 
 class ReelItem extends StatefulWidget {
   final ReelModel? reel;
   final String? dummyImage; 
+  final bool isActive;
 
-  const ReelItem({super.key, this.reel, this.dummyImage});
+  const ReelItem({super.key, this.reel, this.dummyImage, this.isActive = false});
 
   @override
   State<ReelItem> createState() => _ReelItemState();
@@ -16,29 +22,80 @@ class ReelItem extends StatefulWidget {
 
 class _ReelItemState extends State<ReelItem> with SingleTickerProviderStateMixin {
   bool _isLiked = false;
+  bool _isSaved = false;
   late AnimationController _slowZoomController;
   bool _showAiDetails = false;
+  VideoPlayerController? _videoPlayerController;
+  bool _isVideoInitialized = false;
 
   @override
   void initState() {
     super.initState();
-    // أنيميشن تكبير بطيء جداً لمحاكاة حركة الفيديو
+
+    _initVideoPlayer();
+
+    // أنيميشن تكبير بطيء جداً لمحاكاة حركة الفيديو (في حال كان هناك dummyImage)
     _slowZoomController = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 20), // أبطأ ليكون أكثر انسيابية
     )..forward();
   }
 
+  void _initVideoPlayer() {
+    if (widget.reel?.videoUrl != null) {
+      _videoPlayerController = VideoPlayerController.networkUrl(Uri.parse(widget.reel!.videoUrl))
+        ..initialize().then((_) {
+          setState(() {
+            _isVideoInitialized = true;
+          });
+          _videoPlayerController!.setLooping(true);
+          if (widget.isActive) {
+            _videoPlayerController!.play();
+          }
+        });
+    }
+  }
+
+  @override
+  void didUpdateWidget(covariant ReelItem oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.isActive != widget.isActive) {
+      if (widget.isActive) {
+        _videoPlayerController?.play();
+      } else {
+        _videoPlayerController?.pause();
+        _videoPlayerController?.seekTo(Duration.zero); // Optional: reset position
+      }
+    }
+  }
+
   @override
   void dispose() {
     _slowZoomController.dispose();
+    _videoPlayerController?.dispose();
     super.dispose();
   }
 
   void _toggleLike() {
+    final userId = context.read<AuthProvider>().currentUser?.id ?? '';
+    if (userId.isEmpty || widget.reel == null) return;
+
     setState(() {
       _isLiked = !_isLiked;
     });
+
+    context.read<ReelsProvider>().toggleReelLike(widget.reel!.id, userId);
+  }
+
+  void _toggleSave() {
+    final userId = context.read<AuthProvider>().currentUser?.id ?? '';
+    if (userId.isEmpty || widget.reel == null) return;
+
+    setState(() {
+      _isSaved = !_isSaved;
+    });
+
+    context.read<ReelsProvider>().toggleSaveReel(widget.reel!.id, userId);
   }
 
   // ✨ نافذة سديم الذكية لتحليل الريلز
@@ -103,29 +160,52 @@ class _ReelItemState extends State<ReelItem> with SingleTickerProviderStateMixin
 
   @override
   Widget build(BuildContext context) {
-    final imageUrl = widget.reel?.videoUrl ?? widget.dummyImage ?? '';
     final caption = widget.reel?.caption ?? 'رحلة بين النجوم، استكشاف المجهول في عالم سديم... ✨';
     final aiTags = widget.reel?.aiTargetAudience ?? ['تصوير', 'فن', 'أبيض وأسود'];
     final likesCount = (widget.reel?.likesCount ?? 1240) + (_isLiked ? 1 : 0);
 
-    return Stack(
+    return GestureDetector(
+      onTap: () {
+        if (_videoPlayerController != null && _isVideoInitialized) {
+          if (_videoPlayerController!.value.isPlaying) {
+            _videoPlayerController!.pause();
+          } else {
+            _videoPlayerController!.play();
+          }
+        }
+      },
+      child: Stack(
       fit: StackFit.expand,
       children: [
-        // 1. خلفية الفيديو / الصورة مع حركة التكبير البطيئة
-        AnimatedBuilder(
-          animation: _slowZoomController,
-          builder: (context, child) {
-            return Transform.scale(
-              scale: 1.0 + (_slowZoomController.value * 0.1), 
-              child: Image.network(
-                imageUrl,
-                fit: BoxFit.cover,
-                color: Colors.black.withOpacity(0.15),
-                colorBlendMode: BlendMode.darken,
-              ),
-            );
-          },
-        ),
+        // 1. خلفية الفيديو / الصورة
+        if (_isVideoInitialized && _videoPlayerController != null)
+           SizedBox.expand(
+             child: FittedBox(
+               fit: BoxFit.cover,
+               child: SizedBox(
+                 width: _videoPlayerController!.value.size.width,
+                 height: _videoPlayerController!.value.size.height,
+                 child: VideoPlayer(_videoPlayerController!),
+               ),
+             ),
+           )
+        else if (widget.dummyImage != null)
+           AnimatedBuilder(
+             animation: _slowZoomController,
+             builder: (context, child) {
+               return Transform.scale(
+                 scale: 1.0 + (_slowZoomController.value * 0.1),
+                 child: Image.network(
+                   widget.dummyImage!,
+                   fit: BoxFit.cover,
+                   color: Colors.black.withOpacity(0.15),
+                   colorBlendMode: BlendMode.darken,
+                 ),
+               );
+             },
+           )
+        else
+           Container(color: Colors.black),
 
         // 2. تدرج لوني في الأسفل لضمان وضوح النصوص
         Positioned(
@@ -251,10 +331,26 @@ class _ReelItemState extends State<ReelItem> with SingleTickerProviderStateMixin
               Column(
                 children: [
                   IconButton(
-                    icon: const Icon(Icons.chat_bubble_rounded, color: Colors.white, size: 34),
-                    onPressed: () {}, 
+                    icon: Icon(_isSaved ? Icons.bookmark : Icons.bookmark_border, color: _isSaved ? Colors.amberAccent : Colors.white, size: 34),
+                    onPressed: _toggleSave,
                   ),
-                  const Text('128', style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold, shadows: [Shadow(color: Colors.black, blurRadius: 5)])),
+                  const Text('حفظ', style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold, shadows: [Shadow(color: Colors.black, blurRadius: 5)])),
+                ],
+              ).animate().fadeIn(delay: 500.ms).slideY(begin: 0.2),
+
+              const SizedBox(height: 24),
+
+              Column(
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.chat_bubble_rounded, color: Colors.white, size: 34),
+                    onPressed: () {
+                      if (widget.reel != null) {
+                        CommentsSheet.show(context, widget.reel!.id);
+                      }
+                    },
+                  ),
+                  Text('${widget.reel?.commentsCount ?? 0}', style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold, shadows: [Shadow(color: Colors.black, blurRadius: 5)])),
                 ],
               ).animate().fadeIn(delay: 400.ms).slideY(begin: 0.2),
 
@@ -268,7 +364,7 @@ class _ReelItemState extends State<ReelItem> with SingleTickerProviderStateMixin
                   ),
                   const Text('مشاركة', style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold, shadows: [Shadow(color: Colors.black, blurRadius: 5)])),
                 ],
-              ).animate().fadeIn(delay: 500.ms).slideY(begin: 0.2),
+              ).animate().fadeIn(delay: 600.ms).slideY(begin: 0.2),
 
               const SizedBox(height: 30),
 
@@ -292,6 +388,7 @@ class _ReelItemState extends State<ReelItem> with SingleTickerProviderStateMixin
           ),
         ),
       ],
+    ),
     );
   }
 }

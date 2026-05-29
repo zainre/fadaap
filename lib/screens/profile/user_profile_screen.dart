@@ -8,6 +8,8 @@ import '../../providers/auth_provider.dart';
 import '../../config/supabase_config.dart';
 import '../../widgets/shimmer_loading.dart';
 import '../../widgets/glass_card.dart';
+import 'follows/followers_list_screen.dart';
+import 'follows/following_list_screen.dart';
 // سيتم استدعاء شاشة المحادثة هنا قريباً عند بنائها
 
 class UserProfileScreen extends StatefulWidget {
@@ -153,8 +155,18 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: [
                             _buildStatColumn('منشورات', _posts.length.toString()),
-                            _buildStatColumn('متابعون', _followersCount.toString()),
-                            _buildStatColumn('يتابع', _user!.followingCount.toString()),
+                            GestureDetector(
+                              onTap: () {
+                                Navigator.push(context, MaterialPageRoute(builder: (context) => FollowersListScreen(userId: widget.userId)));
+                              },
+                              child: _buildStatColumn('متابعون', _followersCount.toString()),
+                            ),
+                            GestureDetector(
+                              onTap: () {
+                                Navigator.push(context, MaterialPageRoute(builder: (context) => FollowingListScreen(userId: widget.userId)));
+                              },
+                              child: _buildStatColumn('يتابع', _user!.followingCount.toString()),
+                            ),
                           ],
                         ).animate().fadeIn().slideX(begin: 0.1),
                       ),

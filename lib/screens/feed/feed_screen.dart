@@ -3,10 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../providers/feed_provider.dart';
+import '../../providers/story_provider.dart';
+import '../../providers/auth_provider.dart';
 import '../../widgets/animated_story_circle.dart';
 import '../../widgets/shimmer_loading.dart';
 import 'story_viewer.dart';
 import 'post_card.dart';
+import '../create/create_story_screen.dart';
 
 class FeedScreen extends StatefulWidget {
   const FeedScreen({super.key});
@@ -21,6 +24,7 @@ class _FeedScreenState extends State<FeedScreen> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<FeedProvider>().fetchPosts();
+      context.read<StoryProvider>().fetchStories();
     });
   }
 
@@ -29,7 +33,12 @@ class _FeedScreenState extends State<FeedScreen> {
     return RefreshIndicator(
       color: Colors.black,
       backgroundColor: Colors.amberAccent,
-      onRefresh: () => context.read<FeedProvider>().fetchPosts(),
+      onRefresh: () async {
+        await context.read<FeedProvider>().fetchPosts();
+        if (mounted) {
+          await context.read<StoryProvider>().fetchStories();
+        }
+      },
       child: CustomScrollView(
         physics: const BouncingScrollPhysics(),
         slivers: [
@@ -70,40 +79,90 @@ class _FeedScreenState extends State<FeedScreen> {
           SliverToBoxAdapter(
             child: SizedBox(
               height: 115,
-              child: ListView.builder(
-                scrollDirection: Axis.horizontal,
-                physics: const BouncingScrollPhysics(),
-                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-                itemCount: 8, 
-                itemBuilder: (context, index) {
-                  return Padding(
-                    padding: const EdgeInsets.only(right: 18.0),
-                    child: Column(
-                      children: [
-                        AnimatedStoryCircle(
-                          imageUrl: 'https://i.pravatar.cc/150?img=${index + 10}',
-                          hasUnviewedStory: index < 4, 
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              PageRouteBuilder(
-                                pageBuilder: (context, a, b) => const StoryViewer(),
-                                transitionsBuilder: (context, a, b, child) => FadeTransition(opacity: a, child: child),
+              child: Consumer<StoryProvider>(
+                builder: (context, storyProvider, child) {
+                  if (storyProvider.isLoading && storyProvider.stories.isEmpty) {
+                    return ListView.builder(
+                      scrollDirection: Axis.horizontal,
+                      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                      itemCount: 5,
+                      itemBuilder: (context, index) => Padding(
+                        padding: const EdgeInsets.only(right: 18.0),
+                        child: const ShimmerLoading(width: 65, height: 65, borderRadius: 32.5),
+                      ),
+                    );
+                  }
+
+                  // تجميع القصص حسب المستخدم
+                  final storiesByUser = <String, List>{};
+                  for (var story in storyProvider.stories) {
+                    if (!storiesByUser.containsKey(story.userId)) {
+                      storiesByUser[story.userId] = [];
+                    }
+                    storiesByUser[story.userId]!.add(story);
+                  }
+
+                  final userIds = storiesByUser.keys.toList();
+                  final currentUserId = context.read<AuthProvider>().currentUser?.id;
+
+                  // التأكد من وضع قصة المستخدم الحالي أولاً (في حال وجدت أو لإنشاء قصة جديدة)
+                  if (currentUserId != null) {
+                    userIds.remove(currentUserId);
+                    userIds.insert(0, currentUserId);
+                  }
+
+                  return ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    physics: const BouncingScrollPhysics(),
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                    itemCount: userIds.isEmpty ? 1 : userIds.length + (currentUserId != null && !userIds.contains(currentUserId) ? 1 : 0),
+                    itemBuilder: (context, index) {
+                      final userId = userIds.isNotEmpty && index < userIds.length ? userIds[index] : currentUserId;
+                      final userStories = userId != null ? storiesByUser[userId] ?? [] : [];
+
+                      final isCurrentUser = userId == currentUserId;
+                      final hasUnviewed = userStories.isNotEmpty; // في تطبيق حقيقي نتحقق مما إذا كان المستخدم شاهدها
+
+                      // في تطبيق حقيقي نجلب صورة واسم المستخدم بناءً على الـ userId
+                      final imageUrl = userStories.isNotEmpty ? userStories.first.mediaUrl : 'https://i.pravatar.cc/150?img=${index + 10}';
+
+                      return Padding(
+                        padding: const EdgeInsets.only(right: 18.0),
+                        child: Column(
+                          children: [
+                            AnimatedStoryCircle(
+                              imageUrl: imageUrl,
+                              hasUnviewedStory: hasUnviewed,
+                              onTap: () {
+                                if (userStories.isEmpty && isCurrentUser) {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(builder: (context) => const CreateStoryScreen()),
+                                  );
+                                } else if (userStories.isNotEmpty) {
+                                  Navigator.push(
+                                    context,
+                                    PageRouteBuilder(
+                                      pageBuilder: (context, a, b) => const StoryViewer(),
+                                      transitionsBuilder: (context, a, b, child) => FadeTransition(opacity: a, child: child),
+                                    ),
+                                  );
+                                }
+                              },
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              isCurrentUser ? 'قصتك' : 'مستخدم $index',
+                              style: TextStyle(
+                                color: isCurrentUser ? Colors.white : Colors.grey.shade400,
+                                fontSize: 12,
+                                fontWeight: isCurrentUser ? FontWeight.bold : FontWeight.normal
                               ),
-                            );
-                          },
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          index == 0 ? 'قصتك' : 'مستخدم $index',
-                          style: TextStyle(
-                            color: index == 0 ? Colors.white : Colors.grey.shade400, 
-                            fontSize: 12, 
-                            fontWeight: index == 0 ? FontWeight.bold : FontWeight.normal
-                          ),
-                        ),
-                      ],
-                    ).animate().fadeIn(delay: (index * 100).ms).scale(begin: const Offset(0.8, 0.8)),
+                            ),
+                          ],
+                        ).animate().fadeIn(delay: (index * 100).ms).scale(begin: const Offset(0.8, 0.8)),
+                      );
+                    },
                   );
                 },
               ),

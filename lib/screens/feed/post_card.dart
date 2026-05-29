@@ -8,6 +8,7 @@ import '../../providers/feed_provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../widgets/glowing_heart.dart';
 import '../../widgets/shimmer_loading.dart';
+import 'comments_sheet.dart';
 
 class PostCard extends StatefulWidget {
   final PostModel post;
@@ -20,6 +21,7 @@ class PostCard extends StatefulWidget {
 
 class _PostCardState extends State<PostCard> with SingleTickerProviderStateMixin {
   bool _isLiked = false;
+  bool _isSaved = false;
   bool _showBigHeart = false; 
 
   void _toggleLike() {
@@ -31,6 +33,17 @@ class _PostCardState extends State<PostCard> with SingleTickerProviderStateMixin
     });
     
     context.read<FeedProvider>().toggleLike(widget.post.id, userId);
+  }
+
+  void _toggleSave() {
+    final userId = context.read<AuthProvider>().currentUser?.id ?? '';
+    if (userId.isEmpty) return;
+
+    setState(() {
+      _isSaved = !_isSaved;
+    });
+
+    context.read<FeedProvider>().toggleSavePost(widget.post.id, userId);
   }
 
   void _handleDoubleTap() {
@@ -163,7 +176,7 @@ class _PostCardState extends State<PostCard> with SingleTickerProviderStateMixin
                 ),
                 const SizedBox(width: 18),
                 GestureDetector(
-                  onTap: () {},
+                  onTap: () => CommentsSheet.show(context, widget.post.id),
                   child: const Icon(Icons.chat_bubble_outline, color: Colors.white, size: 26),
                 ).animate().scale(delay: 100.ms),
                 const SizedBox(width: 18),
@@ -173,8 +186,12 @@ class _PostCardState extends State<PostCard> with SingleTickerProviderStateMixin
                 ).animate().scale(delay: 200.ms),
                 const Spacer(),
                 GestureDetector(
-                  onTap: () {},
-                  child: const Icon(Icons.bookmark_border, color: Colors.white, size: 28),
+                  onTap: _toggleSave,
+                  child: Icon(
+                    _isSaved ? Icons.bookmark : Icons.bookmark_border,
+                    color: _isSaved ? Colors.amberAccent : Colors.white,
+                    size: 28
+                  ),
                 ).animate().scale(delay: 300.ms),
               ],
             ),

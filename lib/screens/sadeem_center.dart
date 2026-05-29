@@ -6,6 +6,8 @@ import 'reels/reels_screen.dart';
 import 'profile/profile_screen.dart';
 import 'chat/chat_list_screen.dart';
 import 'ai_assistant_screen.dart';
+import 'notifications/notifications_screen.dart';
+import 'explore/explore_screen.dart';
 
 class SadeemCenterScreen extends StatefulWidget {
   const SadeemCenterScreen({super.key});
@@ -22,7 +24,7 @@ class _SadeemCenterScreenState extends State<SadeemCenterScreen> {
     // قائمة الشاشات (تم تعريفها داخل الـ build لكي نستطيع استدعاء دالة بناء الشاشة السحرية)
     final List<Widget> screens = [
       const FeedScreen(),
-      const Center(child: Text('البحث الذكي', style: TextStyle(color: Colors.white, fontSize: 24))), 
+      const ExploreScreen(), // 🧭 تم تفعيل شاشة الاكتشاف
       _buildMagicCreationHub(), // 🔮 استبدلنا النص العادي بمركز سديم السحري
       const ReelsScreen(), 
       const ProfileScreen(), 
@@ -37,6 +39,15 @@ class _SadeemCenterScreenState extends State<SadeemCenterScreen> {
             backgroundColor: Colors.black.withOpacity(0.8),
             title: const Text('ســديــم', style: TextStyle(fontWeight: FontWeight.bold, letterSpacing: 2)),
             actions: [
+              IconButton(
+                icon: const Icon(Icons.notifications_none_outlined),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const NotificationsScreen()),
+                  );
+                },
+              ),
               IconButton(
                 icon: const Icon(Icons.send_outlined),
                 onPressed: () {

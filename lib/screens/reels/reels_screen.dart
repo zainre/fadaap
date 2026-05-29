@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../providers/reels_provider.dart';
 import '../../widgets/shimmer_loading.dart';
 import 'reel_item.dart';
+import '../create/create_reel_screen.dart';
 
 class ReelsScreen extends StatefulWidget {
   const ReelsScreen({super.key});
@@ -14,6 +15,7 @@ class ReelsScreen extends StatefulWidget {
 
 class _ReelsScreenState extends State<ReelsScreen> {
   final PageController _pageController = PageController();
+  int _currentPage = 0;
 
   @override
   void initState() {
@@ -44,7 +46,10 @@ class _ReelsScreenState extends State<ReelsScreen> {
           IconButton(
             icon: const Icon(Icons.camera_alt_outlined, color: Colors.white, size: 28),
             onPressed: () {
-              // الانتقال لشاشة تصوير ريلز جديد
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const CreateReelScreen()),
+              );
             },
           ),
           const SizedBox(width: 8),
@@ -64,10 +69,16 @@ class _ReelsScreenState extends State<ReelsScreen> {
               controller: _pageController,
               scrollDirection: Axis.vertical,
               itemCount: 3,
+              onPageChanged: (index) {
+                setState(() {
+                  _currentPage = index;
+                });
+              },
               itemBuilder: (context, index) {
                 return ReelItem(
                   reel: null, 
                   dummyImage: 'https://images.unsplash.com/photo-1518780664697-55e3ad937233?q=80&w=1000&auto=format&fit=crop',
+                  isActive: _currentPage == index,
                 );
               },
             );
@@ -76,9 +87,17 @@ class _ReelsScreenState extends State<ReelsScreen> {
           return PageView.builder(
             controller: _pageController,
             scrollDirection: Axis.vertical,
+            onPageChanged: (index) {
+                setState(() {
+                  _currentPage = index;
+                });
+            },
             itemCount: reelsProvider.reels.length,
             itemBuilder: (context, index) {
-              return ReelItem(reel: reelsProvider.reels[index]);
+              return ReelItem(
+                reel: reelsProvider.reels[index],
+                isActive: _currentPage == index,
+              );
             },
           );
         },
