@@ -4,12 +4,33 @@ import '../config/supabase_config.dart';
 
 class StoryProvider extends ChangeNotifier {
   List<StoryModel> _stories = [];
+  Map<String, List<StoryModel>> _storiesByUser = {};
   bool _isLoading = false;
 
   List<StoryModel> get stories => _stories;
+  Map<String, List<StoryModel>> get storiesByUser => _storiesByUser;
   bool get isLoading => _isLoading;
 
   final _supabase = SupabaseConfig.client;
+
+  void _updateGroupedStories() {
+    _storiesByUser.clear();
+    for (var story in _stories) {
+      if (!_storiesByUser.containsKey(story.userId)) {
+        _storiesByUser[story.userId] = [];
+      }
+      _storiesByUser[story.userId]!.add(story);
+    }
+  }
+
+  List<String> getSortedUserIds(String? currentUserId) {
+    final userIds = _storiesByUser.keys.toList();
+    if (currentUserId != null) {
+      userIds.remove(currentUserId);
+      userIds.insert(0, currentUserId);
+    }
+    return userIds;
+  }
 
   Future<void> fetchStories() async {
     _isLoading = true;
@@ -25,6 +46,7 @@ class StoryProvider extends ChangeNotifier {
       _stories = (response as List)
           .map((story) => StoryModel.fromJson(story))
           .toList();
+      _updateGroupedStories();
     } catch (e) {
       debugPrint("Error fetching stories: $e");
     } finally {
@@ -37,6 +59,7 @@ class StoryProvider extends ChangeNotifier {
     try {
       await _supabase.from('stories').insert(story.toJson());
       _stories.insert(0, story);
+      _updateGroupedStories();
       notifyListeners();
       return true;
     } catch (e) {

@@ -1,0 +1,26 @@
+--- lib/providers/auth_provider.dart
++++ lib/providers/auth_provider.dart
+@@ -66,11 +66,7 @@
+         return true;
+       }
+       return false;
+-<<<<<<< Updated upstream
+-    } on AuthException catch (_) {
+-=======
+     } on AuthException catch (e) {
+       debugPrint(e.message);
+->>>>>>> Stashed changes
+       _errorMessage = "البريد الإلكتروني أو كلمة المرور غير صحيحة.";
+       return false;
+@@ -105,11 +101,7 @@
+         return true;
+       }
+       return false;
+-<<<<<<< Updated upstream
+-    } on AuthException catch (_) {
+-=======
+     } on AuthException catch (e) {
+       debugPrint(e.message);
+->>>>>>> Stashed changes
+       _errorMessage = "حدث خطأ أثناء التسجيل، يرجى التأكد من البيانات والمحاولة مجدداً.";
+       return false;

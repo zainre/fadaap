@@ -1,4 +1,5 @@
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter/foundation.dart';
 import 'dart:developer' as developer;
 
 class EnvLoader {
@@ -10,10 +11,11 @@ class EnvLoader {
       developer.log('✅ تم تحميل المفاتيح السرية بنجاح',
           name: 'Sadeem-EnvLoader');
     } catch (e) {
+      debugPrint('Failed to load assets/.env file. Error: $e');
       developer.log('❌ خطأ قاتل: لم يتم العثور على ملف .env',
           name: 'Sadeem-EnvLoader', error: e);
       // رمي الخطأ لكي تتوقف عملية الإقلاع إذا لم توجد مفاتيح (لكي يعمل التنبيه بشكل صحيح)
-      throw Exception('تعذر تحميل ملف المفاتيح السرية assets/.env');
+      throw Exception('تعذر تهيئة إعدادات التطبيق. يرجى المحاولة لاحقاً.');
     }
   }
 

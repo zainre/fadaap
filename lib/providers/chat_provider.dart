@@ -10,11 +10,42 @@ class ChatProvider extends ChangeNotifier {
   bool _isLoading = false;
   RealtimeChannel? _messagesSubscription;
 
+  // Cache for peer profiles to avoid N+1 queries
+  final Map<String, Map<String, dynamic>> _peerProfiles = {};
+
   List<ChatModel> get chats => _chats;
   List<MessageModel> get currentMessages => _currentMessages;
   bool get isLoading => _isLoading;
 
   final _supabase = SupabaseConfig.client;
+
+  // Get a cached profile
+  Map<String, dynamic>? getPeerProfile(String userId) => _peerProfiles[userId];
+
+  // Batch fetch profiles to solve N+1 issue
+  Future<void> loadPeerProfiles(List<String> peerIds) async {
+    // Filter out IDs that are already cached
+    final idsToFetch = peerIds.where((id) => !_peerProfiles.containsKey(id)).toSet().toList();
+
+    if (idsToFetch.isEmpty) return;
+
+    final stopwatch = Stopwatch()..start();
+    try {
+      final response = await _supabase
+          .from('profiles')
+          .select('id, username, avatar_url')
+          .inFilter('id', idsToFetch);
+
+      for (var profile in response) {
+        _peerProfiles[profile['id'] as String] = profile;
+      }
+      stopwatch.stop();
+      debugPrint('⚡ [Optimized] Batch fetched ${idsToFetch.length} profiles in ${stopwatch.elapsedMilliseconds} ms');
+      notifyListeners(); // Notify listeners to rebuild UI with new profiles
+    } catch (e) {
+      debugPrint("Error fetching peer profiles: $e");
+    }
+  }
 
   Future<void> fetchUserChats(String userId) async {
     _isLoading = true;
@@ -30,6 +61,19 @@ class ChatProvider extends ChangeNotifier {
                     (chat['participant_ids'] as List).contains(userId))
                 .map((chat) => ChatModel.fromJson(chat))
                 .toList();
+
+            // Extract unique peer IDs from loaded chats
+            final Set<String> peerIds = {};
+            for (var chat in _chats) {
+              final peerId = chat.participantIds.firstWhere((id) => id != userId, orElse: () => userId);
+              if (peerId != userId) {
+                peerIds.add(peerId);
+              }
+            }
+
+            // Batch load the missing profiles
+            loadPeerProfiles(peerIds.toList());
+
             notifyListeners();
           });
     } catch (e) {

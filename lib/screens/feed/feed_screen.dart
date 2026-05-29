@@ -24,7 +24,9 @@ class _FeedScreenState extends State<FeedScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final authProvider = context.read<AuthProvider>();
       if (authProvider.currentUser != null) {
-        context.read<FeedProvider>().fetchPosts(currentUserId: authProvider.currentUser!.id);
+        context
+            .read<FeedProvider>()
+            .fetchPosts(currentUserId: authProvider.currentUser!.id);
       }
       context.read<StoryProvider>().fetchStories();
     });
@@ -38,7 +40,9 @@ class _FeedScreenState extends State<FeedScreen> {
       onRefresh: () async {
         final authProvider = context.read<AuthProvider>();
         if (authProvider.currentUser != null) {
-          await context.read<FeedProvider>().fetchPosts(currentUserId: authProvider.currentUser!.id);
+          await context
+              .read<FeedProvider>()
+              .fetchPosts(currentUserId: authProvider.currentUser!.id);
         }
         if (mounted) {
           await context.read<StoryProvider>().fetchStories();
@@ -105,37 +109,21 @@ class _FeedScreenState extends State<FeedScreen> {
                     );
                   }
 
-                  // تجميع القصص حسب المستخدم
-                  final storiesByUser = <String, List>{};
-                  for (var story in storyProvider.stories) {
-                    if (!storiesByUser.containsKey(story.userId)) {
-                      storiesByUser[story.userId] = [];
-                    }
-                    storiesByUser[story.userId]!.add(story);
-                  }
-
-                  final userIds = storiesByUser.keys.toList();
                   final currentUserId =
                       context.read<AuthProvider>().currentUser?.id;
-
-                  // التأكد من وضع قصة المستخدم الحالي أولاً (في حال وجدت أو لإنشاء قصة جديدة)
-                  if (currentUserId != null) {
-                    userIds.remove(currentUserId);
-                    userIds.insert(0, currentUserId);
-                  }
+                  final userIds = storyProvider.getSortedUserIds(currentUserId);
+                  final storiesByUser = storyProvider.storiesByUser;
 
                   return ListView.builder(
                     scrollDirection: Axis.horizontal,
                     physics: const BouncingScrollPhysics(),
                     padding: const EdgeInsets.symmetric(
                         horizontal: 16.0, vertical: 8.0),
-                    itemCount: userIds.isEmpty
-                        ? 1
-                        : userIds.length +
-                            (currentUserId != null &&
-                                    !userIds.contains(currentUserId)
-                                ? 1
-                                : 0),
+                    itemCount: userIds.isEmpty && currentUserId == null
+                        ? 0
+                        : userIds.isEmpty && currentUserId != null
+                            ? 1
+                            : userIds.length,
                     itemBuilder: (context, index) {
                       final userId =
                           userIds.isNotEmpty && index < userIds.length
@@ -162,8 +150,9 @@ class _FeedScreenState extends State<FeedScreen> {
                                 if (userStories.isEmpty && isCurrentUser) {
                                   // User can upload story in CreateScreen
                                   ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(content: Text('قم برفع قصة من شاشة الإضافة المركزية +'))
-                                  );
+                                      const SnackBar(
+                                          content: Text(
+                                              'قم برفع قصة من شاشة الإضافة المركزية +')));
                                 } else if (userStories.isNotEmpty) {
                                   Navigator.push(
                                     context,
