@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/chat_provider.dart';
-import '../../config/supabase_config.dart';
 import '../../widgets/shimmer_loading.dart';
 import 'chat_screen.dart';
 import 'new_chat_screen.dart';
@@ -25,16 +24,6 @@ class _ChatListScreenState extends State<ChatListScreen> {
         context.read<ChatProvider>().fetchUserChats(userId);
       }
     });
-  }
-
-  // دالة لجلب بيانات الطرف الآخر في المحادثة
-  Future<Map<String, dynamic>> _getPeerUser(String peerId) async {
-    final response = await SupabaseConfig.client
-        .from('profiles')
-        .select('username, avatar_url')
-        .eq('id', peerId)
-        .single();
-    return response;
   }
 
   @override
@@ -70,59 +59,58 @@ class _ChatListScreenState extends State<ChatListScreen> {
                     final peerId = chat.participantIds
                         .firstWhere((id) => id != myId, orElse: () => myId!);
 
-                    return FutureBuilder<Map<String, dynamic>>(
-                      future: _getPeerUser(peerId),
-                      builder: (context, snapshot) {
-                        if (!snapshot.hasData)
-                          return const SizedBox(
-                              height: 72); // مساحة فارغة حتى يتم التحميل
+                    // استخدم البيانات المخبأة مباشرة
+                    final peerProfile = chatProvider.getPeerProfile(peerId);
 
-                        final peerName = snapshot.data!['username'] ?? 'مستخدم';
-                        final peerAvatar = snapshot.data!['avatar_url'] ?? '';
+                    if (peerProfile == null) {
+                      return const SizedBox(
+                          height: 72); // مساحة فارغة حتى يتم التحميل
+                    }
 
-                        return ListTile(
-                          contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 16, vertical: 8),
-                          leading: CircleAvatar(
-                            radius: 28,
-                            backgroundColor: Colors.grey.shade900,
-                            backgroundImage: peerAvatar.isNotEmpty
-                                ? NetworkImage(peerAvatar)
-                                : null,
-                            child: peerAvatar.isEmpty
-                                ? const Icon(Icons.person, color: Colors.white)
-                                : null,
+                    final peerName = peerProfile['username'] ?? 'مستخدم';
+                    final peerAvatar = peerProfile['avatar_url'] ?? '';
+
+                    return ListTile(
+                      contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 8),
+                      leading: CircleAvatar(
+                        radius: 28,
+                        backgroundColor: Colors.grey.shade900,
+                        backgroundImage: peerAvatar.isNotEmpty
+                            ? NetworkImage(peerAvatar)
+                            : null,
+                        child: peerAvatar.isEmpty
+                            ? const Icon(Icons.person, color: Colors.white)
+                            : null,
+                      ),
+                      title: Text(peerName,
+                          style: const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16)),
+                      subtitle: Text(
+                        chat.lastMessage,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(color: Colors.grey.shade500),
+                      ),
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => ChatScreen(
+                              chatId: chat.id,
+                              peerId: peerId,
+                              peerName: peerName,
+                              peerAvatar: peerAvatar,
+                            ),
                           ),
-                          title: Text(peerName,
-                              style: const TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 16)),
-                          subtitle: Text(
-                            chat.lastMessage,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(color: Colors.grey.shade500),
-                          ),
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => ChatScreen(
-                                  chatId: chat.id,
-                                  peerId: peerId,
-                                  peerName: peerName,
-                                  peerAvatar: peerAvatar,
-                                ),
-                              ),
-                            );
-                          },
-                        )
-                            .animate()
-                            .fadeIn(delay: (index * 50).ms)
-                            .slideX(begin: 0.1);
+                        );
                       },
-                    );
+                    )
+                        .animate()
+                        .fadeIn(delay: (index * 50).ms)
+                        .slideX(begin: 0.1);
                   },
                 ),
     );
