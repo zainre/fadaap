@@ -1,6 +1,6 @@
 workflows:
   android-build:
-    name: Fadaa Android APK Build
+    name: Sadeem Android APK Build
     environment:
       flutter: stable
       groups:
@@ -10,14 +10,15 @@ workflows:
         script: flutter create .
       - name: Add Internet Permission
         script: perl -pi -e 'print "<uses-permission android:name=\"android.permission.INTERNET\"/>\n" if /<application/' android/app/src/main/AndroidManifest.xml
-      - name: Create .env file for secrets
+      - name: Create .env file for secrets in assets folder
         script: |
-          echo "SUPABASE_URL=$SUPABASE_URL" > .env
-          echo "SUPABASE_ANON_KEY=$SUPABASE_ANON_KEY" >> .env
-          echo "GEMINI_KEY_1=$GEMINI_KEY_1" >> .env
-          echo "GEMINI_KEY_2=$GEMINI_KEY_2" >> .env
-          echo "GEMINI_KEY_3=$GEMINI_KEY_3" >> .env
-          echo "GEMINI_KEY_4=$GEMINI_KEY_4" >> .env
+          mkdir -p assets
+          echo "SUPABASE_URL=$SUPABASE_URL" > assets/.env
+          echo "SUPABASE_ANON_KEY=$SUPABASE_ANON_KEY" >> assets/.env
+          echo "GEMINI_KEY_1=$GEMINI_KEY_1" >> assets/.env
+          echo "GEMINI_KEY_2=$GEMINI_KEY_2" >> assets/.env
+          echo "GEMINI_KEY_3=$GEMINI_KEY_3" >> assets/.env
+          echo "GEMINI_KEY_4=$GEMINI_KEY_4" >> assets/.env
       - name: Get Flutter packages
         script: flutter pub get
       - name: Build Android APK
