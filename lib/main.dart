@@ -15,10 +15,31 @@ import 'providers/reels_provider.dart';
 import 'providers/sadeem_provider.dart';
 
 import 'screens/auth/login_screen.dart';
-import 'screens/sadeem_center.dart'; // تأكد أن هذا هو اسم ملف المركز لديك
+import 'screens/sadeem_center.dart'; 
 
 void main() async {
-  // حماية التطبيق: إذا حدث خطأ يظهر على الشاشة بدلاً من الشاشة البيضاء
+  // حماية التطبيق: شاشة خطأ فخمة بدلاً من الشاشة الرمادية/البيضاء المزعجة
+  ErrorWidget.builder = (FlutterErrorDetails details) {
+    return Material(
+      color: Colors.black,
+      child: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Icon(Icons.warning_amber_rounded, color: Colors.amberAccent, size: 50),
+              const SizedBox(height: 16),
+              const Text('عذراً، حدث تداخل في سديم!', style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 16),
+              Text(details.exceptionAsString(), style: const TextStyle(color: Colors.redAccent, fontSize: 14), textDirection: TextDirection.ltr),
+            ],
+          ),
+        ),
+      ),
+    );
+  };
+
   try {
     WidgetsFlutterBinding.ensureInitialized();
     await EnvLoader.init();
@@ -26,7 +47,6 @@ void main() async {
     GeminiConfig.init();
 
     runApp(
-      // تغليف التطبيق بمزودات الحالة لتعمل كل الشاشات
       MultiProvider(
         providers: [
           ChangeNotifierProvider(create: (_) => AuthProvider()),
@@ -43,13 +63,13 @@ void main() async {
       MaterialApp(
         debugShowCheckedModeBanner: false,
         home: Scaffold(
-          backgroundColor: Colors.white,
+          backgroundColor: Colors.black, // ثيم مظلم مريح
           body: SafeArea(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.all(24),
               child: Text(
                 "حدث خطأ يمنع التشغيل:\n\n$e\n\n$stacktrace",
-                style: const TextStyle(color: Colors.red, fontSize: 14),
+                style: const TextStyle(color: Colors.redAccent, fontSize: 14),
                 textDirection: TextDirection.ltr,
               ),
             ),
@@ -69,6 +89,13 @@ class SadeemApp extends StatelessWidget {
       title: AppConstants.appName,
       debugShowCheckedModeBanner: false,
       theme: AppTheme.darkTheme,
+      // ✨ دعم اللغة العربية واتجاه اليمين لليسار بشكل أصلي
+      builder: (context, child) {
+        return Directionality(
+          textDirection: TextDirection.rtl,
+          child: child!,
+        );
+      },
       home: const SplashScreen(),
     );
   }
@@ -94,7 +121,6 @@ class _SplashScreenState extends State<SplashScreen> {
       final auth = context.read<AuthProvider>();
       await auth.loadCurrentUser();
 
-      // التوجيه الذكي: إذا مسجل دخول يذهب للرئيسية، وإلا لشاشة الدخول
       if (auth.isAuthenticated) {
         Navigator.pushReplacement(
           context,
@@ -113,33 +139,59 @@ class _SplashScreenState extends State<SplashScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.blur_on, size: 80, color: Colors.white)
-              .animate(onPlay: (controller) => controller.repeat(reverse: true))
-              .scale(begin: const Offset(0.7, 0.7), end: const Offset(1.1, 1.1), duration: 2000.ms),
-            const SizedBox(height: 30),
-            const Text(
-              'ســديــم',
-              style: TextStyle(
-                fontSize: 40,
-                fontWeight: FontWeight.w900,
-                letterSpacing: 6,
-                color: Colors.white,
-              ),
-            ).animate().fadeIn(duration: 1000.ms),
-            const SizedBox(height: 30),
-            const SizedBox(
-              width: 120,
-              child: LinearProgressIndicator(
-                backgroundColor: Color(0xFF1A1A1A),
-                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-              ),
-            ).animate().fadeIn(delay: 600.ms, duration: 800.ms),
-          ],
-        ),
+      body: Stack(
+        children: [
+          Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(Icons.blur_on, size: 90, color: Colors.amberAccent)
+                  .animate(onPlay: (controller) => controller.repeat(reverse: true))
+                  .scale(begin: const Offset(0.8, 0.8), end: const Offset(1.1, 1.1), duration: 2.seconds)
+                  .shimmer(duration: 2.seconds, color: Colors.white),
+                const SizedBox(height: 30),
+                const Text(
+                  'ســديــم',
+                  style: TextStyle(
+                    fontSize: 42,
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: 8,
+                    color: Colors.white,
+                    shadows: [Shadow(color: Colors.amberAccent, blurRadius: 15)],
+                  ),
+                ).animate().fadeIn(duration: 1.seconds).slideY(begin: 0.2),
+                const SizedBox(height: 40),
+                const SizedBox(
+                  width: 140,
+                  height: 3,
+                  child: LinearProgressIndicator(
+                    backgroundColor: Colors.white10,
+                    valueColor: AlwaysStoppedAnimation<Color>(Colors.amberAccent),
+                  ),
+                ).animate().fadeIn(delay: 600.ms, duration: 800.ms),
+              ],
+            ),
+          ),
+          
+          // 👑 بصمة المطور الأسطورية تظهر في أسفل شاشة الإقلاع
+          Positioned(
+            bottom: 40,
+            left: 0,
+            right: 0,
+            child: Center(
+              child: const Text(
+                AppConstants.zainSignature,
+                style: TextStyle(
+                  fontFamily: 'monospace',
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white38,
+                  letterSpacing: 1.5,
+                ),
+              ).animate().fadeIn(delay: 1.seconds).shimmer(delay: 1.5.seconds, duration: 2.seconds, color: Colors.amberAccent),
+            ),
+          ),
+        ],
       ),
     );
   }
