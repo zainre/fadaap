@@ -9,7 +9,8 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:path_provider/path_provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/chat_provider.dart';
-import '../../config/supabase_config.dart';
+import '../../services/storage_service.dart';
+import '../../services/sadeem_ai_service.dart';
 import '../../models/message_model.dart';
 
 class ChatScreen extends StatefulWidget {
@@ -37,16 +38,20 @@ class _ChatScreenState extends State<ChatScreen> {
   final AudioPlayer _audioPlayer = AudioPlayer();
 
   bool _isRecording = false;
-  String? _recordingPath;
   String? _currentlyPlayingPath;
   bool _isPlaying = false;
+  List<String> _quickReplies = [];
+  bool _isLoadingReplies = false;
 
   @override
   void initState() {
     super.initState();
-    // جلب الرسائل والاستماع للبث المباشر (Realtime)
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<ChatProvider>().fetchMessages(widget.chatId);
+      final authProvider = context.read<AuthProvider>();
+      if (authProvider.currentUser != null) {
+        context.read<ChatProvider>().fetchMessages(widget.chatId);
+        context.read<ChatProvider>().markMessagesAsRead(widget.chatId, authProvider.currentUser!.id);
+      }
     });
   }
 
@@ -67,7 +72,6 @@ class _ChatScreenState extends State<ChatScreen> {
         await _audioRecorder.start(const RecordConfig(), path: path);
         setState(() {
           _isRecording = true;
-          _recordingPath = path;
         });
       }
     } catch (e) {
@@ -83,30 +87,26 @@ class _ChatScreenState extends State<ChatScreen> {
       });
 
       if (path != null) {
-        final file = File(path);
-        final fileName = '${const Uuid().v4()}.m4a';
-
-        await SupabaseConfig.client.storage
-            .from('chats')
-            .upload(fileName, file);
-        final publicUrl =
-            SupabaseConfig.client.storage.from('chats').getPublicUrl(fileName);
-
         final myId = context.read<AuthProvider>().currentUser?.id;
         if (myId == null) return;
 
-        final message = MessageModel(
-          id: const Uuid().v4(),
-          chatId: widget.chatId,
-          senderId: myId,
-          content: '🎤 رسالة صوتية',
-          mediaUrl: publicUrl,
-          isAiGenerated: false,
-          createdAt: DateTime.now(),
-        );
+        final file = File(path);
+        final publicUrl = await StorageService.uploadVoiceNote(file, userId: myId);
 
-        context.read<ChatProvider>().sendMessage(message);
-        _scrollToBottom();
+        if (publicUrl != null) {
+          final message = MessageModel(
+            id: const Uuid().v4(),
+            chatId: widget.chatId,
+            senderId: myId,
+            content: '🎤 رسالة صوتية',
+            audioUrl: publicUrl,
+            isAiGenerated: false,
+            createdAt: DateTime.now(),
+          );
+
+          context.read<ChatProvider>().sendMessage(message);
+          _scrollToBottom();
+        }
       }
     } catch (e) {
       debugPrint("Error stopping record: $e");
@@ -141,8 +141,8 @@ class _ChatScreenState extends State<ChatScreen> {
     });
   }
 
-  void _sendMessage() {
-    final text = _msgController.text.trim();
+  void _sendMessage({String? textOverride}) {
+    final text = textOverride ?? _msgController.text.trim();
     if (text.isEmpty) return;
 
     final myId = context.read<AuthProvider>().currentUser?.id;
@@ -159,7 +159,32 @@ class _ChatScreenState extends State<ChatScreen> {
 
     context.read<ChatProvider>().sendMessage(message);
     _msgController.clear();
+    setState(() {
+      _quickReplies.clear();
+    });
     _scrollToBottom();
+  }
+
+  Future<void> _generateSmartReplies() async {
+    final messages = context.read<ChatProvider>().currentMessages;
+    if (messages.isEmpty) return;
+
+    final lastMessage = messages.last;
+    final myId = context.read<AuthProvider>().currentUser?.id;
+
+    // Only generate replies for messages sent by the other person
+    if (lastMessage.senderId == myId) return;
+
+    setState(() {
+      _isLoadingReplies = true;
+    });
+
+    final replies = await SadeemAiService.suggestQuickReplies(lastMessage.content);
+
+    setState(() {
+      _quickReplies = replies;
+      _isLoadingReplies = false;
+    });
   }
 
   @override
@@ -219,20 +244,19 @@ class _ChatScreenState extends State<ChatScreen> {
                         bottomRight: Radius.circular(isMe ? 0 : 16),
                       ),
                     ),
-                    child: msg.mediaUrl != null &&
-                            msg.mediaUrl!.endsWith('.m4a')
+                    child: msg.audioUrl != null
                         ? Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               IconButton(
                                 icon: Icon(
-                                  _currentlyPlayingPath == msg.mediaUrl &&
+                                  _currentlyPlayingPath == msg.audioUrl &&
                                           _isPlaying
                                       ? Icons.pause_circle_filled
                                       : Icons.play_circle_fill,
                                   color: isMe ? Colors.black : Colors.white,
                                 ),
-                                onPressed: () => _playPauseAudio(msg.mediaUrl!),
+                                onPressed: () => _playPauseAudio(msg.audioUrl!),
                               ),
                               Text(msg.content,
                                   style: TextStyle(
@@ -240,19 +264,69 @@ class _ChatScreenState extends State<ChatScreen> {
                                           isMe ? Colors.black : Colors.white)),
                             ],
                           )
-                        : Text(
-                            msg.content,
-                            style: TextStyle(
-                                color: isMe ? Colors.black : Colors.white,
-                                fontSize: 15,
-                                fontWeight:
-                                    isMe ? FontWeight.bold : FontWeight.normal),
+                        : Column(
+                            crossAxisAlignment: isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                msg.content,
+                                style: TextStyle(
+                                    color: isMe ? Colors.black : Colors.white,
+                                    fontSize: 15,
+                                    fontWeight:
+                                        isMe ? FontWeight.bold : FontWeight.normal),
+                              ),
+                              const SizedBox(height: 4),
+                              Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(
+                                    "${msg.createdAt.hour}:${msg.createdAt.minute.toString().padLeft(2, '0')}",
+                                    style: TextStyle(
+                                      fontSize: 10,
+                                      color: isMe ? Colors.black54 : Colors.white54,
+                                    ),
+                                  ),
+                                  if (isMe) ...[
+                                    const SizedBox(width: 4),
+                                    Icon(
+                                      Icons.done_all,
+                                      size: 14,
+                                      color: msg.isRead ? Colors.blue : Colors.black54,
+                                    )
+                                  ]
+                                ],
+                              )
+                            ],
                           ),
                   ).animate().fadeIn().slideY(begin: 0.1),
                 );
               },
             ),
           ),
+
+          if (_quickReplies.isNotEmpty || _isLoadingReplies)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+              child: SizedBox(
+                height: 40,
+                child: _isLoadingReplies
+                    ? const Center(child: CircularProgressIndicator(color: Colors.amberAccent))
+                    : ListView.builder(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: _quickReplies.length,
+                        itemBuilder: (context, index) {
+                          return Padding(
+                            padding: const EdgeInsets.only(left: 8.0),
+                            child: ActionChip(
+                              label: Text(_quickReplies[index], style: const TextStyle(color: Colors.black)),
+                              backgroundColor: Colors.amberAccent.shade100,
+                              onPressed: () => _sendMessage(textOverride: _quickReplies[index]),
+                            ),
+                          );
+                        },
+                      ),
+              ),
+            ),
 
           // حقل إدخال الرسالة
           ClipRRect(
@@ -272,12 +346,7 @@ class _ChatScreenState extends State<ChatScreen> {
                     IconButton(
                       icon: const Icon(Icons.auto_awesome,
                           color: Colors.amberAccent),
-                      onPressed: () {
-                        // هنا يمكن ربط سديم لاحقاً لتوليد رد ذكي
-                        ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                                content: Text('سديم يجهز لك الرد...')));
-                      },
+                      onPressed: _generateSmartReplies,
                     ),
                     Expanded(
                       child: Container(
@@ -294,6 +363,9 @@ class _ChatScreenState extends State<ChatScreen> {
                             contentPadding: EdgeInsets.symmetric(
                                 horizontal: 16, vertical: 12),
                           ),
+                          onChanged: (val) {
+                            setState(() {});
+                          },
                         ),
                       ),
                     ),
@@ -304,8 +376,8 @@ class _ChatScreenState extends State<ChatScreen> {
                           _sendMessage();
                         }
                       },
-                      onLongPress: _startRecording,
-                      onLongPressUp: _stopRecordingAndSend,
+                      onLongPress: _msgController.text.trim().isEmpty ? _startRecording : null,
+                      onLongPressUp: _msgController.text.trim().isEmpty ? _stopRecordingAndSend : null,
                       child: Container(
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
@@ -314,7 +386,7 @@ class _ChatScreenState extends State<ChatScreen> {
                                 ? Colors.redAccent
                                 : Colors.amberAccent),
                         child: Icon(
-                            _isRecording ? Icons.mic : Icons.send_rounded,
+                            _msgController.text.trim().isNotEmpty ? Icons.send_rounded : (_isRecording ? Icons.mic_off : Icons.mic),
                             color: Colors.black,
                             size: 24),
                       ),

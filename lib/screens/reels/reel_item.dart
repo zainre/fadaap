@@ -3,14 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:video_player/video_player.dart';
 import 'package:provider/provider.dart';
-import '../../models/reel_model.dart';
+import '../../models/post_model.dart'; // Using PostModel instead of ReelModel
 import '../../widgets/glowing_heart.dart';
 import '../../providers/reels_provider.dart';
 import '../../providers/auth_provider.dart';
 import '../feed/comments_sheet.dart';
 
 class ReelItem extends StatefulWidget {
-  final ReelModel? reel;
+  final PostModel? reel;
   final String? dummyImage;
   final bool isActive;
 
@@ -23,10 +23,7 @@ class ReelItem extends StatefulWidget {
 
 class _ReelItemState extends State<ReelItem>
     with SingleTickerProviderStateMixin {
-  bool _isLiked = false;
-  bool _isSaved = false;
   late AnimationController _slowZoomController;
-  bool _showAiDetails = false;
   VideoPlayerController? _videoPlayerController;
   bool _isVideoInitialized = false;
 
@@ -39,14 +36,14 @@ class _ReelItemState extends State<ReelItem>
     // أنيميشن تكبير بطيء جداً لمحاكاة حركة الفيديو (في حال كان هناك dummyImage)
     _slowZoomController = AnimationController(
       vsync: this,
-      duration: const Duration(seconds: 20), // أبطأ ليكون أكثر انسيابية
+      duration: const Duration(seconds: 20),
     )..forward();
   }
 
   void _initVideoPlayer() {
-    if (widget.reel?.videoUrl != null) {
+    if (widget.reel?.imageUrl != null && widget.reel?.mediaType == 'video') {
       _videoPlayerController =
-          VideoPlayerController.networkUrl(Uri.parse(widget.reel!.videoUrl))
+          VideoPlayerController.networkUrl(Uri.parse(widget.reel!.imageUrl))
             ..initialize().then((_) {
               setState(() {
                 _isVideoInitialized = true;
@@ -67,8 +64,7 @@ class _ReelItemState extends State<ReelItem>
         _videoPlayerController?.play();
       } else {
         _videoPlayerController?.pause();
-        _videoPlayerController
-            ?.seekTo(Duration.zero); // Optional: reset position
+        _videoPlayerController?.seekTo(Duration.zero);
       }
     }
   }
@@ -83,22 +79,12 @@ class _ReelItemState extends State<ReelItem>
   void _toggleLike() {
     final userId = context.read<AuthProvider>().currentUser?.id ?? '';
     if (userId.isEmpty || widget.reel == null) return;
-
-    setState(() {
-      _isLiked = !_isLiked;
-    });
-
     context.read<ReelsProvider>().toggleReelLike(widget.reel!.id, userId);
   }
 
   void _toggleSave() {
     final userId = context.read<AuthProvider>().currentUser?.id ?? '';
     if (userId.isEmpty || widget.reel == null) return;
-
-    setState(() {
-      _isSaved = !_isSaved;
-    });
-
     context.read<ReelsProvider>().toggleSaveReel(widget.reel!.id, userId);
   }
 
@@ -184,9 +170,14 @@ class _ReelItemState extends State<ReelItem>
   Widget build(BuildContext context) {
     final caption = widget.reel?.caption ??
         'رحلة بين النجوم، استكشاف المجهول في عالم سديم... ✨';
-    final aiTags =
-        widget.reel?.aiTargetAudience ?? ['تصوير', 'فن', 'أبيض وأسود'];
-    final likesCount = (widget.reel?.likesCount ?? 1240) + (_isLiked ? 1 : 0);
+    final aiTags = widget.reel?.aiTags ?? ['تصوير', 'فن', 'أبيض وأسود'];
+
+    // Get state from provider for optimistic UI
+    final reelsProvider = context.watch<ReelsProvider>();
+    final isLiked = widget.reel != null ? reelsProvider.isReelLiked(widget.reel!.id) : false;
+    final isSaved = widget.reel != null ? reelsProvider.isReelSaved(widget.reel!.id) : false;
+
+    final likesCount = (widget.reel?.likesCount ?? 0) + (isLiked ? 1 : 0); // simplistic optimistic count
 
     return GestureDetector(
       onTap: () {
@@ -371,7 +362,7 @@ class _ReelItemState extends State<ReelItem>
                 Column(
                   children: [
                     GlowingHeart(
-                        isLiked: _isLiked, onTap: _toggleLike, size: 38),
+                        isLiked: isLiked, onTap: _toggleLike, size: 38),
                     const SizedBox(height: 4),
                     Text('$likesCount',
                         style: const TextStyle(
@@ -390,8 +381,8 @@ class _ReelItemState extends State<ReelItem>
                   children: [
                     IconButton(
                       icon: Icon(
-                          _isSaved ? Icons.bookmark : Icons.bookmark_border,
-                          color: _isSaved ? Colors.amberAccent : Colors.white,
+                          isSaved ? Icons.bookmark : Icons.bookmark_border,
+                          color: isSaved ? Colors.amberAccent : Colors.white,
                           size: 34),
                       onPressed: _toggleSave,
                     ),

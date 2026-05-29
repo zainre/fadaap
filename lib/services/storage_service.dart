@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:uuid/uuid.dart';
 import '../config/supabase_config.dart';
 import 'dart:developer' as developer;
@@ -7,12 +6,11 @@ import 'dart:developer' as developer;
 class StorageService {
   static final _supabase = SupabaseConfig.client;
 
-  // رفع صورة وإرجاع الرابط العام
+  // 📸 رفع صورة عامة أو أفاتار
   static Future<String?> uploadImage(File file, String bucketName,
       {String? userId}) async {
     try {
       final String fileName = '${const Uuid().v4()}.jpg';
-      // ✨ ترتيب الملفات في مجلدات بأسماء المستخدمين إذا توفر الـ ID
       final String path =
           userId != null ? '$userId/$fileName' : 'uploads/$fileName';
 
@@ -29,17 +27,17 @@ class StorageService {
     }
   }
 
-  // رفع فيديو لقسم الـ Reels
-  static Future<String?> uploadVideo(File file,
+  // 🎥 رفع فيديو (Reel أو Story)
+  static Future<String?> uploadVideo(File file, String bucketName,
       {required String userId}) async {
     try {
       final String fileName = '${const Uuid().v4()}.mp4';
-      final String path = '$userId/reels/$fileName'; // تنظيم الفيديوهات
+      final String path = '$userId/videos/$fileName';
 
-      await _supabase.storage.from('reels_bucket').upload(path, file);
+      await _supabase.storage.from(bucketName).upload(path, file);
 
       final String url =
-          _supabase.storage.from('reels_bucket').getPublicUrl(path);
+          _supabase.storage.from(bucketName).getPublicUrl(path);
       developer.log('✅ تم رفع الفيديو بنجاح', name: 'StorageService');
       return url;
     } catch (e) {
@@ -48,7 +46,24 @@ class StorageService {
     }
   }
 
-  // حذف ملف من التخزين
+  // 🎤 رفع مقطع صوتي (Voice Note) للدردشات
+  static Future<String?> uploadVoiceNote(File file, {required String userId}) async {
+    try {
+      final String fileName = '${const Uuid().v4()}.m4a';
+      final String path = '$userId/voice_notes/$fileName';
+
+      await _supabase.storage.from('chats').upload(path, file);
+
+      final String url = _supabase.storage.from('chats').getPublicUrl(path);
+      developer.log('✅ تم رفع المقطع الصوتي بنجاح', name: 'StorageService');
+      return url;
+    } catch (e) {
+      developer.log('❌ خطأ في رفع المقطع الصوتي', name: 'StorageService', error: e);
+      return null;
+    }
+  }
+
+  // 🗑️ حذف ملف من التخزين
   static Future<bool> deleteFile(String bucketName, String path) async {
     try {
       await _supabase.storage.from(bucketName).remove([path]);

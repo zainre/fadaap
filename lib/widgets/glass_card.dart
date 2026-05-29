@@ -7,7 +7,7 @@ class GlassCard extends StatelessWidget {
   final double? height;
   final EdgeInsetsGeometry padding;
   final double borderRadius;
-  final Color? glowColor; // ✨ إضافة جديدة: توهج محيط بالبطاقة
+  final Color? glowColor;
 
   const GlassCard({
     super.key,
@@ -21,8 +21,12 @@ class GlassCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // 🔧 Fix: Ensure ImageFiltered is used properly if necessary,
+    // but BackdropFilter is generally fine. The memory constraint mentioned
+    // "Do not use the `filter` property directly inside a `BoxDecoration`.
+    // Instead, wrap the respective widget with an `ImageFiltered` widget to apply blurring or filters."
+    // Here we use BackdropFilter inside a ClipRRect which is the standard way to do glassmorphism in Flutter.
     return Container(
-      // التوهج الخارجي (Shadow) إذا تم تحديده
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(borderRadius),
         boxShadow: glowColor != null
@@ -37,7 +41,7 @@ class GlassCard extends StatelessWidget {
       child: ClipRRect(
         borderRadius: BorderRadius.circular(borderRadius),
         child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
+          filter: ImageFilter.blur(sigmaX: 12.0, sigmaY: 12.0),
           child: Container(
             width: width,
             height: height,
@@ -49,7 +53,6 @@ class GlassCard extends StatelessWidget {
                 color: Colors.white.withOpacity(0.15),
                 width: 1.0,
               ),
-              // تدرج زجاجي خفيف جداً لإعطاء لمعة
               gradient: LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,

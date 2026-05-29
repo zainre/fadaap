@@ -7,11 +7,12 @@ import '../../providers/feed_provider.dart';
 import '../../widgets/glass_card.dart';
 import '../../widgets/shimmer_loading.dart';
 import 'edit_profile_screen.dart';
+// Note: We don't have separate following/followers list screens built yet,
+// so clicking them will just show a snackbar for now.
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
 
-  // قائمة الإعدادات الشاملة (تظهر من الأسفل)
   void _showSettingsModal(BuildContext context) {
     showModalBottomSheet(
       context: context,
@@ -19,7 +20,6 @@ class ProfileScreen extends StatelessWidget {
       isScrollControlled: true,
       builder: (context) {
         return GlassCard(
-          // ✨ تم تصحيح نوع البيانات هنا إلى رقم مباشر (double)
           borderRadius: 24.0,
           padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
           child: Column(
@@ -48,9 +48,18 @@ class ProfileScreen extends StatelessWidget {
                         builder: (_) => const EditProfileScreen()));
               }),
               _buildSettingTile(
-                  Icons.auto_awesome, 'تفضيلات سديم (الذكاء الاصطناعي)', () {}),
-              _buildSettingTile(Icons.lock_outline, 'الخصوصية والأمان', () {}),
-              _buildSettingTile(Icons.notifications_none, 'الإشعارات', () {}),
+                  Icons.auto_awesome, 'تفضيلات سديم (الذكاء الاصطناعي)', () {
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('قيد التطوير...')));
+              }),
+              _buildSettingTile(Icons.lock_outline, 'الخصوصية والأمان', () {
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('قيد التطوير...')));
+              }),
+              _buildSettingTile(Icons.notifications_none, 'الإشعارات', () {
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('قيد التطوير...')));
+              }),
               const Divider(color: Colors.white24, height: 30),
               _buildSettingTile(Icons.logout, 'تسجيل الخروج', () {
                 Navigator.pop(context);
@@ -103,7 +112,7 @@ class ProfileScreen extends StatelessWidget {
         elevation: 0,
         title: Text(user.username,
             style: const TextStyle(
-                fontWeight: FontWeight.bold, fontSize: 20, letterSpacing: 1)),
+                fontWeight: FontWeight.bold, fontSize: 20, letterSpacing: 1, color: Colors.white)),
         actions: [
           IconButton(
             icon: const Icon(Icons.menu, color: Colors.white, size: 28),
@@ -150,10 +159,13 @@ class ProfileScreen extends StatelessWidget {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: [
-                            _buildStatColumn(
-                                'منشورات', userPosts.length.toString()),
-                            _buildStatColumn('متابعون', '12.4K'),
-                            _buildStatColumn('يتابع', '845'),
+                            _buildStatColumn('منشورات', userPosts.length.toString(), () {}),
+                            _buildStatColumn('متابعون', user.followersCount.toString(), () {
+                              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('قائمة المتابعين قيد التطوير')));
+                            }),
+                            _buildStatColumn('يتابع', user.followingCount.toString(), () {
+                              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('قائمة المتابَعين قيد التطوير')));
+                            }),
                           ],
                         ).animate().fadeIn(delay: 300.ms).slideX(begin: 0.1),
                       ),
@@ -290,19 +302,22 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildStatColumn(String label, String count) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Text(count,
-            style: const TextStyle(
-                color: Colors.white,
-                fontSize: 20,
-                fontWeight: FontWeight.bold)),
-        const SizedBox(height: 4),
-        Text(label,
-            style: TextStyle(color: Colors.grey.shade400, fontSize: 14)),
-      ],
+  Widget _buildStatColumn(String label, String count, VoidCallback onTap) {
+    return InkWell(
+      onTap: onTap,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(count,
+              style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold)),
+          const SizedBox(height: 4),
+          Text(label,
+              style: TextStyle(color: Colors.grey.shade400, fontSize: 14)),
+        ],
+      ),
     );
   }
 }

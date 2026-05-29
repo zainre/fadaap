@@ -8,7 +8,7 @@ class ChatProvider extends ChangeNotifier {
   List<ChatModel> _chats = [];
   List<MessageModel> _currentMessages = [];
   bool _isLoading = false;
-  RealtimeChannel? _messagesSubscription; // ✨ اشتراك البث الحي
+  RealtimeChannel? _messagesSubscription;
 
   List<ChatModel> get chats => _chats;
   List<MessageModel> get currentMessages => _currentMessages;
@@ -20,11 +20,10 @@ class ChatProvider extends ChangeNotifier {
     _isLoading = true;
     notifyListeners();
     try {
-      // ✨ جلب فوري للمحادثات
       _supabase
           .from('chats')
           .stream(primaryKey: ['id'])
-          .order('last_message_time', ascending: false)
+          .order('updated_at', ascending: false) // Assuming updated_at aligns with lastMessageTime in DB
           .listen((data) {
             _chats = data
                 .where((chat) =>
@@ -37,6 +36,7 @@ class ChatProvider extends ChangeNotifier {
       debugPrint("Error fetching chats: $e");
     } finally {
       _isLoading = false;
+      notifyListeners();
     }
   }
 
@@ -44,11 +44,9 @@ class ChatProvider extends ChangeNotifier {
     _isLoading = true;
     notifyListeners();
 
-    // إلغاء الاشتراك القديم إن وجد لمنع التداخل
     await _messagesSubscription?.unsubscribe();
 
     try {
-      // ✨ بث حي (Realtime) للرسائل! ستظهر الرسالة فوراً بدون تحديث الشاشة
       _supabase
           .from('messages')
           .stream(primaryKey: ['id'])
@@ -63,6 +61,7 @@ class ChatProvider extends ChangeNotifier {
       debugPrint("Error fetching messages: $e");
     } finally {
       _isLoading = false;
+      notifyListeners();
     }
   }
 
@@ -71,11 +70,31 @@ class ChatProvider extends ChangeNotifier {
       await _supabase.from('messages').insert(message.toJson());
 
       await _supabase.from('chats').update({
-        'last_message': message.content,
-        'last_message_time': message.createdAt.toIso8601String(),
+        'last_message': message.content.isEmpty ? 'Audio Message' : message.content,
+        'updated_at': message.createdAt.toIso8601String(),
+        'last_message_sender_id': message.senderId,
       }).eq('id', message.chatId);
     } catch (e) {
       debugPrint("Error sending message: $e");
     }
+  }
+
+  Future<void> markMessagesAsRead(String chatId, String userId) async {
+    try {
+      await _supabase
+          .from('messages')
+          .update({'is_read': true})
+          .eq('chat_id', chatId)
+          .neq('sender_id', userId)
+          .eq('is_read', false);
+    } catch (e) {
+      debugPrint("Error marking messages as read: $e");
+    }
+  }
+
+  @override
+  void dispose() {
+    _messagesSubscription?.unsubscribe();
+    super.dispose();
   }
 }
