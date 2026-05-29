@@ -5,6 +5,7 @@ import 'feed/feed_screen.dart';
 import 'reels/reels_screen.dart';
 import 'profile/profile_screen.dart';
 import 'chat/chat_list_screen.dart';
+import 'ai_assistant_screen.dart';
 
 class SadeemCenterScreen extends StatefulWidget {
   const SadeemCenterScreen({super.key});
