@@ -5,6 +5,7 @@ import '../../providers/auth_provider.dart';
 import '../../utils/validators.dart';
 import '../../widgets/glass_card.dart';
 import 'register_screen.dart';
+import '../sadeem_center.dart'; // مسار الشاشة الرئيسية
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -32,13 +33,19 @@ class _LoginScreenState extends State<LoginScreen> {
 
       if (success) {
         if (!mounted) return;
-        // هنا سيتم التوجيه إلى الشاشة الرئيسية (MainScreen) لاحقاً
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('تم تسجيل الدخول بنجاح! مرحباً بك في سديم.', style: TextStyle(color: Colors.black)),
             backgroundColor: Colors.white,
           ),
         );
+        
+        // كود الانتقال الفعلي إلى الشاشة الرئيسية (هذا هو المفتاح المفقود!)
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const SadeemCenterScreen()),
+        );
+        
       } else {
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
