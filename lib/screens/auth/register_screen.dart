@@ -47,7 +47,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
       );
 
       if (success && mounted) {
-        // ✨ الحل الحرج: الانتقال الفوري للشاشة الرئيسية بعد التسجيل
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (_) => const SadeemCenterScreen()),
@@ -71,17 +70,19 @@ class _RegisterScreenState extends State<RegisterScreen> {
       backgroundColor: AppTheme.blackColor,
       body: Stack(
         children: [
-          // خلفية سديم
+          // خلفية سديم - تم تصحيح مكان الـ Filter هنا
           Positioned(
             top: -100,
             right: -100,
-            child: Container(
-              width: 300,
-              height: 300,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: Colors.amberAccent.withOpacity(0.15),
-                filter: ImageFilter.blur(sigmaX: 100, sigmaY: 100),
+            child: ImageFiltered(
+              imageFilter: ImageFilter.blur(sigmaX: 100, sigmaY: 100),
+              child: Container(
+                width: 300,
+                height: 300,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.amberAccent.withOpacity(0.15),
+                ),
               ),
             ),
           ),
@@ -107,7 +108,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       ).animate().fadeIn(duration: 600.ms),
                       const SizedBox(height: 40),
                       
-                      // الاسم الكامل
                       TextFormField(
                         controller: _fullNameController,
                         style: const TextStyle(color: Colors.white),
@@ -116,7 +116,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       ).animate().fadeIn(delay: 100.ms).slideX(),
                       const SizedBox(height: 16),
 
-                      // اسم المستخدم
                       TextFormField(
                         controller: _usernameController,
                         style: const TextStyle(color: Colors.white),
@@ -125,7 +124,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       ).animate().fadeIn(delay: 200.ms).slideX(),
                       const SizedBox(height: 16),
 
-                      // البريد الإلكتروني
                       TextFormField(
                         controller: _emailController,
                         style: const TextStyle(color: Colors.white),
@@ -135,7 +133,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       ).animate().fadeIn(delay: 300.ms).slideX(),
                       const SizedBox(height: 16),
 
-                      // كلمة المرور
                       TextFormField(
                         controller: _passwordController,
                         style: const TextStyle(color: Colors.white),
@@ -152,7 +149,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       ).animate().fadeIn(delay: 400.ms).slideX(),
                       const SizedBox(height: 16),
 
-                      // تأكيد كلمة المرور
                       TextFormField(
                         controller: _confirmPasswordController,
                         style: const TextStyle(color: Colors.white),
@@ -172,7 +168,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       ).animate().fadeIn(delay: 500.ms).slideX(),
                       const SizedBox(height: 32),
 
-                      // زر التسجيل
                       ElevatedButton(
                         onPressed: isLoading ? null : _handleRegister,
                         style: ElevatedButton.styleFrom(backgroundColor: Colors.amberAccent),
@@ -183,7 +178,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       
                       const SizedBox(height: 20),
                       
-                      // العودة لتسجيل الدخول
                       TextButton(
                         onPressed: () => Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const LoginScreen())),
                         child: const Text('لديك حساب بالفعل؟ تسجيل الدخول', style: TextStyle(color: Colors.white70)),
