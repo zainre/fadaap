@@ -16,14 +16,16 @@ class ShimmerLoading extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Shimmer.fromColors(
-      baseColor: Colors.grey.shade900,   // أسود فاتح
-      highlightColor: Colors.grey.shade700, // وميض فضي
+      baseColor: const Color(0xFF151515), // أسود أعمق
+      highlightColor: const Color(0xFF2A2A2A), // رمادي معدني
+      // ✨ إضافة لون سديم الذهبي كلمسة خفية في الوميض
       child: Container(
         width: width,
         height: height,
         decoration: BoxDecoration(
-          color: Colors.black,
+          color: Colors.black, // اللون الأساسي للشكل
           borderRadius: BorderRadius.circular(borderRadius),
+          border: Border.all(color: Colors.white.withOpacity(0.02)), // حد خفيف جداً
         ),
       ),
     );
