@@ -22,7 +22,8 @@ class AuthProvider extends ChangeNotifier {
       _isLoading = true;
       notifyListeners();
       try {
-        final response = await _supabase.from('users').select().eq('id', user.id).single();
+        // التعديل الأول هنا: توجيه الطلب إلى جدول profiles بدلاً من users
+        final response = await _supabase.from('profiles').select().eq('id', user.id).single();
         _currentUser = UserModel.fromJson(response);
       } catch (e) {
         _errorMessage = e.toString();
@@ -66,7 +67,7 @@ class AuthProvider extends ChangeNotifier {
         password: password,
       );
       if (res.user != null) {
-        // إنشاء ملف المستخدم في جدول users
+        // تجهيز بيانات المستخدم
         final newUser = UserModel(
           id: res.user!.id,
           username: username,
@@ -76,7 +77,9 @@ class AuthProvider extends ChangeNotifier {
           bio: 'مرحباً، أنا أستخدم سديم!',
           createdAt: DateTime.now(),
         );
-        await _supabase.from('users').insert(newUser.toJson());
+        
+        // التعديل الثاني هنا: إدخال البيانات في جدول profiles بدلاً من users
+        await _supabase.from('profiles').insert(newUser.toJson());
         _currentUser = newUser;
         return true;
       }
