@@ -75,13 +75,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
           Positioned(
             top: -100,
             right: -100,
-            child: Container(
-              width: 300,
-              height: 300,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: Colors.amberAccent.withOpacity(0.15),
-                filter: ImageFilter.blur(sigmaX: 100, sigmaY: 100),
+            child: ImageFiltered(
+              imageFilter: ImageFilter.blur(sigmaX: 100, sigmaY: 100),
+              child: Container(
+                width: 300,
+                height: 300,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.amberAccent.withOpacity(0.15),
+                ),
               ),
             ),
           ),
