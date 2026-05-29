@@ -1,9 +1,15 @@
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'dart:developer' as developer;
 
 class EnvLoader {
-  // دالة تهيئة تحميل ملف البيئة
+  // دالة تهيئة تحميل ملف البيئة مع تتبع الأخطاء
   static Future<void> init() async {
-    await dotenv.load(fileName: ".env");
+    try {
+      await dotenv.load(fileName: ".env");
+      developer.log('✅ تم تحميل المفاتيح السرية بنجاح', name: 'Sadeem-EnvLoader');
+    } catch (e) {
+      developer.log('❌ خطأ قاتل: لم يتم العثور على ملف .env', name: 'Sadeem-EnvLoader', error: e);
+    }
   }
 
   // جلب رابط Supabase
@@ -21,4 +27,7 @@ class EnvLoader {
       dotenv.env['GEMINI_KEY_4'] ?? '',
     ].where((key) => key.isNotEmpty).toList();
   }
+
+  // ✨ فحص سريع للتأكد من سلامة البيئة
+  static bool get isEnvValid => supabaseUrl.isNotEmpty && supabaseAnonKey.isNotEmpty && geminiKeys.isNotEmpty;
 }
