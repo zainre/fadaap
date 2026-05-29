@@ -1,9 +1,11 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../providers/auth_provider.dart';
 import '../../utils/validators.dart';
-import '../../widgets/glass_card.dart';
+import '../../utils/theme.dart';
+import '../sadeem_center.dart';
 import 'login_screen.dart';
 
 class RegisterScreen extends StatefulWidget {
@@ -15,16 +17,28 @@ class RegisterScreen extends StatefulWidget {
 
 class _RegisterScreenState extends State<RegisterScreen> {
   final _formKey = GlobalKey<FormState>();
-  final TextEditingController _usernameController = TextEditingController();
-  final TextEditingController _fullNameController = TextEditingController();
-  final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
+  final _fullNameController = TextEditingController();
+  final _usernameController = TextEditingController();
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+  final _confirmPasswordController = TextEditingController();
+  bool _obscurePassword = true;
+  bool _obscureConfirmPassword = true;
 
-  void _submit() async {
+  @override
+  void dispose() {
+    _fullNameController.dispose();
+    _usernameController.dispose();
+    _emailController.dispose();
+    _passwordController.dispose();
+    _confirmPasswordController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _handleRegister() async {
     if (_formKey.currentState!.validate()) {
-      final authProvider = Provider.of<AuthProvider>(context, listen: false);
-      FocusScope.of(context).unfocus();
-
+      final authProvider = context.read<AuthProvider>();
+      
       final success = await authProvider.register(
         _emailController.text.trim(),
         _passwordController.text,
@@ -32,21 +46,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
         _fullNameController.text.trim(),
       );
 
-      if (success) {
-        if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('تم إنشاء الحساب بنجاح! جاري التوجيه...', style: TextStyle(color: Colors.black)),
-            backgroundColor: Colors.white,
-          ),
+      if (success && mounted) {
+        // ✨ الحل الحرج: الانتقال الفوري للشاشة الرئيسية بعد التسجيل
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => const SadeemCenterScreen()),
         );
-        // التوجيه إلى الشاشة الرئيسية لاحقاً
-      } else {
-        if (!mounted) return;
+      } else if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(authProvider.errorMessage ?? 'حدث خطأ.', style: const TextStyle(color: Colors.white)),
-            backgroundColor: Colors.grey.shade900,
+            content: Text(authProvider.errorMessage ?? 'فشل التسجيل'),
+            backgroundColor: Colors.redAccent,
           ),
         );
       }
@@ -54,154 +64,137 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 
   @override
-  void dispose() {
-    _usernameController.dispose();
-    _fullNameController.dispose();
-    _emailController.dispose();
-    _passwordController.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     final isLoading = context.watch<AuthProvider>().isLoading;
 
     return Scaffold(
-      backgroundColor: Colors.black,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
-          onPressed: () {
-            Navigator.pushReplacement(
-              context,
-              PageRouteBuilder(
-                pageBuilder: (context, animation, secondaryAnimation) => const LoginScreen(),
-                transitionsBuilder: (context, animation, secondaryAnimation, child) {
-                  return FadeTransition(opacity: animation, child: child);
-                },
+      backgroundColor: AppTheme.blackColor,
+      body: Stack(
+        children: [
+          // خلفية سديم
+          Positioned(
+            top: -100,
+            right: -100,
+            child: Container(
+              width: 300,
+              height: 300,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: Colors.amberAccent.withOpacity(0.15),
+                filter: ImageFilter.blur(sigmaX: 100, sigmaY: 100),
               ),
-            );
-          },
-        ).animate().fadeIn(delay: 200.ms),
-      ),
-      body: Center(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 24.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Text(
-                'إنشاء حساب',
-                style: TextStyle(
-                  fontSize: 32,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
-              ).animate().fadeIn(duration: 800.ms).slideY(begin: -0.2),
-              const SizedBox(height: 8),
-              Text(
-                'انضم إلى مجتمع سديم الذكي',
-                style: TextStyle(fontSize: 16, color: Colors.grey.shade400),
-              ).animate().fadeIn(delay: 300.ms),
-              const SizedBox(height: 40),
-
-              GlassCard(
-                padding: const EdgeInsets.all(24),
+            ),
+          ),
+          
+          SafeArea(
+            child: Center(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(24.0),
                 child: Form(
                   key: _formKey,
                   child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      // حقل الاسم الكامل
+                      const Icon(Icons.blur_on, size: 80, color: Colors.amberAccent)
+                          .animate(onPlay: (c) => c.repeat(reverse: true))
+                          .scale(duration: 2.seconds),
+                      const SizedBox(height: 20),
+                      const Text(
+                        'صناعة هوية جديدة',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.white),
+                      ).animate().fadeIn(duration: 600.ms),
+                      const SizedBox(height: 40),
+                      
+                      // الاسم الكامل
                       TextFormField(
                         controller: _fullNameController,
-                        validator: (val) => val == null || val.isEmpty ? 'الاسم الكامل مطلوب' : null,
                         style: const TextStyle(color: Colors.white),
-                        decoration: InputDecoration(
-                          labelText: 'الاسم الكامل',
-                          labelStyle: TextStyle(color: Colors.grey.shade500),
-                          enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.grey.shade800)),
-                          focusedBorder: const UnderlineInputBorder(borderSide: BorderSide(color: Colors.white)),
-                          prefixIcon: const Icon(Icons.person_outline, color: Colors.white),
-                        ),
-                      ).animate().fadeIn(delay: 300.ms).slideX(begin: -0.1),
+                        decoration: const InputDecoration(labelText: 'الاسم الكامل', prefixIcon: Icon(Icons.person)),
+                        validator: (val) => val == null || val.isEmpty ? 'الاسم الكامل مطلوب' : null,
+                      ).animate().fadeIn(delay: 100.ms).slideX(),
                       const SizedBox(height: 16),
 
-                      // حقل اسم المستخدم
+                      // اسم المستخدم
                       TextFormField(
                         controller: _usernameController,
-                        validator: Validators.validateUsername,
                         style: const TextStyle(color: Colors.white),
-                        decoration: InputDecoration(
-                          labelText: 'اسم المستخدم (Username)',
-                          labelStyle: TextStyle(color: Colors.grey.shade500),
-                          enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.grey.shade800)),
-                          focusedBorder: const UnderlineInputBorder(borderSide: BorderSide(color: Colors.white)),
-                          prefixIcon: const Icon(Icons.alternate_email, color: Colors.white),
-                        ),
-                      ).animate().fadeIn(delay: 400.ms).slideX(begin: -0.1),
+                        decoration: const InputDecoration(labelText: 'اسم المستخدم', prefixIcon: Icon(Icons.alternate_email)),
+                        validator: Validators.validateUsername,
+                      ).animate().fadeIn(delay: 200.ms).slideX(),
                       const SizedBox(height: 16),
 
-                      // حقل البريد الإلكتروني
+                      // البريد الإلكتروني
                       TextFormField(
                         controller: _emailController,
-                        validator: Validators.validateEmail,
-                        keyboardType: TextInputType.emailAddress,
                         style: const TextStyle(color: Colors.white),
-                        decoration: InputDecoration(
-                          labelText: 'البريد الإلكتروني',
-                          labelStyle: TextStyle(color: Colors.grey.shade500),
-                          enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.grey.shade800)),
-                          focusedBorder: const UnderlineInputBorder(borderSide: BorderSide(color: Colors.white)),
-                          prefixIcon: const Icon(Icons.email_outlined, color: Colors.white),
-                        ),
-                      ).animate().fadeIn(delay: 500.ms).slideX(begin: -0.1),
+                        keyboardType: TextInputType.emailAddress,
+                        decoration: const InputDecoration(labelText: 'البريد الإلكتروني', prefixIcon: Icon(Icons.email_outlined)),
+                        validator: Validators.validateEmail,
+                      ).animate().fadeIn(delay: 300.ms).slideX(),
                       const SizedBox(height: 16),
 
-                      // حقل كلمة المرور
+                      // كلمة المرور
                       TextFormField(
                         controller: _passwordController,
-                        validator: Validators.validatePassword,
-                        obscureText: true,
                         style: const TextStyle(color: Colors.white),
+                        obscureText: _obscurePassword,
                         decoration: InputDecoration(
                           labelText: 'كلمة المرور',
-                          labelStyle: TextStyle(color: Colors.grey.shade500),
-                          enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.grey.shade800)),
-                          focusedBorder: const UnderlineInputBorder(borderSide: BorderSide(color: Colors.white)),
-                          prefixIcon: const Icon(Icons.lock_outline, color: Colors.white),
+                          prefixIcon: const Icon(Icons.lock_outline),
+                          suffixIcon: IconButton(
+                            icon: Icon(_obscurePassword ? Icons.visibility_off : Icons.visibility),
+                            onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
+                          ),
                         ),
-                      ).animate().fadeIn(delay: 600.ms).slideX(begin: -0.1),
-                      const SizedBox(height: 40),
+                        validator: Validators.validatePassword,
+                      ).animate().fadeIn(delay: 400.ms).slideX(),
+                      const SizedBox(height: 16),
+
+                      // تأكيد كلمة المرور
+                      TextFormField(
+                        controller: _confirmPasswordController,
+                        style: const TextStyle(color: Colors.white),
+                        obscureText: _obscureConfirmPassword,
+                        decoration: InputDecoration(
+                          labelText: 'تأكيد كلمة المرور',
+                          prefixIcon: const Icon(Icons.lock_reset),
+                          suffixIcon: IconButton(
+                            icon: Icon(_obscureConfirmPassword ? Icons.visibility_off : Icons.visibility),
+                            onPressed: () => setState(() => _obscureConfirmPassword = !_obscureConfirmPassword),
+                          ),
+                        ),
+                        validator: (val) {
+                          if (val != _passwordController.text) return 'كلمات المرور غير متطابقة';
+                          return null;
+                        },
+                      ).animate().fadeIn(delay: 500.ms).slideX(),
+                      const SizedBox(height: 32),
 
                       // زر التسجيل
-                      SizedBox(
-                        width: double.infinity,
-                        height: 55,
-                        child: ElevatedButton(
-                          onPressed: isLoading ? null : _submit,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.white,
-                            foregroundColor: Colors.black,
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                          ),
-                          child: isLoading
-                              ? const SizedBox(
-                                  width: 24,
-                                  height: 24,
-                                  child: CircularProgressIndicator(color: Colors.black, strokeWidth: 2),
-                                )
-                              : const Text('تسجيل حساب', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                        ),
-                      ).animate().fadeIn(delay: 700.ms).scale(begin: const Offset(0.9, 0.9)),
+                      ElevatedButton(
+                        onPressed: isLoading ? null : _handleRegister,
+                        style: ElevatedButton.styleFrom(backgroundColor: Colors.amberAccent),
+                        child: isLoading
+                            ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(color: Colors.black, strokeWidth: 2))
+                            : const Text('إنشاء حساب', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 18)),
+                      ).animate().fadeIn(delay: 600.ms).slideY(),
+                      
+                      const SizedBox(height: 20),
+                      
+                      // العودة لتسجيل الدخول
+                      TextButton(
+                        onPressed: () => Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const LoginScreen())),
+                        child: const Text('لديك حساب بالفعل؟ تسجيل الدخول', style: TextStyle(color: Colors.white70)),
+                      ).animate().fadeIn(delay: 700.ms),
                     ],
                   ),
                 ),
-              ).animate().fadeIn(delay: 200.ms).slideY(begin: 0.1),
-            ],
+              ),
+            ),
           ),
-        ),
+        ],
       ),
     );
   }
