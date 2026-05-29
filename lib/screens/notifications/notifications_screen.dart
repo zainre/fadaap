@@ -86,7 +86,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       backgroundColor: Colors.black,
       appBar: AppBar(
         title: const Text('الإشعارات',
-            style: TextStyle(fontWeight: FontWeight.bold)),
+            style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
         backgroundColor: Colors.black,
         elevation: 0,
       ),
@@ -121,6 +121,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                       final sender = notification['sender'] ?? {};
                       final type = notification['type'] as String? ?? '';
                       final isRead = notification['is_read'] as bool? ?? false;
+                      final content = notification['content'] ?? 'قام بالتفاعل معك.';
 
                       return Container(
                         color: isRead
@@ -169,8 +170,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                                     style: const TextStyle(
                                         fontWeight: FontWeight.bold)),
                                 TextSpan(
-                                    text: notification['message'] ??
-                                        'قام بالتفاعل معك.'),
+                                    text: content),
                               ],
                             ),
                           ),
@@ -181,7 +181,9 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                                     color: Colors.grey.shade600, fontSize: 12)),
                           ),
                           onTap: () {
-                            // TODO: Navigate to relevant content based on notification
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('الانتقال قيد التطوير...'))
+                            );
                           },
                         ).animate().fadeIn(delay: (index * 50).ms),
                       );

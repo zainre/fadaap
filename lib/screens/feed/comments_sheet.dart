@@ -7,16 +7,13 @@ import 'package:uuid/uuid.dart';
 import '../../config/supabase_config.dart';
 import '../../models/comment_model.dart';
 import '../../providers/auth_provider.dart';
-import '../../providers/sadeem_provider.dart';
+import '../../services/sadeem_ai_service.dart';
 import '../../widgets/shimmer_loading.dart';
 
 class CommentsSheet extends StatefulWidget {
   final String postId;
 
   const CommentsSheet({super.key, required this.postId});
-
-  @override
-  State<CommentsSheet> createState() => _CommentsSheetState();
 
   static void show(BuildContext context, String postId) {
     showModalBottomSheet(
@@ -31,6 +28,9 @@ class CommentsSheet extends StatefulWidget {
       ),
     );
   }
+
+  @override
+  State<CommentsSheet> createState() => _CommentsSheetState();
 }
 
 class _CommentsSheetState extends State<CommentsSheet> {
@@ -83,16 +83,14 @@ class _CommentsSheetState extends State<CommentsSheet> {
 
     try {
       // الذكاء الاصطناعي للإشراف وتحليل المشاعر
-      final sentiment =
-          await context.read<SadeemProvider>().analyzeSentiment(content);
+      final isToxic = await SadeemAiService.isContentToxic(content);
 
       // لو كان التعليق سلبيا جدا، نمنعه!
-      if (sentiment.contains('سلبي') || sentiment.contains('مسيء')) {
+      if (isToxic) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content:
-                  Text('تم حجب هذا التعليق لمخالفته إرشادات مجتمع سديم 🛡️'),
+              content: Text('تم حجب هذا التعليق لمخالفته إرشادات مجتمع سديم 🛡️'),
               backgroundColor: Colors.redAccent,
             ),
           );
@@ -105,7 +103,7 @@ class _CommentsSheetState extends State<CommentsSheet> {
         postId: widget.postId,
         userId: userId,
         content: content,
-        aiSentiment: sentiment,
+        aiSentiment: 'positive',
         createdAt: DateTime.now(),
       );
 
@@ -118,6 +116,7 @@ class _CommentsSheetState extends State<CommentsSheet> {
       await _supabase.from('comments').insert(newComment.toJson());
     } catch (e) {
       debugPrint('Error posting comment: $e');
+      // In a real app, revert the optimistic update here if insertion fails.
     } finally {
       if (mounted) setState(() => _isPosting = false);
     }
@@ -134,8 +133,7 @@ class _CommentsSheetState extends State<CommentsSheet> {
           decoration: BoxDecoration(
             color: Colors.black.withOpacity(0.8),
             border: Border(
-                top:
-                    BorderSide(color: Colors.white.withOpacity(0.1), width: 1)),
+                top: BorderSide(color: Colors.white.withOpacity(0.1), width: 1)),
           ),
           child: Column(
             children: [
@@ -209,8 +207,7 @@ class _CommentsSheetState extends State<CommentsSheet> {
                                               const SizedBox(width: 8),
                                               Text('الآن',
                                                   style: TextStyle(
-                                                      color:
-                                                          Colors.grey.shade500,
+                                                      color: Colors.grey.shade500,
                                                       fontSize: 12)),
                                             ],
                                           ),

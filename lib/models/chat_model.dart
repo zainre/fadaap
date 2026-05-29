@@ -1,6 +1,7 @@
 class ChatModel {
   final String id;
   final List<String> participantIds;
+  final bool isAiChat;
   final String lastMessage;
   final String? lastMessageSenderId; // لمعرفة من أرسل آخر رسالة
   final DateTime lastMessageTime;
@@ -13,6 +14,7 @@ class ChatModel {
   ChatModel({
     required this.id,
     required this.participantIds,
+    this.isAiChat = false,
     required this.lastMessage,
     this.lastMessageSenderId,
     required this.lastMessageTime,
@@ -26,9 +28,10 @@ class ChatModel {
     return ChatModel(
       id: json['id'] as String,
       participantIds: List<String>.from(json['participant_ids'] ?? []),
+      isAiChat: json['is_ai_chat'] ?? false,
       lastMessage: json['last_message'] ?? '',
       lastMessageSenderId: json['last_message_sender_id'] as String?,
-      lastMessageTime: DateTime.parse(json['last_message_time'] as String),
+      lastMessageTime: DateTime.parse(json['updated_at'] as String),
       unreadCount: json['unread_count'] ?? 0,
       isPinned: json['is_pinned'] ?? false,
       aiChatSummary: json['ai_chat_summary'] as String?,
@@ -40,9 +43,10 @@ class ChatModel {
     return {
       'id': id,
       'participant_ids': participantIds,
+      'is_ai_chat': isAiChat,
       'last_message': lastMessage,
       'last_message_sender_id': lastMessageSenderId,
-      'last_message_time': lastMessageTime.toIso8601String(),
+      'updated_at': lastMessageTime.toIso8601String(),
       'unread_count': unreadCount,
       'is_pinned': isPinned,
       'ai_chat_summary': aiChatSummary,

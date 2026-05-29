@@ -2,7 +2,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
-import '../config/env_loader.dart';
+import '../services/sadeem_ai_service.dart';
 
 class AIAssistantScreen extends StatefulWidget {
   const AIAssistantScreen({super.key});
@@ -14,28 +14,16 @@ class AIAssistantScreen extends StatefulWidget {
 class _AIAssistantScreenState extends State<AIAssistantScreen> {
   final TextEditingController _msgController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
-  final List<Map<String, String>> _messages = [];
+  final List<Content> _chatHistory = [];
+  final List<Map<String, String>> _displayMessages = [];
   bool _isTyping = false;
-  late GenerativeModel _model;
 
   @override
   void initState() {
     super.initState();
-    // إعداد نموذج سديم الذكي
-    final apiKey =
-        EnvLoader.geminiKeys.isNotEmpty ? EnvLoader.geminiKeys.first : '';
-
-    _model = GenerativeModel(
-      model: 'gemini-1.5-flash',
-      apiKey: apiKey,
-      systemInstruction: Content.system(
-          'أنت لست مجرد نموذج لغوي، أنت المساعد الذكي الخاص بتطبيق سديم. مهمتك تقديم الإلهام للمستخدمين. أجب باختصار وأسلوب محبب.'),
-    );
-
-    _messages.add({
+    _displayMessages.add({
       'sender': 'ai',
-      'text':
-          'أهلاً بك في غرفة القيادة. أنا المُرشِد الذكي لتطبيق "سديم". كيف يمكنني مساعدتك اليوم؟'
+      'text': 'أهلاً بك! أنا سديم، رفيقك الذكي. كيف يمكنني مساعدتك وإلهامك اليوم؟ ✨'
     });
   }
 
@@ -51,28 +39,44 @@ class _AIAssistantScreenState extends State<AIAssistantScreen> {
 
     final userText = _msgController.text.trim();
     setState(() {
-      _messages.add({'sender': 'user', 'text': userText});
+      _displayMessages.add({'sender': 'user', 'text': userText});
+      _chatHistory.add(Content.text(userText));
       _isTyping = true;
     });
     _msgController.clear();
     _scrollToBottom();
 
     try {
-      final response = await _model.generateContent([Content.text(userText)]);
+      final responseStream = SadeemAiService.streamAiCompanionResponse(_chatHistory);
 
-      if (response.text != null && mounted) {
+      String aiResponse = '';
+      bool firstChunk = true;
+
+      await for (final chunk in responseStream) {
+        if (!mounted) break;
+
         setState(() {
-          _messages.add({'sender': 'ai', 'text': response.text!});
+          if (firstChunk) {
+            _displayMessages.add({'sender': 'ai', 'text': chunk});
+            firstChunk = false;
+          } else {
+            _displayMessages.last['text'] = _displayMessages.last['text']! + chunk;
+          }
         });
+        aiResponse += chunk;
         _scrollToBottom();
       }
+
+      if (aiResponse.isNotEmpty) {
+        _chatHistory.add(Content.model([TextPart(aiResponse)]));
+      }
+
     } catch (e) {
       if (mounted) {
         setState(() {
-          _messages.add({
+          _displayMessages.add({
             'sender': 'ai',
-            'text':
-                'عذراً، يبدو أن هناك تشويشاً في الاتصال عبر مجرة سديم. تحقق من المفاتيح.'
+            'text': 'عذراً، يبدو أن هناك تشويشاً في الاتصال عبر مجرة سديم. حاول مجدداً.'
           });
         });
         _scrollToBottom();
@@ -114,7 +118,7 @@ class _AIAssistantScreenState extends State<AIAssistantScreen> {
                     end: const Offset(1.1, 1.1),
                     duration: 2.seconds),
             const SizedBox(width: 8),
-            const Text('مُرشِد سديم',
+            const Text('سديم AI',
                 style: TextStyle(
                     fontWeight: FontWeight.bold, color: Colors.white)),
           ],
@@ -127,25 +131,23 @@ class _AIAssistantScreenState extends State<AIAssistantScreen> {
             child: ListView.builder(
               controller: _scrollController,
               padding: const EdgeInsets.all(16),
-              itemCount: _messages.length + (_isTyping ? 1 : 0),
+              itemCount: _displayMessages.length + (_isTyping && _displayMessages.last['sender'] == 'user' ? 1 : 0),
               itemBuilder: (context, index) {
-                if (index == _messages.length) {
+                if (index == _displayMessages.length) {
                   return const Align(
                     alignment: Alignment.centerRight,
                     child: Padding(
                       padding: EdgeInsets.symmetric(vertical: 10),
-                      child:
-                          CircularProgressIndicator(color: Colors.amberAccent),
+                      child: CircularProgressIndicator(color: Colors.amberAccent),
                     ),
                   );
                 }
 
-                final msg = _messages[index];
+                final msg = _displayMessages[index];
                 final isAI = msg['sender'] == 'ai';
 
                 return Align(
-                  alignment:
-                      isAI ? Alignment.centerRight : Alignment.centerLeft,
+                  alignment: isAI ? Alignment.centerRight : Alignment.centerLeft,
                   child: Container(
                     margin: const EdgeInsets.only(bottom: 12),
                     constraints: BoxConstraints(
@@ -174,8 +176,7 @@ class _AIAssistantScreenState extends State<AIAssistantScreen> {
                           child: Text(
                             msg['text']!,
                             style: TextStyle(
-                                color:
-                                    isAI ? Colors.amber.shade100 : Colors.white,
+                                color: isAI ? Colors.amber.shade100 : Colors.white,
                                 fontSize: 15,
                                 height: 1.5),
                           ),
@@ -188,19 +189,16 @@ class _AIAssistantScreenState extends State<AIAssistantScreen> {
             ),
           ),
 
-          // حقل الإدخال الزجاجي
+          // حقل الإدخال
           ClipRRect(
             child: BackdropFilter(
               filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
               child: Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 12)
-                        .copyWith(
-                            bottom: MediaQuery.of(context).padding.bottom + 12),
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12)
+                        .copyWith(bottom: MediaQuery.of(context).padding.bottom + 12),
                 decoration: BoxDecoration(
                   color: Colors.black.withOpacity(0.5),
-                  border: Border(
-                      top: BorderSide(color: Colors.white.withOpacity(0.1))),
+                  border: Border(top: BorderSide(color: Colors.white.withOpacity(0.1))),
                 ),
                 child: Row(
                   children: [
@@ -209,16 +207,15 @@ class _AIAssistantScreenState extends State<AIAssistantScreen> {
                         decoration: BoxDecoration(
                           color: Colors.white.withOpacity(0.05),
                           borderRadius: BorderRadius.circular(25),
-                          border:
-                              Border.all(color: Colors.white.withOpacity(0.1)),
+                          border: Border.all(color: Colors.white.withOpacity(0.1)),
                         ),
                         child: TextField(
                           controller: _msgController,
                           style: const TextStyle(color: Colors.white),
+                          onSubmitted: (_) { if(!_isTyping) _sendMessage(); },
                           decoration: InputDecoration(
-                            hintText: 'اسأل سديم...',
-                            hintStyle:
-                                TextStyle(color: Colors.white.withOpacity(0.4)),
+                            hintText: 'تحدث مع سديم...',
+                            hintStyle: TextStyle(color: Colors.white.withOpacity(0.4)),
                             border: InputBorder.none,
                             contentPadding: const EdgeInsets.symmetric(
                                 horizontal: 16, vertical: 12),
@@ -231,8 +228,9 @@ class _AIAssistantScreenState extends State<AIAssistantScreen> {
                       onTap: _isTyping ? null : _sendMessage,
                       child: Container(
                         padding: const EdgeInsets.all(12),
-                        decoration: const BoxDecoration(
-                            shape: BoxShape.circle, color: Colors.amberAccent),
+                        decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: _isTyping ? Colors.grey : Colors.amberAccent),
                         child: const Icon(Icons.auto_awesome,
                             color: Colors.black, size: 22),
                       ),

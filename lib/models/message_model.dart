@@ -3,7 +3,8 @@ class MessageModel {
   final String chatId;
   final String senderId;
   final String content;
-  final String? mediaUrl; // ✨ جديد: لدعم إرسال الصور والمقاطع الصوتية
+  final String? audioUrl; // For voice notes
+  final String? mediaUrl; // For images
   final String? replyToMessageId; // ✨ جديد: للرد على رسالة محددة
   final bool isRead; // ✨ جديد: مؤشر قراءة الرسالة
   final bool
@@ -16,10 +17,11 @@ class MessageModel {
     required this.chatId,
     required this.senderId,
     required this.content,
+    this.audioUrl,
     this.mediaUrl,
     this.replyToMessageId,
     this.isRead = false,
-    required this.isAiGenerated,
+    this.isAiGenerated = false,
     this.aiTranslation,
     required this.createdAt,
   });
@@ -29,7 +31,8 @@ class MessageModel {
       id: json['id'] as String,
       chatId: json['chat_id'] as String,
       senderId: json['sender_id'] as String,
-      content: json['content'] as String,
+      content: json['text'] ?? '',
+      audioUrl: json['audio_url'] as String?,
       mediaUrl: json['media_url'] as String?,
       replyToMessageId: json['reply_to_message_id'] as String?,
       isRead: json['is_read'] ?? false,
@@ -44,7 +47,8 @@ class MessageModel {
       'id': id,
       'chat_id': chatId,
       'sender_id': senderId,
-      'content': content,
+      'text': content,
+      'audio_url': audioUrl,
       'media_url': mediaUrl,
       'reply_to_message_id': replyToMessageId,
       'is_read': isRead,

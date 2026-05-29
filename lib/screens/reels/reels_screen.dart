@@ -1,10 +1,9 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/reels_provider.dart';
+import '../../providers/auth_provider.dart';
 import '../../widgets/shimmer_loading.dart';
 import 'reel_item.dart';
-import '../create/create_reel_screen.dart';
 
 class ReelsScreen extends StatefulWidget {
   const ReelsScreen({super.key});
@@ -21,7 +20,10 @@ class _ReelsScreenState extends State<ReelsScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<ReelsProvider>().fetchReels();
+      final authProvider = context.read<AuthProvider>();
+      if (authProvider.currentUser != null) {
+        context.read<ReelsProvider>().fetchReels(currentUserId: authProvider.currentUser!.id);
+      }
     });
   }
 
@@ -35,9 +37,7 @@ class _ReelsScreenState extends State<ReelsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
-      extendBodyBehindAppBar: true, // للسماح للريلز بالمرور خلف الـ AppBar
-
-      // ✨ شريط علوي شفاف وفخم
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -53,10 +53,8 @@ class _ReelsScreenState extends State<ReelsScreen> {
             icon: const Icon(Icons.camera_alt_outlined,
                 color: Colors.white, size: 28),
             onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => const CreateReelScreen()),
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('الرجاء استخدام شاشة الإضافة المركزية +'))
               );
             },
           ),
@@ -76,23 +74,15 @@ class _ReelsScreenState extends State<ReelsScreen> {
           }
 
           if (reelsProvider.reels.isEmpty) {
-            return PageView.builder(
-              controller: _pageController,
-              scrollDirection: Axis.vertical,
-              itemCount: 3,
-              onPageChanged: (index) {
-                setState(() {
-                  _currentPage = index;
-                });
-              },
-              itemBuilder: (context, index) {
-                return ReelItem(
-                  reel: null,
-                  dummyImage:
-                      'https://images.unsplash.com/photo-1518780664697-55e3ad937233?q=80&w=1000&auto=format&fit=crop',
-                  isActive: _currentPage == index,
-                );
-              },
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.videocam_off, color: Colors.white54, size: 64),
+                  const SizedBox(height: 16),
+                  Text('لا توجد مقاطع ريلز حتى الآن', style: TextStyle(color: Colors.grey.shade400, fontSize: 18)),
+                ],
+              ),
             );
           }
 
@@ -103,6 +93,9 @@ class _ReelsScreenState extends State<ReelsScreen> {
               setState(() {
                 _currentPage = index;
               });
+              // Track view
+              final reel = reelsProvider.reels[index];
+              reelsProvider.recordView(reel.id);
             },
             itemCount: reelsProvider.reels.length,
             itemBuilder: (context, index) {

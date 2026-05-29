@@ -15,6 +15,21 @@ class AuthProvider extends ChangeNotifier {
 
   final _supabase = SupabaseConfig.client;
 
+  AuthProvider() {
+    _initAuthState();
+  }
+
+  void _initAuthState() {
+    _supabase.auth.onAuthStateChange.listen((data) {
+      if (data.event == AuthChangeEvent.signedIn || data.event == AuthChangeEvent.initialSession) {
+        loadCurrentUser();
+      } else if (data.event == AuthChangeEvent.signedOut) {
+        _currentUser = null;
+        notifyListeners();
+      }
+    });
+  }
+
   Future<void> loadCurrentUser() async {
     final user = _supabase.auth.currentUser;
     if (user != null) {
@@ -98,11 +113,15 @@ class AuthProvider extends ChangeNotifier {
 
   Future<void> logout() async {
     if (_currentUser != null) {
-      // ✨ تسجيل الخروج وحفظ آخر ظهور
-      await _supabase.from('profiles').update({
-        'is_online': false,
-        'last_seen': DateTime.now().toIso8601String(),
-      }).eq('id', _currentUser!.id);
+      try {
+        // ✨ تسجيل الخروج وحفظ آخر ظهور
+        await _supabase.from('profiles').update({
+          'is_online': false,
+          'last_seen': DateTime.now().toIso8601String(),
+        }).eq('id', _currentUser!.id);
+      } catch (e) {
+        // Ignore errors if profile update fails on logout
+      }
     }
     await _supabase.auth.signOut();
     _currentUser = null;

@@ -9,7 +9,6 @@ import '../../widgets/animated_story_circle.dart';
 import '../../widgets/shimmer_loading.dart';
 import 'story_viewer.dart';
 import 'post_card.dart';
-import '../create/create_story_screen.dart';
 
 class FeedScreen extends StatefulWidget {
   const FeedScreen({super.key});
@@ -23,7 +22,10 @@ class _FeedScreenState extends State<FeedScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<FeedProvider>().fetchPosts();
+      final authProvider = context.read<AuthProvider>();
+      if (authProvider.currentUser != null) {
+        context.read<FeedProvider>().fetchPosts(currentUserId: authProvider.currentUser!.id);
+      }
       context.read<StoryProvider>().fetchStories();
     });
   }
@@ -34,7 +36,10 @@ class _FeedScreenState extends State<FeedScreen> {
       color: Colors.black,
       backgroundColor: Colors.amberAccent,
       onRefresh: () async {
-        await context.read<FeedProvider>().fetchPosts();
+        final authProvider = context.read<AuthProvider>();
+        if (authProvider.currentUser != null) {
+          await context.read<FeedProvider>().fetchPosts(currentUserId: authProvider.currentUser!.id);
+        }
         if (mounted) {
           await context.read<StoryProvider>().fetchStories();
         }
@@ -92,9 +97,9 @@ class _FeedScreenState extends State<FeedScreen> {
                       padding: const EdgeInsets.symmetric(
                           horizontal: 16.0, vertical: 8.0),
                       itemCount: 5,
-                      itemBuilder: (context, index) => Padding(
-                        padding: const EdgeInsets.only(right: 18.0),
-                        child: const ShimmerLoading(
+                      itemBuilder: (context, index) => const Padding(
+                        padding: EdgeInsets.only(right: 18.0),
+                        child: ShimmerLoading(
                             width: 65, height: 65, borderRadius: 32.5),
                       ),
                     );
@@ -140,10 +145,8 @@ class _FeedScreenState extends State<FeedScreen> {
                           userId != null ? storiesByUser[userId] ?? [] : [];
 
                       final isCurrentUser = userId == currentUserId;
-                      final hasUnviewed = userStories
-                          .isNotEmpty; // في تطبيق حقيقي نتحقق مما إذا كان المستخدم شاهدها
+                      final hasUnviewed = userStories.isNotEmpty;
 
-                      // في تطبيق حقيقي نجلب صورة واسم المستخدم بناءً على الـ userId
                       final imageUrl = userStories.isNotEmpty
                           ? userStories.first.mediaUrl
                           : 'https://i.pravatar.cc/150?img=${index + 10}';
@@ -157,11 +160,9 @@ class _FeedScreenState extends State<FeedScreen> {
                               hasUnviewedStory: hasUnviewed,
                               onTap: () {
                                 if (userStories.isEmpty && isCurrentUser) {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) =>
-                                            const CreateStoryScreen()),
+                                  // User can upload story in CreateScreen
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(content: Text('قم برفع قصة من شاشة الإضافة المركزية +'))
                                   );
                                 } else if (userStories.isNotEmpty) {
                                   Navigator.push(
@@ -180,7 +181,7 @@ class _FeedScreenState extends State<FeedScreen> {
                             ),
                             const SizedBox(height: 8),
                             Text(
-                              isCurrentUser ? 'قصتك' : 'مستخدم $index',
+                              isCurrentUser ? 'قصتك' : 'مستخدم',
                               style: TextStyle(
                                   color: isCurrentUser
                                       ? Colors.white
@@ -217,9 +218,9 @@ class _FeedScreenState extends State<FeedScreen> {
               if (feedProvider.isLoading && feedProvider.posts.isEmpty) {
                 return SliverList(
                   delegate: SliverChildBuilderDelegate(
-                    (context, index) => Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: const ShimmerLoading(
+                    (context, index) => const Padding(
+                      padding: EdgeInsets.all(16.0),
+                      child: ShimmerLoading(
                           width: double.infinity,
                           height: 400,
                           borderRadius: 16),

@@ -32,4 +32,16 @@ class StoryProvider extends ChangeNotifier {
       notifyListeners();
     }
   }
+
+  Future<bool> addStory(StoryModel story) async {
+    try {
+      await _supabase.from('stories').insert(story.toJson());
+      _stories.insert(0, story);
+      notifyListeners();
+      return true;
+    } catch (e) {
+      debugPrint("Error adding story: $e");
+      return false;
+    }
+  }
 }

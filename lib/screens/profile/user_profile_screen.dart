@@ -1,16 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter_animate/flutter_animate.dart';
+import '../../config/supabase_config.dart';
 import '../../models/user_model.dart';
 import '../../models/post_model.dart';
 import '../../providers/auth_provider.dart';
-import '../../config/supabase_config.dart';
 import '../../widgets/shimmer_loading.dart';
-import '../../widgets/glass_card.dart';
 import 'follows/followers_list_screen.dart';
 import 'follows/following_list_screen.dart';
-// سيتم استدعاء شاشة المحادثة هنا قريباً عند بنائها
 
 class UserProfileScreen extends StatefulWidget {
   final String userId;
@@ -27,7 +25,6 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
   List<PostModel> _posts = [];
   bool _isLoading = true;
   bool _isFollowing = false;
-  int _followersCount = 0;
 
   @override
   void initState() {
@@ -36,44 +33,18 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
   }
 
   Future<void> _fetchUserData() async {
-    final currentUserId = context.read<AuthProvider>().currentUser?.id;
-
+    setState(() => _isLoading = true);
     try {
-      // 1. جلب بيانات المستخدم الحقيقية
-      final userData = await _supabase
-          .from('profiles')
-          .select()
-          .eq('id', widget.userId)
-          .single();
-      _user = UserModel.fromJson(userData);
+      final userRes = await _supabase.from('profiles').select().eq('id', widget.userId).single();
+      _user = UserModel.fromJson(userRes);
 
-      // 2. جلب منشوراته الحقيقية
-      final postsData = await _supabase
-          .from('posts')
-          .select()
-          .eq('user_id', widget.userId)
-          .order('created_at', ascending: false);
-      _posts = (postsData as List).map((p) => PostModel.fromJson(p)).toList();
+      final postsRes = await _supabase.from('posts').select().eq('user_id', widget.userId).order('created_at', ascending: false);
+      _posts = (postsRes as List).map((p) => PostModel.fromJson(p)).toList();
 
-      // 3. التحقق من المتابعة إذا كان جدول follows موجوداً
+      final currentUserId = context.read<AuthProvider>().currentUser?.id;
       if (currentUserId != null) {
-        try {
-          final followCheck = await _supabase
-              .from('follows')
-              .select()
-              .eq('follower_id', currentUserId)
-              .eq('following_id', widget.userId)
-              .maybeSingle();
-          _isFollowing = followCheck != null;
-
-          final followersData = await _supabase
-              .from('follows')
-              .select('id')
-              .eq('following_id', widget.userId);
-          _followersCount = (followersData as List).length;
-        } catch (_) {
-          // في حال لم يتم إنشاء جدول follows بعد في Supabase
-        }
+        final followRes = await _supabase.from('follows').select().eq('follower_id', currentUserId).eq('following_id', widget.userId).maybeSingle();
+        _isFollowing = followRes != null;
       }
     } catch (e) {
       debugPrint("Error fetching user profile: $e");
@@ -88,68 +59,42 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
 
     setState(() {
       _isFollowing = !_isFollowing;
-      _followersCount += _isFollowing ? 1 : -1;
     });
 
     try {
       if (_isFollowing) {
-        await _supabase.from('follows').insert({
-          'follower_id': currentUserId,
-          'following_id': widget.userId,
-          'created_at': DateTime.now().toIso8601String(),
-        });
+        await _supabase.from('follows').insert({'follower_id': currentUserId, 'following_id': widget.userId});
       } else {
-        await _supabase
-            .from('follows')
-            .delete()
-            .eq('follower_id', currentUserId)
-            .eq('following_id', widget.userId);
+        await _supabase.from('follows').delete().eq('follower_id', currentUserId).eq('following_id', widget.userId);
       }
     } catch (e) {
-      // Revert on error
+      // Revert optimistic update
       setState(() {
         _isFollowing = !_isFollowing;
-        _followersCount += _isFollowing ? 1 : -1;
       });
+      debugPrint("Error toggling follow: $e");
     }
   }
 
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
-      return const Scaffold(
-          backgroundColor: Colors.black,
-          body: Center(
-              child: CircularProgressIndicator(color: Colors.amberAccent)));
+      return const Scaffold(backgroundColor: Colors.black, body: Center(child: CircularProgressIndicator(color: Colors.amberAccent)));
     }
 
     if (_user == null) {
-      return Scaffold(
-        backgroundColor: Colors.black,
-        appBar: AppBar(backgroundColor: Colors.black),
-        body: const Center(
-            child: Text('المستخدم غير موجود',
-                style: TextStyle(color: Colors.white))),
-      );
+      return const Scaffold(backgroundColor: Colors.black, body: Center(child: Text("المستخدم غير موجود", style: TextStyle(color: Colors.white))));
     }
 
-    final isMe = context.read<AuthProvider>().currentUser?.id == widget.userId;
+    final isMe = context.read<AuthProvider>().currentUser?.id == _user!.id;
 
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
         backgroundColor: Colors.black,
         elevation: 0,
-        title: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(_user!.username,
-                style: const TextStyle(fontWeight: FontWeight.bold)),
-            if (_user!.developerBadge) const SizedBox(width: 6),
-            if (_user!.developerBadge)
-              const Icon(Icons.verified, color: Colors.amberAccent, size: 18),
-          ],
-        ),
+        title: Text(_user!.username, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20, color: Colors.white)),
+        leading: IconButton(icon: const Icon(Icons.arrow_back, color: Colors.white), onPressed: () => Navigator.pop(context)),
       ),
       body: CustomScrollView(
         physics: const BouncingScrollPhysics(),
@@ -166,125 +111,63 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                       CircleAvatar(
                         radius: 42,
                         backgroundColor: Colors.grey.shade900,
-                        backgroundImage: _user!.avatarUrl.isNotEmpty
-                            ? NetworkImage(_user!.avatarUrl)
-                            : null,
-                        child: _user!.avatarUrl.isEmpty
-                            ? const Icon(Icons.person,
-                                size: 40, color: Colors.white54)
-                            : null,
-                      )
-                          .animate()
-                          .scale(duration: 500.ms, curve: Curves.easeOutBack),
+                        backgroundImage: _user!.avatarUrl.isNotEmpty ? NetworkImage(_user!.avatarUrl) : null,
+                        child: _user!.avatarUrl.isEmpty ? const Icon(Icons.person, color: Colors.white54, size: 40) : null,
+                      ).animate().scale(duration: 600.ms, curve: Curves.easeOutBack),
                       Expanded(
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: [
-                            _buildStatColumn(
-                                'منشورات', _posts.length.toString()),
-                            GestureDetector(
-                              onTap: () {
-                                Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) =>
-                                            FollowersListScreen(
-                                                userId: widget.userId)));
-                              },
-                              child: _buildStatColumn(
-                                  'متابعون', _followersCount.toString()),
-                            ),
-                            GestureDetector(
-                              onTap: () {
-                                Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) =>
-                                            FollowingListScreen(
-                                                userId: widget.userId)));
-                              },
-                              child: _buildStatColumn(
-                                  'يتابع', _user!.followingCount.toString()),
-                            ),
+                            _buildStatColumn('منشورات', _posts.length.toString(), () {}),
+                            _buildStatColumn('متابعون', _user!.followersCount.toString(), () {
+                              Navigator.push(context, MaterialPageRoute(builder: (_) => FollowersListScreen(userId: _user!.id, username: _user!.username)));
+                            }),
+                            _buildStatColumn('يتابع', _user!.followingCount.toString(), () {
+                              Navigator.push(context, MaterialPageRoute(builder: (_) => FollowingListScreen(userId: _user!.id, username: _user!.username)));
+                            }),
                           ],
-                        ).animate().fadeIn().slideX(begin: 0.1),
+                        ).animate().fadeIn(delay: 300.ms).slideX(begin: 0.1),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 16),
-                  Text(_user!.fullName,
-                      style: const TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16)),
-                  const SizedBox(height: 4),
-                  Text(_user!.bio.isNotEmpty ? _user!.bio : 'لا توجد نبذة.',
-                      style:
-                          TextStyle(color: Colors.grey.shade300, fontSize: 14)),
                   const SizedBox(height: 20),
+
+                  Text(_user!.fullName, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18)).animate().fadeIn(delay: 400.ms),
+                  const SizedBox(height: 6),
+                  Text(_user!.bio, style: TextStyle(color: Colors.grey.shade300, fontSize: 14, height: 1.4)).animate().fadeIn(delay: 500.ms),
+                  const SizedBox(height: 20),
+
                   if (!isMe)
-                    Row(
-                      children: [
-                        Expanded(
-                          child: ElevatedButton(
-                            onPressed: _toggleFollow,
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: _isFollowing
-                                  ? Colors.white10
-                                  : Colors.amberAccent,
-                              foregroundColor:
-                                  _isFollowing ? Colors.white : Colors.black,
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10)),
-                            ),
-                            child: Text(
-                                _isFollowing ? 'إلغاء المتابعة' : 'متابعة',
-                                style: const TextStyle(
-                                    fontWeight: FontWeight.bold)),
-                          ),
+                    SizedBox(
+                      width: double.infinity,
+                      height: 45,
+                      child: ElevatedButton(
+                        onPressed: _toggleFollow,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: _isFollowing ? Colors.white10 : Colors.amberAccent,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                         ),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: ElevatedButton(
-                            onPressed: () {
-                              // قريباً: سينتقل لشاشة الدردشة
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                      content:
-                                          Text('جاري فتح قناة الاتصال...')));
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.white10,
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10)),
-                            ),
-                            child: const Text('مراسلة',
-                                style: TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold)),
-                          ),
-                        ),
-                      ],
-                    ).animate().fadeIn(delay: 300.ms),
+                        child: Text(_isFollowing ? 'إلغاء المتابعة' : 'متابعة',
+                            style: TextStyle(color: _isFollowing ? Colors.white : Colors.black, fontWeight: FontWeight.bold)),
+                      ),
+                    ).animate().fadeIn(delay: 600.ms),
                 ],
               ),
             ),
           ),
           SliverPadding(
-            padding: const EdgeInsets.only(top: 8),
+            padding: const EdgeInsets.only(top: 8, bottom: 90),
             sliver: _posts.isEmpty
                 ? const SliverToBoxAdapter(
                     child: Center(
                       child: Padding(
                         padding: EdgeInsets.all(40.0),
-                        child: Text('لا توجد منشورات بعد.',
-                            style: TextStyle(color: Colors.white54)),
+                        child: Text('لا توجد منشورات بعد.', style: TextStyle(color: Colors.white54, fontSize: 16)),
                       ),
                     ),
                   )
                 : SliverGrid(
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
+                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 3,
                       crossAxisSpacing: 2,
                       mainAxisSpacing: 2,
@@ -294,10 +177,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                         return CachedNetworkImage(
                           imageUrl: _posts[index].imageUrl,
                           fit: BoxFit.cover,
-                          placeholder: (context, url) => const ShimmerLoading(
-                              width: double.infinity,
-                              height: double.infinity,
-                              borderRadius: 0),
+                          placeholder: (context, url) => const ShimmerLoading(width: double.infinity, height: double.infinity, borderRadius: 0),
                         ).animate().fadeIn(delay: (index * 50).ms);
                       },
                       childCount: _posts.length,
@@ -309,19 +189,17 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
     );
   }
 
-  Widget _buildStatColumn(String label, String count) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Text(count,
-            style: const TextStyle(
-                color: Colors.white,
-                fontSize: 18,
-                fontWeight: FontWeight.bold)),
-        const SizedBox(height: 2),
-        Text(label,
-            style: TextStyle(color: Colors.grey.shade400, fontSize: 13)),
-      ],
+  Widget _buildStatColumn(String label, String count, VoidCallback onTap) {
+    return InkWell(
+      onTap: onTap,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(count, style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 4),
+          Text(label, style: TextStyle(color: Colors.grey.shade400, fontSize: 14)),
+        ],
+      ),
     );
   }
 }

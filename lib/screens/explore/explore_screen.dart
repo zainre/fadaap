@@ -7,8 +7,8 @@ import '../../config/supabase_config.dart';
 import '../../models/post_model.dart';
 import '../../providers/auth_provider.dart';
 import '../../widgets/shimmer_loading.dart';
-// Note: You can tap on a post to see its details or open it in a full-screen view.
-// For now, we'll just display a beautiful staggered grid.
+// If we had a post detail screen, we would import it here.
+// But as per the codebase, we don't have one right now, so we will show a snackbar or just a dialog.
 
 class ExploreScreen extends StatefulWidget {
   const ExploreScreen({super.key});
@@ -35,16 +35,12 @@ class _ExploreScreenState extends State<ExploreScreen> {
     setState(() => _isLoading = true);
 
     try {
-      // Fetch posts, ideally from users you DO NOT follow, ordered by likes_count to get "Trending"
-      // Since complex queries requiring joins on follows table can be tricky without an RPC,
-      // we will fetch top posts globally and exclude the current user's posts.
-
       final response = await _supabase
           .from('posts')
           .select()
           .neq('user_id', currentUserId)
           .order('likes_count', ascending: false)
-          .limit(20);
+          .limit(30);
 
       setState(() {
         _trendingPosts =
@@ -63,14 +59,16 @@ class _ExploreScreenState extends State<ExploreScreen> {
       backgroundColor: Colors.black,
       appBar: AppBar(
         title: const Text('اكتشف',
-            style: TextStyle(fontWeight: FontWeight.bold, letterSpacing: 1.5)),
+            style: TextStyle(fontWeight: FontWeight.bold, letterSpacing: 1.5, color: Colors.white)),
         backgroundColor: Colors.black,
         elevation: 0,
         actions: [
           IconButton(
             icon: const Icon(Icons.search, color: Colors.white),
             onPressed: () {
-              // TODO: Navigate to search screen
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('شاشة البحث قيد التطوير...'))
+              );
             },
           ),
         ],
@@ -103,12 +101,32 @@ class _ExploreScreenState extends State<ExploreScreen> {
                     itemCount: _trendingPosts.length,
                     itemBuilder: (context, index) {
                       final post = _trendingPosts[index];
-                      // Use a staggered effect based on index
                       final isLarge = index % 3 == 0;
 
                       return GestureDetector(
                         onTap: () {
-                          // TODO: Open Post Detail Screen
+                          // Simple modal to view post
+                          showDialog(
+                            context: context,
+                            builder: (context) => Dialog(
+                              backgroundColor: Colors.transparent,
+                              insetPadding: EdgeInsets.zero,
+                              child: Stack(
+                                alignment: Alignment.center,
+                                children: [
+                                  CachedNetworkImage(imageUrl: post.imageUrl),
+                                  Positioned(
+                                    top: 40,
+                                    right: 20,
+                                    child: IconButton(
+                                      icon: const Icon(Icons.close, color: Colors.white, size: 30),
+                                      onPressed: () => Navigator.pop(context),
+                                    ),
+                                  )
+                                ],
+                              ),
+                            )
+                          );
                         },
                         child: Container(
                           decoration: BoxDecoration(
@@ -134,6 +152,12 @@ class _ExploreScreenState extends State<ExploreScreen> {
                                       color: Colors.white54),
                                 ),
                               ),
+                              if (post.mediaType == 'video')
+                                const Positioned(
+                                  top: 8,
+                                  right: 8,
+                                  child: Icon(Icons.play_circle_outline, color: Colors.white, size: 24),
+                                ),
                               Positioned(
                                 bottom: 8,
                                 left: 8,

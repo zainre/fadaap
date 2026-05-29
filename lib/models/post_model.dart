@@ -3,6 +3,7 @@ class PostModel {
   final String userId;
   final String caption;
   final String imageUrl;
+  final String mediaType; // 'image' or 'video'
   final String? location; // ✨ جديد: الموقع الجغرافي للمنشور
   final String? aiDescription; // وصف تلقائي للصورة مولد بالذكاء الاصطناعي
   final List<String> aiTags; // وسم تلقائي للمنشور (Hashtags) عبر AI
@@ -18,6 +19,7 @@ class PostModel {
     required this.userId,
     required this.caption,
     required this.imageUrl,
+    this.mediaType = 'image',
     this.location,
     this.aiDescription,
     required this.aiTags,
@@ -35,6 +37,7 @@ class PostModel {
       userId: json['user_id'] as String,
       caption: json['caption'] ?? '',
       imageUrl: json['image_url'] as String,
+      mediaType: json['media_type'] ?? 'image',
       location: json['location'] as String?,
       aiDescription: json['ai_description'] as String?,
       aiTags: List<String>.from(json['ai_tags'] ?? []),
@@ -53,6 +56,7 @@ class PostModel {
       'user_id': userId,
       'caption': caption,
       'image_url': imageUrl,
+      'media_type': mediaType,
       'location': location,
       'ai_description': aiDescription,
       'ai_tags': aiTags,
