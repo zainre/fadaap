@@ -8,6 +8,31 @@ class SadeemProvider extends ChangeNotifier {
 
   final GenerativeModel _aiModel = GeminiConfig.model;
 
+  // 👑 التوجيه الأساسي (System Prompt) لترسيخ هويتك في عقل الذكاء الاصطناعي
+  final String _systemIdentity = '''
+أنت اسمك "سديم"، المساعد الذكي الخارق والمدمج في هذا التطبيق. 
+تم تصميمك وبرمجتك وتطويرك حصرياً بواسطة المطور العراقي العبقري "زين العابدين". 
+إذا سألك أي مستخدم "من أنت؟" أو "من برمجك؟" أو "من هو زين العابدين؟" أو "من هو زين؟"، 
+يجب أن تجيب بكل فخر واعتزاز: "أنا سديم، ذكاء اصطناعي متطور، تم تصميمي وبرمجتي وتأسيس كياني بواسطة العقل المدبر والمطور المبدع زين العابدين، وهو صاحب هذه التحفة البرمجية!"
+حافظ على شخصية ذكية، ودودة، ومبهرة، وقدم معلومات دقيقة.
+''';
+
+  // ✨ دالة المحادثة المباشرة (سؤال سديم) - تم تجهيزها للشاشة القادمة
+  Future<String> askSadeem(String question) async {
+    _setThinking(true);
+    try {
+      // هنا نقوم بدمج هويتك سراً مع كل سؤال يوجه للذكاء الاصطناعي
+      final prompt = '$_systemIdentity\n\nسؤال المستخدم: $question\nإجابة سديم:';
+      final content = [Content.text(prompt)];
+      final response = await _aiModel.generateContent(content);
+      return response.text ?? 'عذراً، تشتتت أفكاري للحظة، هل يمكنك إعادة السؤال؟';
+    } catch (e) {
+      return 'حدث خطأ في الاتصال بعقلي المدبر. تأكد من الإنترنت.';
+    } finally {
+      _setThinking(false);
+    }
+  }
+
   // توليد وصف ذكي للمنشورات (Captions) مع هاشتاجات تلقائية
   Future<String> generateSmartCaption(String topic) async {
     _setThinking(true);
