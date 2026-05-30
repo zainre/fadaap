@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/chat_model.dart';
@@ -9,7 +10,7 @@ class ChatProvider extends ChangeNotifier {
   List<MessageModel> _currentMessages = [];
   bool _isLoading = false;
   String? _errorMessage;
-  RealtimeChannel? _messagesSubscription;
+  StreamSubscription<List<Map<String, dynamic>>>? _messagesSubscription;
 
   // Cache for peer profiles to avoid N+1 queries
   final Map<String, Map<String, dynamic>> _peerProfiles = {};
@@ -103,7 +104,7 @@ class ChatProvider extends ChangeNotifier {
     _errorMessage = null;
     notifyListeners();
 
-    await _messagesSubscription?.unsubscribe();
+    await _messagesSubscription?.cancel();
 
     try {
       _messagesSubscription = _supabase
@@ -162,7 +163,7 @@ class ChatProvider extends ChangeNotifier {
 
   @override
   void dispose() {
-    _messagesSubscription?.unsubscribe();
+    _messagesSubscription?.cancel();
     super.dispose();
   }
 }
