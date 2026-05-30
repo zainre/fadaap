@@ -300,7 +300,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
               maxLines: null,
               decoration: const InputDecoration(
                 hintText: 'اكتب وصفاً لإبداعك...',
-                hintStyle: TextStyle(color: Colors.white34),
+                hintStyle: TextStyle(color: Colors.white38),
                 border: InputBorder.none,
               ),
             ).animate().fadeIn(delay: 200.ms),

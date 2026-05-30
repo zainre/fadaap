@@ -6,7 +6,7 @@ import 'package:uuid/uuid.dart';
 import 'package:video_player/video_player.dart';
 import '../../config/supabase_config.dart';
 import '../../providers/auth_provider.dart';
-import '../../models/reel_model.dart';
+import '../../models/post_model.dart';
 import '../../providers/reels_provider.dart';
 
 class CreateReelScreen extends StatefulWidget {
@@ -55,19 +55,21 @@ class _CreateReelScreenState extends State<CreateReelScreen> {
       final publicUrl =
           SupabaseConfig.client.storage.from('reels').getPublicUrl(fileName);
 
-      final reel = ReelModel(
+      final reel = PostModel(
         id: const Uuid().v4(),
         userId: userId,
-        videoUrl: publicUrl,
+        imageUrl: publicUrl, // We store video URLs in imageUrl field
+        mediaType: 'video',
         caption: _captionController.text,
-        aiTargetAudience: [],
+        aiTags: [],
         createdAt: DateTime.now(),
       );
 
-      await SupabaseConfig.client.from('reels').insert(reel.toJson());
+      // Save to posts table instead of reels table to match provider
+      await SupabaseConfig.client.from('posts').insert(reel.toJson());
 
       if (mounted) {
-        context.read<ReelsProvider>().fetchReels();
+        context.read<ReelsProvider>().fetchReels(currentUserId: userId);
         Navigator.pop(context);
       }
     } catch (e) {
