@@ -4,6 +4,7 @@ import '../../providers/reels_provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../widgets/shimmer_loading.dart';
 import 'reel_item.dart';
+import '../create/create_reel_screen.dart';
 
 class ReelsScreen extends StatefulWidget {
   const ReelsScreen({super.key});
@@ -53,8 +54,9 @@ class _ReelsScreenState extends State<ReelsScreen> {
             icon: const Icon(Icons.camera_alt_outlined,
                 color: Colors.white, size: 28),
             onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('الرجاء استخدام شاشة الإضافة المركزية +'))
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const CreateReelScreen()),
               );
             },
           ),
@@ -70,6 +72,34 @@ class _ReelsScreenState extends State<ReelsScreen> {
                   width: double.infinity,
                   height: double.infinity,
                   borderRadius: 0),
+            );
+          }
+
+          if (reelsProvider.errorMessage != null) {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.error_outline,
+                      color: Colors.redAccent, size: 80),
+                  const SizedBox(height: 16),
+                  Text(reelsProvider.errorMessage!,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                          color: Colors.white, fontSize: 16)),
+                  const SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: () {
+                      final userId = context.read<AuthProvider>().currentUser?.id;
+                      if (userId != null) {
+                        reelsProvider.fetchReels(currentUserId: userId);
+                      }
+                    },
+                    style: ElevatedButton.styleFrom(backgroundColor: Colors.amberAccent),
+                    child: const Text('إعادة المحاولة', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
+                  )
+                ],
+              ),
             );
           }
 

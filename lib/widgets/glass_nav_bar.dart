@@ -41,34 +41,51 @@ class GlassNavBar extends StatelessWidget {
     );
   }
 
-  // ✨ زر سديم المركزي
+  // ✨ زر سديم المركزي (AI Centerpiece)
   Widget _buildSadeemCenterButton(int index) {
     final isActive = currentIndex == index;
     return GestureDetector(
       onTap: () => onTap(index),
       behavior: HitTestBehavior.opaque,
       child: Container(
-        padding: const EdgeInsets.all(12),
+        padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
           color: isActive
-              ? Colors.amberAccent.withOpacity(0.15)
-              : Colors.transparent,
+              ? Colors.amberAccent.withOpacity(0.2)
+              : Colors.amberAccent.withOpacity(0.05),
           shape: BoxShape.circle,
           boxShadow: isActive
               ? [
                   BoxShadow(
-                      color: Colors.amberAccent.withOpacity(0.2),
-                      blurRadius: 15)
+                      color: Colors.amberAccent.withOpacity(0.6),
+                      blurRadius: 20,
+                      spreadRadius: 2),
+                  BoxShadow(
+                      color: Colors.amberAccent.withOpacity(0.3),
+                      blurRadius: 30,
+                      spreadRadius: 5),
                 ]
-              : [],
+              : [
+                  BoxShadow(
+                      color: Colors.amberAccent.withOpacity(0.2),
+                      blurRadius: 10,
+                      spreadRadius: 1),
+                ],
+          border: Border.all(
+            color: isActive ? Colors.amberAccent : Colors.amberAccent.withOpacity(0.5),
+            width: isActive ? 2 : 1,
+          ),
         ),
         child: Icon(
-          Icons.blur_on, // أيقونة سديم
-          color: isActive ? Colors.amberAccent : Colors.white70,
-          size: 34, // أكبر قليلاً من الأزرار العادية
-        ).animate(onPlay: (c) => c.repeat(reverse: true)).scale(
+          Icons.auto_awesome, // Changed to a more AI-oriented icon
+          color: isActive ? Colors.white : Colors.amberAccent.withOpacity(0.8),
+          size: 36, // Larger to stand out
+        )
+        .animate(onPlay: (c) => c.repeat(reverse: true))
+        .shimmer(duration: 2.seconds, color: Colors.white)
+        .scale(
             begin: const Offset(0.95, 0.95),
-            end: const Offset(1.05, 1.05),
+            end: const Offset(1.1, 1.1),
             duration: 2.seconds),
       ),
     );

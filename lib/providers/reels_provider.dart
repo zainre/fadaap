@@ -5,12 +5,14 @@ import '../config/supabase_config.dart';
 class ReelsProvider extends ChangeNotifier {
   List<PostModel> _reels = [];
   bool _isLoading = false;
+  String? _errorMessage;
 
   final Set<String> _likedReelIds = {};
   final Set<String> _savedReelIds = {};
 
   List<PostModel> get reels => _reels;
   bool get isLoading => _isLoading;
+  String? get errorMessage => _errorMessage;
 
   bool isReelLiked(String reelId) => _likedReelIds.contains(reelId);
   bool isReelSaved(String reelId) => _savedReelIds.contains(reelId);
@@ -19,6 +21,7 @@ class ReelsProvider extends ChangeNotifier {
 
   Future<void> fetchReels({required String currentUserId}) async {
     _isLoading = true;
+    _errorMessage = null;
     notifyListeners();
     try {
       final response = await _supabase
@@ -43,6 +46,7 @@ class ReelsProvider extends ChangeNotifier {
       }
 
     } catch (e) {
+      _errorMessage = "حدث خطأ أثناء جلب الريلز. الرجاء المحاولة لاحقاً.";
       debugPrint("Error fetching reels: $e");
     } finally {
       _isLoading = false;

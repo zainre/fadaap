@@ -33,20 +33,20 @@ class PostModel {
 
   factory PostModel.fromJson(Map<String, dynamic> json) {
     return PostModel(
-      id: json['id'] as String,
-      userId: json['user_id'] as String,
-      caption: json['caption'] ?? '',
-      imageUrl: json['image_url'] as String,
-      mediaType: json['media_type'] ?? 'image',
+      id: json['id'] as String? ?? '',
+      userId: json['user_id'] as String? ?? '',
+      caption: json['caption'] as String? ?? '',
+      imageUrl: json['image_url'] as String? ?? '',
+      mediaType: json['media_type'] as String? ?? 'image',
       location: json['location'] as String?,
       aiDescription: json['ai_description'] as String?,
       aiTags: List<String>.from(json['ai_tags'] ?? []),
-      likesCount: json['likes_count'] ?? 0,
-      commentsCount: json['comments_count'] ?? 0,
-      sharesCount: json['shares_count'] ?? 0,
-      savesCount: json['saves_count'] ?? 0,
-      hasAiModerationFlag: json['has_ai_moderation_flag'] ?? false,
-      createdAt: DateTime.parse(json['created_at'] as String),
+      likesCount: json['likes_count'] as int? ?? 0,
+      commentsCount: json['comments_count'] as int? ?? 0,
+      sharesCount: json['shares_count'] as int? ?? 0,
+      savesCount: json['saves_count'] as int? ?? 0,
+      hasAiModerationFlag: json['has_ai_moderation_flag'] as bool? ?? false,
+      createdAt: json['created_at'] != null ? DateTime.tryParse(json['created_at'].toString()) ?? DateTime.now() : DateTime.now(),
     );
   }
 

@@ -37,24 +37,24 @@ class UserModel {
   // تحويل البيانات القادمة من Supabase (Map) إلى كائن برمجى (Object)
   factory UserModel.fromJson(Map<String, dynamic> json) {
     return UserModel(
-      id: json['id'] as String,
-      username: json['username'] as String,
-      fullName: json['full_name'] as String,
-      email: json['email'] as String,
-      avatarUrl: json['avatar_url'] ?? '',
-      bio: json['bio'] ?? '',
-      followersCount: json['followers_count'] ?? 0,
-      followingCount: json['following_count'] ?? 0,
-      isVerified: json['is_verified'] ?? false,
-      isOnline: json['is_online'] ?? false,
+      id: json['id'] as String? ?? '',
+      username: json['username'] as String? ?? '',
+      fullName: json['full_name'] as String? ?? '',
+      email: json['email'] as String? ?? '',
+      avatarUrl: json['avatar_url'] as String? ?? '',
+      bio: json['bio'] as String? ?? '',
+      followersCount: json['followers_count'] as int? ?? 0,
+      followingCount: json['following_count'] as int? ?? 0,
+      isVerified: json['is_verified'] as bool? ?? false,
+      isOnline: json['is_online'] as bool? ?? false,
       lastSeen: json['last_seen'] != null
-          ? DateTime.parse(json['last_seen'] as String)
+          ? DateTime.tryParse(json['last_seen'].toString())
           : null,
       aiAvatarUrl: json['ai_avatar_url'] as String?,
       aiInterestsSummary: json['ai_interests_summary'] as String?,
       // 🔒 التعديل الأمني: القيمة تؤخذ مباشرة من الخادم لمنع التلاعب عبر الكود المحمل على الهاتف
-      developerBadge: json['developer_badge'] ?? false,
-      createdAt: DateTime.parse(json['created_at'] as String),
+      developerBadge: json['developer_badge'] as bool? ?? false,
+      createdAt: json['created_at'] != null ? DateTime.tryParse(json['created_at'].toString()) ?? DateTime.now() : DateTime.now(),
     );
   }
 

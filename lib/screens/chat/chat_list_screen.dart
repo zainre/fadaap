@@ -49,7 +49,9 @@ class _ChatListScreenState extends State<ChatListScreen> {
       ),
       body: chatProvider.isLoading && chatProvider.chats.isEmpty
           ? _buildLoading()
-          : chatProvider.chats.isEmpty
+          : chatProvider.errorMessage != null
+              ? _buildErrorState(chatProvider.errorMessage!)
+              : chatProvider.chats.isEmpty
               ? _buildEmptyState()
               : ListView.builder(
                   itemCount: chatProvider.chats.length,
@@ -139,6 +141,21 @@ class _ChatListScreenState extends State<ChatListScreen> {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildErrorState(String errorMessage) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Icon(Icons.error_outline,
+              size: 80, color: Colors.redAccent),
+          const SizedBox(height: 16),
+          Text(errorMessage,
+              style: const TextStyle(color: Colors.white, fontSize: 16)),
+        ],
+      ).animate().fadeIn(),
     );
   }
 

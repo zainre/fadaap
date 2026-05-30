@@ -10,6 +10,8 @@ class StoryProvider extends ChangeNotifier {
   List<StoryModel> get stories => _stories;
   Map<String, List<StoryModel>> get storiesByUser => _storiesByUser;
   bool get isLoading => _isLoading;
+  String? _errorMessage;
+  String? get errorMessage => _errorMessage;
 
   final _supabase = SupabaseConfig.client;
 
@@ -34,6 +36,7 @@ class StoryProvider extends ChangeNotifier {
 
   Future<void> fetchStories() async {
     _isLoading = true;
+    _errorMessage = null;
     notifyListeners();
     try {
       final now = DateTime.now().toIso8601String();
@@ -48,6 +51,7 @@ class StoryProvider extends ChangeNotifier {
           .toList();
       _updateGroupedStories();
     } catch (e) {
+      _errorMessage = "حدث خطأ أثناء جلب القصص.";
       debugPrint("Error fetching stories: $e");
     } finally {
       _isLoading = false;

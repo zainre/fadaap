@@ -28,17 +28,17 @@ class MessageModel {
 
   factory MessageModel.fromJson(Map<String, dynamic> json) {
     return MessageModel(
-      id: json['id'] as String,
-      chatId: json['chat_id'] as String,
-      senderId: json['sender_id'] as String,
-      content: json['text'] ?? '',
+      id: json['id'] as String? ?? '',
+      chatId: json['chat_id'] as String? ?? '',
+      senderId: json['sender_id'] as String? ?? '',
+      content: json['text'] as String? ?? '',
       audioUrl: json['audio_url'] as String?,
       mediaUrl: json['media_url'] as String?,
       replyToMessageId: json['reply_to_message_id'] as String?,
-      isRead: json['is_read'] ?? false,
-      isAiGenerated: json['is_ai_generated'] ?? false,
+      isRead: json['is_read'] as bool? ?? false,
+      isAiGenerated: json['is_ai_generated'] as bool? ?? false,
       aiTranslation: json['ai_translation'] as String?,
-      createdAt: DateTime.parse(json['created_at'] as String),
+      createdAt: json['created_at'] != null ? DateTime.tryParse(json['created_at'].toString()) ?? DateTime.now() : DateTime.now(),
     );
   }
 
