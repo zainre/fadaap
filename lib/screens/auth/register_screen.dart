@@ -182,22 +182,64 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         },
                       ).animate().fadeIn(delay: 500.ms).slideX(),
                       const SizedBox(height: 32),
-                      ElevatedButton(
-                        onPressed: isLoading ? null : _handleRegister,
-                        style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.amberAccent),
-                        child: isLoading
-                            ? const SizedBox(
-                                height: 20,
-                                width: 20,
-                                child: CircularProgressIndicator(
-                                    color: Colors.black, strokeWidth: 2))
-                            : const Text('إنشاء حساب',
-                                style: TextStyle(
-                                    color: Colors.black,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 18)),
+                      SizedBox(
+                        height: 55,
+                        child: ElevatedButton(
+                          onPressed: isLoading ? null : _handleRegister,
+                          style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.amberAccent),
+                          child: isLoading
+                              ? const SizedBox(
+                                  height: 24,
+                                  width: 24,
+                                  child: CircularProgressIndicator(
+                                      color: Colors.black, strokeWidth: 2))
+                              : const Text('إنشاء حساب',
+                                  style: TextStyle(
+                                      color: Colors.black,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 18)),
+                        ),
                       ).animate().fadeIn(delay: 600.ms).slideY(),
+
+                      const SizedBox(height: 16),
+                      // زر التسجيل بواسطة جوجل
+                      SizedBox(
+                        width: double.infinity,
+                        height: 55,
+                        child: OutlinedButton.icon(
+                          onPressed: isLoading ? null : () async {
+                            final authProvider = context.read<AuthProvider>();
+                            final success = await authProvider.signInWithGoogle();
+                            if (success && mounted) {
+                              Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(builder: (context) => const SadeemCenterScreen()),
+                              );
+                            } else if (mounted && authProvider.errorMessage != null) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(authProvider.errorMessage!,
+                                      style: const TextStyle(color: Colors.white)),
+                                  backgroundColor: Colors.redAccent,
+                                ),
+                              );
+                            }
+                          },
+                          icon: const Icon(Icons.g_mobiledata, size: 36, color: Colors.white),
+                          label: const Text('التسجيل باستخدام Google',
+                              style: TextStyle(color: Colors.white, fontSize: 16)),
+                          style: OutlinedButton.styleFrom(
+                            side: const BorderSide(color: Colors.white30),
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12)),
+                          ),
+                        ),
+                      )
+                          .animate()
+                          .fadeIn(delay: 700.ms)
+                          .scale(begin: const Offset(0.9, 0.9)),
+
                       const SizedBox(height: 20),
                       TextButton(
                         onPressed: () => Navigator.pushReplacement(
@@ -206,7 +248,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                 builder: (_) => const LoginScreen())),
                         child: const Text('لديك حساب بالفعل؟ تسجيل الدخول',
                             style: TextStyle(color: Colors.white70)),
-                      ).animate().fadeIn(delay: 700.ms),
+                      ).animate().fadeIn(delay: 800.ms),
                     ],
                   ),
                 ),
