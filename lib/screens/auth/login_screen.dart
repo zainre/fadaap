@@ -178,6 +178,44 @@ class _LoginScreenState extends State<LoginScreen> {
                           .animate()
                           .fadeIn(delay: 600.ms)
                           .scale(begin: const Offset(0.9, 0.9)),
+
+                      const SizedBox(height: 16),
+                      // زر الدخول بواسطة جوجل
+                      SizedBox(
+                        width: double.infinity,
+                        height: 55,
+                        child: OutlinedButton.icon(
+                          onPressed: isLoading ? null : () async {
+                            final authProvider = context.read<AuthProvider>();
+                            final success = await authProvider.signInWithGoogle();
+                            if (success && mounted) {
+                              Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(builder: (context) => const SadeemCenterScreen()),
+                              );
+                            } else if (mounted && authProvider.errorMessage != null) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(authProvider.errorMessage!,
+                                      style: const TextStyle(color: Colors.white)),
+                                  backgroundColor: Colors.grey.shade900,
+                                ),
+                              );
+                            }
+                          },
+                          icon: const Icon(Icons.g_mobiledata, size: 36, color: Colors.white),
+                          label: const Text('الدخول باستخدام Google',
+                              style: TextStyle(color: Colors.white, fontSize: 16)),
+                          style: OutlinedButton.styleFrom(
+                            side: const BorderSide(color: Colors.white30),
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12)),
+                          ),
+                        ),
+                      )
+                          .animate()
+                          .fadeIn(delay: 700.ms)
+                          .scale(begin: const Offset(0.9, 0.9)),
                     ],
                   ),
                 ),

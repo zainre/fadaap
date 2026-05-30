@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
+import 'package:firebase_core/firebase_core.dart';
+
 import 'config/env_loader.dart';
 import 'config/supabase_config.dart';
 import 'config/gemini_config.dart';
@@ -51,8 +53,10 @@ void main() async {
 
   try {
     WidgetsFlutterBinding.ensureInitialized();
+    await Firebase.initializeApp();
     await EnvLoader.init();
     await SupabaseConfig.init();
+    await SupabaseConfig.client.auth.signOut(); // One-time cleanup for migration
     GeminiConfig.init();
 
     runApp(
