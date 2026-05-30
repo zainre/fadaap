@@ -8,6 +8,7 @@ class ChatProvider extends ChangeNotifier {
   List<ChatModel> _chats = [];
   List<MessageModel> _currentMessages = [];
   bool _isLoading = false;
+  String? _errorMessage;
   RealtimeChannel? _messagesSubscription;
 
   // Cache for peer profiles to avoid N+1 queries
@@ -16,6 +17,7 @@ class ChatProvider extends ChangeNotifier {
   List<ChatModel> get chats => _chats;
   List<MessageModel> get currentMessages => _currentMessages;
   bool get isLoading => _isLoading;
+  String? get errorMessage => _errorMessage;
 
   final _supabase = SupabaseConfig.client;
 
@@ -47,64 +49,86 @@ class ChatProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> fetchUserChats(String userId) async {
+  Future<void> fetchUserChats(String? userId) async {
+    if (userId == null || userId.isEmpty) return;
+
     _isLoading = true;
+    _errorMessage = null;
     notifyListeners();
     try {
       _supabase
           .from('chats')
           .stream(primaryKey: ['id'])
           .order('updated_at', ascending: false) // Assuming updated_at aligns with lastMessageTime in DB
-          .listen((data) {
-            _chats = data
-                .where((chat) =>
-                    (chat['participant_ids'] as List).contains(userId))
-                .map((chat) => ChatModel.fromJson(chat))
-                .toList();
+          .listen(
+            (data) {
+              _isLoading = false;
+              _chats = data
+                  .where((chat) =>
+                      (chat['participant_ids'] as List).contains(userId))
+                  .map((chat) => ChatModel.fromJson(chat))
+                  .toList();
 
-            // Extract unique peer IDs from loaded chats
-            final Set<String> peerIds = {};
-            for (var chat in _chats) {
-              final peerId = chat.participantIds.firstWhere((id) => id != userId, orElse: () => userId);
-              if (peerId != userId) {
-                peerIds.add(peerId);
+              // Extract unique peer IDs from loaded chats
+              final Set<String> peerIds = {};
+              for (var chat in _chats) {
+                final peerId = chat.participantIds.firstWhere((id) => id != userId, orElse: () => userId);
+                if (peerId != userId) {
+                  peerIds.add(peerId);
+                }
               }
-            }
 
-            // Batch load the missing profiles
-            loadPeerProfiles(peerIds.toList());
+              // Batch load the missing profiles
+              loadPeerProfiles(peerIds.toList());
 
-            notifyListeners();
-          });
+              notifyListeners();
+            },
+            onError: (error) {
+              _isLoading = false;
+              _errorMessage = "حدث خطأ أثناء جلب المحادثات.";
+              debugPrint("Error in chats stream: $error");
+              notifyListeners();
+            },
+          );
     } catch (e) {
-      debugPrint("Error fetching chats: $e");
-    } finally {
       _isLoading = false;
+      _errorMessage = "حدث خطأ أثناء الاتصال بالمحادثات.";
+      debugPrint("Error fetching chats: $e");
       notifyListeners();
     }
   }
 
   Future<void> fetchMessages(String chatId) async {
     _isLoading = true;
+    _errorMessage = null;
     notifyListeners();
 
     await _messagesSubscription?.unsubscribe();
 
     try {
-      _supabase
+      _messagesSubscription = _supabase
           .from('messages')
           .stream(primaryKey: ['id'])
           .eq('chat_id', chatId)
           .order('created_at', ascending: true)
-          .listen((data) {
-            _currentMessages =
-                data.map((msg) => MessageModel.fromJson(msg)).toList();
-            notifyListeners();
-          });
+          .listen(
+            (data) {
+              _isLoading = false;
+              _currentMessages =
+                  data.map((msg) => MessageModel.fromJson(msg)).toList();
+              notifyListeners();
+            },
+            onError: (error) {
+              _isLoading = false;
+              _errorMessage = "حدث خطأ أثناء جلب الرسائل.";
+              debugPrint("Error in messages stream: $error");
+              notifyListeners();
+            },
+          );
     } catch (e) {
-      debugPrint("Error fetching messages: $e");
-    } finally {
       _isLoading = false;
+      _errorMessage = "حدث خطأ أثناء الاتصال بالرسائل.";
+      debugPrint("Error fetching messages: $e");
       notifyListeners();
     }
   }

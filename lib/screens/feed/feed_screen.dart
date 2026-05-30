@@ -7,6 +7,7 @@ import '../../providers/story_provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../widgets/animated_story_circle.dart';
 import '../../widgets/shimmer_loading.dart';
+import '../create/create_story_screen.dart';
 import 'story_viewer.dart';
 import 'post_card.dart';
 
@@ -148,11 +149,10 @@ class _FeedScreenState extends State<FeedScreen> {
                               hasUnviewedStory: hasUnviewed,
                               onTap: () {
                                 if (userStories.isEmpty && isCurrentUser) {
-                                  // User can upload story in CreateScreen
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
-                                          content: Text(
-                                              'قم برفع قصة من شاشة الإضافة المركزية +')));
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(builder: (context) => const CreateStoryScreen()),
+                                  );
                                 } else if (userStories.isNotEmpty) {
                                   Navigator.push(
                                     context,
@@ -219,6 +219,44 @@ class _FeedScreenState extends State<FeedScreen> {
                 );
               }
 
+              if (feedProvider.errorMessage != null) {
+                return SliverFillRemaining(
+                  child: Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(Icons.error_outline,
+                                color: Colors.redAccent, size: 80)
+                            .animate()
+                            .shake(),
+                        const SizedBox(height: 16),
+                        const Text('عذراً!',
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold)),
+                        const SizedBox(height: 8),
+                        Text(feedProvider.errorMessage!,
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                                color: Colors.grey.shade500, fontSize: 14)),
+                        const SizedBox(height: 16),
+                        ElevatedButton(
+                          onPressed: () {
+                            final userId = context.read<AuthProvider>().currentUser?.id;
+                            if (userId != null) {
+                              feedProvider.fetchPosts(currentUserId: userId);
+                            }
+                          },
+                          style: ElevatedButton.styleFrom(backgroundColor: Colors.amberAccent),
+                          child: const Text('إعادة المحاولة', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
+                        )
+                      ],
+                    ),
+                  ),
+                );
+              }
+
               if (feedProvider.posts.isEmpty) {
                 return SliverFillRemaining(
                   child: Center(
@@ -236,7 +274,7 @@ class _FeedScreenState extends State<FeedScreen> {
                                 fontSize: 20,
                                 fontWeight: FontWeight.bold)),
                         const SizedBox(height: 8),
-                        Text('لا توجد منشورات حتى الآن.',
+                        Text('لا توجد منشورات حتى الآن. كن أول من يشارك!',
                             style: TextStyle(
                                 color: Colors.grey.shade500, fontSize: 14)),
                       ],

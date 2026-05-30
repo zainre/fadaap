@@ -5,6 +5,7 @@ import '../config/supabase_config.dart';
 class FeedProvider extends ChangeNotifier {
   List<PostModel> _posts = [];
   bool _isLoading = false;
+  String? _errorMessage;
 
   // Optimistic UI state
   final Set<String> _likedPostIds = {};
@@ -12,6 +13,7 @@ class FeedProvider extends ChangeNotifier {
 
   List<PostModel> get posts => _posts;
   bool get isLoading => _isLoading;
+  String? get errorMessage => _errorMessage;
 
   bool isPostLiked(String postId) => _likedPostIds.contains(postId);
   bool isPostSaved(String postId) => _savedPostIds.contains(postId);
@@ -20,6 +22,7 @@ class FeedProvider extends ChangeNotifier {
 
   Future<void> fetchPosts({required String currentUserId}) async {
     _isLoading = true;
+    _errorMessage = null;
     notifyListeners();
     try {
       final response = await _supabase
@@ -44,6 +47,7 @@ class FeedProvider extends ChangeNotifier {
       }
 
     } catch (e) {
+      _errorMessage = "حدث خطأ أثناء جلب المنشورات. الرجاء المحاولة لاحقاً.";
       debugPrint("Error fetching posts: $e");
     } finally {
       _isLoading = false;

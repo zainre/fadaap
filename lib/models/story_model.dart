@@ -31,19 +31,19 @@ class StoryModel {
 
   factory StoryModel.fromJson(Map<String, dynamic> json) {
     return StoryModel(
-      id: json['id'] as String,
-      userId: json['user_id'] as String,
-      mediaUrl: json['media_url'] as String,
-      isVideo: json['is_video'] ?? false,
-      viewsCount: json['views_count'] ?? 0,
-      likesCount: json['likes_count'] ?? 0,
-      repliesCount: json['replies_count'] ?? 0,
+      id: json['id'] as String? ?? '',
+      userId: json['user_id'] as String? ?? '',
+      mediaUrl: json['media_url'] as String? ?? '',
+      isVideo: json['is_video'] as bool? ?? false,
+      viewsCount: json['views_count'] as int? ?? 0,
+      likesCount: json['likes_count'] as int? ?? 0,
+      repliesCount: json['replies_count'] as int? ?? 0,
       viewersIds: List<String>.from(json['viewers_ids'] ?? []),
-      isHighlight: json['is_highlight'] ?? false,
+      isHighlight: json['is_highlight'] as bool? ?? false,
       aiTags: json['ai_tags'] != null ? List<String>.from(json['ai_tags']) : [],
       aiCaption: json['ai_caption'] as String?,
-      expiresAt: DateTime.parse(json['expires_at'] as String),
-      createdAt: DateTime.parse(json['created_at'] as String),
+      expiresAt: json['expires_at'] != null ? DateTime.tryParse(json['expires_at'].toString()) ?? DateTime.now() : DateTime.now(),
+      createdAt: json['created_at'] != null ? DateTime.tryParse(json['created_at'].toString()) ?? DateTime.now() : DateTime.now(),
     );
   }
 

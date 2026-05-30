@@ -26,14 +26,14 @@ class ChatModel {
 
   factory ChatModel.fromJson(Map<String, dynamic> json) {
     return ChatModel(
-      id: json['id'] as String,
+      id: json['id'] as String? ?? '',
       participantIds: List<String>.from(json['participant_ids'] ?? []),
-      isAiChat: json['is_ai_chat'] ?? false,
-      lastMessage: json['last_message'] ?? '',
+      isAiChat: json['is_ai_chat'] as bool? ?? false,
+      lastMessage: json['last_message'] as String? ?? '',
       lastMessageSenderId: json['last_message_sender_id'] as String?,
-      lastMessageTime: DateTime.parse(json['updated_at'] as String),
-      unreadCount: json['unread_count'] ?? 0,
-      isPinned: json['is_pinned'] ?? false,
+      lastMessageTime: json['updated_at'] != null ? DateTime.tryParse(json['updated_at'].toString()) ?? DateTime.now() : DateTime.now(),
+      unreadCount: json['unread_count'] as int? ?? 0,
+      isPinned: json['is_pinned'] as bool? ?? false,
       aiChatSummary: json['ai_chat_summary'] as String?,
       aiChatMood: json['ai_chat_mood'] as String?,
     );
